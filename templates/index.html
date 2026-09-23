@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>SolarGuard AI - Live YOLOv8 Web Dashboard</title>
+  <style>
+    body { background-color: #0b0f19; color: #f8fafc; font-family: 'Segoe UI', sans-serif; padding: 25px; margin: 0; }
+    .header { border-bottom: 1px solid #1e293b; padding-bottom: 15px; margin-bottom: 25px; }
+    h1 { margin: 0; color: #38bdf8; font-size: 26px; }
+    .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 25px; }
+    .card { background: #161f30; padding: 18px; border-radius: 10px; border: 1px solid #24324c; text-align: center; }
+    .card h3 { margin: 0 0 8px 0; color: #94a3b8; font-size: 13px; text-transform: uppercase; }
+    .card p { margin: 0; font-size: 26px; font-weight: bold; }
+    .alert-val { color: #ef4444; }
+    .normal-val { color: #22c55e; }
+    .workspace { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .panel { background: #161f30; padding: 20px; border-radius: 10px; border: 1px solid #24324c; }
+    .upload-btn { display: block; width: 100%; padding: 14px; background: #0284c7; border: none; border-radius: 8px; color: white; font-weight: bold; cursor: pointer; margin-top: 15px; font-size: 15px; }
+    .upload-btn:hover { background: #0369a1; }
+    .preview-box { width: 100%; min-height: 320px; background: #070a12; border-radius: 8px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+    .preview-box img { max-width: 100%; height: auto; }
+    table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+    th, td { padding: 10px; border-bottom: 1px solid #24324c; text-align: left; font-size: 14px; }
+    th { color: #94a3b8; }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <h1>☀️ SolarGuard Vision - Live AI Inference</h1>
+    <small style="color: #64748b;">Powered by Local YOLOv8 (best.pt) Engine</small>
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <h3>System Status</h3>
+      <p id="txtStatus" class="normal-val">READY</p>
+    </div>
+    <div class="card">
+      <h3>Faults Detected</h3>
+      <p id="txtCount">0</p>
+    </div>
+    <div class="card">
+      <h3>Active Model</h3>
+      <p style="color: #38bdf8; font-size: 20px; margin-top: 6px;">YOLOv8 best.pt</p>
+    </div>
+  </div>
+
+  <div class="workspace">
+    <div class="panel">
+      <h3 style="color: #38bdf8; margin-top: 0;">1. Thermal Photo Input</h3>
+      <input type="file" id="imageInput" accept="image/*" style="display: none;">
+      <button class="upload-btn" onclick="document.getElementById('imageInput').click()">Select Thermal Image File</button>
+      <div id="fileName" style="margin-top: 10px; color: #94a3b8; font-size: 13px;">No file selected.</div>
+      <button class="upload-btn" id="btnRun" style="background: #10b981; margin-top: 20px;">Run YOLOv8 Detection</button>
+
+      <h3 style="color: #38bdf8; margin-top: 25px;">2. Defect Breakdown</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Defect Classification</th>
+            <th>Confidence</th>
+          </tr>
+        </thead>
+        <tbody id="faultRows">
+          <tr><td colspan="2" style="text-align: center; color: #64748b;">No data yet.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="panel">
+      <h3 style="color: #38bdf8; margin-top: 0;">3. Visual Detection Output (Model Annotations)</h3>
+      <div class="preview-box">
+        <img id="outputImg" src="" style="display: none;" />
+        <span id="holderTxt" style="color: #64748b;">Annotated result will appear here.</span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const imageInput = document.getElementById('imageInput');
+    let selectedFile = null;
+
+    imageInput.addEventListener('change', (e) => {
+      if (e.target.files.length > 0) {
+        selectedFile = e.target.files[0];
+        document.getElementById('fileName').innerText = "Selected: " + selectedFile.name;
+      }
+    });
+
+    document.getElementById('btnRun').addEventListener('click', async () => {
+      if (!selectedFile) {
+        alert("Please choose an image first!");
+        return;
+      }
+
+      document.getElementById('holderTxt').innerText = "Running YOLOv8 inference...";
+      document.getElementById('holderTxt').style.display = "block";
+      document.getElementById('outputImg').style.display = "none";
+
+      const formData = new FormData();
+      formData.append("file", selectedFile);
+
+      try {
+        const response = await fetch("/predict", {
+          method: "POST",
+          body: formData
+        });
+
+        const data = await response.json();
+
+        // Update cards
+        const st = document.getElementById('txtStatus');
+        st.innerText = data.status;
+        st.className = data.status === "ALERT" ? "alert-val" : "normal-val";
+        document.getElementById('txtCount').innerText = data.total_faults;
+
+        // Display image
+        const img = document.getElementById('outputImg');
+        img.src = data.image_data;
+        img.style.display = "block";
+        document.getElementById('holderTxt').style.display = "none";
+
+        // Display table
+        const tbody = document.getElementById('faultRows');
+        tbody.innerHTML = "";
+        if (data.faults.length > 0) {
+          data.faults.forEach(f => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `<td><span style="color:#ef4444; font-weight:bold;">${f.type}</span></td><td>${f.confidence}%</td>`;
+            tbody.appendChild(tr);
+          });
+        } else {
+          tbody.innerHTML = `<tr><td colspan="2" style="text-align: center; color:#22c55e;">Clean panel! No thermal hotspots detected.</td></tr>`;
+        }
+
+      } catch (err) {
+        alert("Inference failed: Check Python terminal.");
+        console.error(err);
+      }
+    });
+  </script>
+</body>
+</html>
