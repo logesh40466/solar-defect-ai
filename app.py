@@ -25,7 +25,7 @@ def predict():
   img = Image.open(io.BytesIO(img_bytes)).convert("RGB")
 
   # Run inference with best.pt
-  results = model.predict(source=img, conf=0.25)
+  results = model.predict(source=img, conf=0.25, imgsz=320)
   res = results[0]
 
   # Draw bounding boxes
