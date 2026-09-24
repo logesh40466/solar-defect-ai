@@ -50,9 +50,10 @@
     .btn-auth:hover { background: #334155; }
     .user-pill { display: none; align-items: center; gap: 8px; background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.3); padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 600; color: var(--primary); }
 
-    /* Alert Banner */
-    #alertBanner { display: none; background: rgba(239, 68, 68, 0.15); border: 1px solid var(--danger); border-radius: 10px; padding: 12px 18px; margin-bottom: 20px; align-items: center; justify-content: space-between; gap: 12px; animation: pulse 2s infinite; }
-    @keyframes pulse { 0%, 100% { box-shadow: 0 0 0 rgba(239, 68, 68, 0); } 50% { box-shadow: 0 0 16px rgba(239, 68, 68, 0.3); } }
+    /* Incident Notification Banner */
+    #alertBanner { display: none; background: rgba(239, 68, 68, 0.15); border: 1px solid var(--danger); border-radius: 10px; padding: 14px 18px; margin-bottom: 22px; align-items: center; justify-content: space-between; gap: 14px; }
+    .btn-notify { background: var(--danger); color: white; border: none; padding: 10px 18px; border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px; box-shadow: 0 0 14px rgba(239, 68, 68, 0.4); }
+    .btn-notify:hover { opacity: 0.9; }
 
     /* KPI Cards */
     .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; margin-bottom: 24px; }
@@ -88,7 +89,6 @@
     .btn-run { background: linear-gradient(135deg, #0284c7, #0ea5e9); color: white; margin-top: 10px; display: none; box-shadow: 0 4px 20px rgba(14, 165, 233, 0.4); }
     .btn-run:disabled { background: #334155; color: #64748b; cursor: not-allowed; }
     .btn-report { background: rgba(56, 189, 248, 0.1); color: var(--primary); border: 1px solid rgba(56, 189, 248, 0.3); width: auto; padding: 8px 16px; font-size: 13px; display: none; }
-    .btn-notify { background: var(--danger); color: white; border: none; padding: 7px 14px; border-radius: 6px; font-size: 12px; font-weight: 700; cursor: pointer; }
 
     /* Table */
     table { width: 100%; border-collapse: collapse; margin-top: 12px; }
@@ -142,14 +142,14 @@
 
   <!-- Incident Notification Banner -->
   <div id="alertBanner">
-    <div style="display: flex; align-items: center; gap: 10px;">
-      <span style="font-size: 20px;">🚨</span>
+    <div style="display: flex; align-items: center; gap: 12px;">
+      <span style="font-size: 26px;">🚨</span>
       <div>
-        <div style="font-weight: 700; font-size: 13px; color: #fecaca;">CRITICAL CELL OVERHEATING DETECTED</div>
-        <div style="font-size: 12px; color: #cbd5e1;">Thermal runaway risk on localized sub-strings. Automatic dispatch recommended.</div>
+        <div style="font-weight: 800; font-size: 14px; color: #fecaca; letter-spacing: 0.3px;">CRITICAL CELL OVERHEATING DETECTED</div>
+        <div style="font-size: 12px; color: #cbd5e1; margin-top: 2px;">Thermal runaway risk on localized sub-strings. Push live notification to technician.</div>
       </div>
     </div>
-    <button class="btn-notify" onclick="sendDirectAlert()">📲 Dispatch Alert</button>
+    <button class="btn-notify" onclick="sendDirectAlert()">💬 Dispatch Alert (WhatsApp)</button>
   </div>
 
   <!-- Telemetry Metrics Grid -->
@@ -268,9 +268,9 @@
       <div class="modal-title">Engineer Authorization</div>
       <input type="text" id="engName" class="modal-input" placeholder="Field Engineer Name (e.g., Logesh)">
       <input type="text" id="plantId" class="modal-input" placeholder="Plant ID (e.g., TN-CBE-SOLAR-01)">
-      <input type="tel" id="engPhone" class="modal-input" placeholder="Alert Phone Number (+91...)">
+      <input type="tel" id="engPhone" class="modal-input" placeholder="Mobile / WhatsApp (+91...)">
       <div class="modal-btn-row">
-        <button class="btn btn-select" onclick="saveEngineerProfile()" style="background: var(--accent); color: white;">Register / Set Active</button>
+        <button class="btn btn-select" onclick="saveEngineerProfile()" style="background: var(--accent); color: white;">Save & Activate</button>
         <button class="btn btn-select" onclick="toggleAuthModal()">Cancel</button>
       </div>
     </div>
@@ -308,7 +308,7 @@
 
     let mountedFile = null;
 
-    // Load stored profile
+    // Load active engineer profile
     window.onload = function() {
       const stored = localStorage.getItem('solaris_engineer');
       if (stored) {
@@ -316,7 +316,7 @@
         userBadge.innerText = `👤 Eng. ${u.name} (${u.plant})`;
         userBadge.style.display = 'inline-flex';
         authBtn.innerText = "Switch Profile";
-        woEngineer.innerText = u.name + " (" + u.phone + ")";
+        woEngineer.innerText = `${u.name} (${u.phone})`;
       }
     };
 
@@ -325,9 +325,9 @@
     }
 
     function saveEngineerProfile() {
-      const name = document.getElementById('engName').value || 'Logesh';
-      const plant = document.getElementById('plantId').value || 'CBE-Array-01';
-      const phone = document.getElementById('engPhone').value || '+91 98765 43210';
+      const name = document.getElementById('engName').value.trim() || 'Logesh';
+      const plant = document.getElementById('plantId').value.trim() || 'CBE-Array-01';
+      const phone = document.getElementById('engPhone').value.trim() || '+91 98765 43210';
 
       const profile = { name, plant, phone };
       localStorage.setItem('solaris_engineer', JSON.stringify(profile));
@@ -337,12 +337,31 @@
       authBtn.innerText = "Switch Profile";
       woEngineer.innerText = `${name} (${phone})`;
       toggleAuthModal();
-      alert(`✅ Profile authorized for Solar Asset Dispatch! Active Engineer: ${name}`);
+      alert(`✅ Profile authorized! Notifications will route to: ${phone}`);
     }
 
     function sendDirectAlert() {
-      const profile = JSON.parse(localStorage.getItem('solaris_engineer') || '{"phone":"Field Unit"}');
-      alert(`🔔 SMS & Email Alert Dispatched successfully to ${profile.phone || 'Technician Desk'}!\nWork Order Ref: ${woNumber.innerText}\nStatus: Technician On Route.`);
+      const stored = localStorage.getItem('solaris_engineer');
+      const profile = stored ? JSON.parse(stored) : { name: "Logesh", phone: "919876543210", plant: "Coimbatore Array B" };
+      const wo = woNumber.innerText;
+      const count = defectCount.innerText;
+
+      let phoneNum = (profile.phone || '').replace(/[^0-9]/g, '');
+      if (phoneNum.length === 10) phoneNum = "91" + phoneNum;
+      if (!phoneNum) phoneNum = "919876543210";
+
+      const textMsg = `🚨 *SOLARIS AI — EMERGENCY DISPATCH*\n----------------------------------\n⚠️ *Severity:* CRITICAL THERMAL ANOMALY\n🔢 *Faults:* ${count} Overheated Cell Clusters\n📋 *Work-Order:* ${wo}\n📍 *Plant Segment:* ${profile.plant || 'Coimbatore Sub-Array B'}\n👷 *Assigned Lead:* ${profile.name || 'On-Duty Tech'}\n----------------------------------\nImmediate sub-string bypass isolation required to eliminate fire risk!`;
+
+      // Log dispatch to backend API
+      fetch('/send_alert', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone: profile.phone, ticket_id: wo, fault_count: count })
+      });
+
+      // Directly trigger WhatsApp with pre-filled emergency ticket
+      const waUrl = `https://wa.me/${phoneNum}?text=${encodeURIComponent(textMsg)}`;
+      window.open(waUrl, '_blank');
     }
 
     fileInput.addEventListener('change', function(e) {
@@ -386,8 +405,6 @@
 
         if (data.image_data) {
           annotatedView.src = data.image_data;
-        } else if (data.image) {
-          annotatedView.src = 'data:image/jpeg;base64,' + data.image;
         }
 
         let count = 0;
@@ -451,7 +468,7 @@
             woSeverity.style.color = "var(--danger)";
             woAction.innerText = "Severe localized heating detected. Isolate sub-string immediately to eliminate fire risk. Check bypass diodes.";
             
-            // Trigger Critical Alert Banner
+            // Show Critical Alert Banner
             alertBanner.style.display = 'flex';
           }
         }
