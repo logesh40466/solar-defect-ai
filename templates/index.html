@@ -22,10 +22,10 @@
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
-    body { background-color: var(--bg); color: var(--text-main); padding: 28px; min-height: 100vh; background-image: radial-gradient(rgba(56, 189, 248, 0.04) 1px, transparent 0); background-size: 24px 24px; }
+    body { background-color: var(--bg); color: var(--text-main); padding: 24px; min-height: 100vh; background-image: radial-gradient(rgba(56, 189, 248, 0.04) 1px, transparent 0); background-size: 24px 24px; }
 
-    /* Top Navigation / Brand */
-    .navbar { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--card-border); padding-bottom: 20px; margin-bottom: 26px; flex-wrap: wrap; gap: 16px; }
+    /* Top Navigation */
+    .navbar { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--card-border); padding-bottom: 18px; margin-bottom: 22px; flex-wrap: wrap; gap: 14px; }
     .brand-wrap { display: flex; align-items: center; gap: 14px; }
     .brand-logo { 
       width: 44px; height: 44px; border-radius: 10px; 
@@ -45,15 +45,23 @@
     .live-dot { width: 7px; height: 7px; border-radius: 50%; background-color: var(--success); box-shadow: 0 0 8px var(--success); }
     .brand-sub { color: var(--text-muted); font-size: 13px; font-weight: 500; margin-top: 2px; }
 
+    .nav-actions { display: flex; align-items: center; gap: 12px; }
+    .btn-auth { background: #1e293b; color: #f8fafc; border: 1px solid rgba(255,255,255,0.1); padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; transition: 0.2s; }
+    .btn-auth:hover { background: #334155; }
+    .user-pill { display: none; align-items: center; gap: 8px; background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.3); padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 600; color: var(--primary); }
+
+    /* Alert Banner */
+    #alertBanner { display: none; background: rgba(239, 68, 68, 0.15); border: 1px solid var(--danger); border-radius: 10px; padding: 12px 18px; margin-bottom: 20px; align-items: center; justify-content: space-between; gap: 12px; animation: pulse 2s infinite; }
+    @keyframes pulse { 0%, 100% { box-shadow: 0 0 0 rgba(239, 68, 68, 0); } 50% { box-shadow: 0 0 16px rgba(239, 68, 68, 0.3); } }
+
     /* KPI Cards */
-    .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 26px; }
+    .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; margin-bottom: 24px; }
     .kpi-card { 
       background: var(--card-bg); border: 1px solid var(--card-border); 
-      border-radius: 14px; padding: 20px; backdrop-filter: blur(12px);
-      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3); transition: transform 0.2s ease;
+      border-radius: 12px; padding: 18px; backdrop-filter: blur(12px);
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
     }
-    .kpi-card:hover { transform: translateY(-2px); border-color: rgba(56, 189, 248, 0.3); }
-    .kpi-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+    .kpi-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
     .kpi-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-muted); }
     .kpi-val { font-size: 26px; font-weight: 800; letter-spacing: -0.8px; font-family: 'JetBrains Mono', monospace; }
     
@@ -62,56 +70,54 @@
     .pill-yellow { background: rgba(245, 158, 11, 0.15); color: var(--warning); border: 1px solid rgba(245, 158, 11, 0.3); }
     .pill-red { background: rgba(239, 68, 68, 0.15); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.3); }
 
-    .health-bar-bg { width: 100%; height: 6px; background: rgba(255, 255, 255, 0.08); border-radius: 10px; margin-top: 12px; overflow: hidden; }
+    .health-bar-bg { width: 100%; height: 6px; background: rgba(255, 255, 255, 0.08); border-radius: 10px; margin-top: 10px; overflow: hidden; }
     .health-bar-fill { height: 100%; width: 100%; background: var(--success); transition: width 0.6s ease, background-color 0.6s ease; }
 
-    /* Layout Content */
-    .main-workspace { display: grid; grid-template-columns: 1fr 1.3fr; gap: 24px; }
+    /* Layout Workspace */
+    .main-workspace { display: grid; grid-template-columns: 1fr 1.3fr; gap: 20px; }
     @media (max-width: 950px) { .main-workspace { grid-template-columns: 1fr; } }
 
-    .section-card { 
-      background: var(--card-bg); border: 1px solid var(--card-border); 
-      border-radius: 14px; padding: 24px; backdrop-filter: blur(12px);
-    }
+    .section-card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 12px; padding: 22px; backdrop-filter: blur(12px); }
     .sec-tag { font-size: 11px; font-weight: 800; color: var(--primary); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
-    .sec-title { font-size: 16px; font-weight: 700; margin-bottom: 16px; color: #fff; }
+    .sec-title { font-size: 16px; font-weight: 700; margin-bottom: 14px; color: #fff; }
 
-    /* Actions & Buttons */
-    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 13px 18px; border-radius: 10px; font-size: 14px; font-weight: 700; cursor: pointer; border: none; transition: 0.2s ease; }
+    /* Buttons */
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 12px 18px; border-radius: 8px; font-size: 14px; font-weight: 700; cursor: pointer; border: none; transition: 0.2s ease; }
     .btn-select { background: #1e293b; color: #f8fafc; border: 1px solid rgba(255,255,255,0.1); }
     .btn-select:hover { background: #334155; }
     .btn-run { background: linear-gradient(135deg, #0284c7, #0ea5e9); color: white; margin-top: 10px; display: none; box-shadow: 0 4px 20px rgba(14, 165, 233, 0.4); }
-    .btn-run:hover { opacity: 0.95; }
-    .btn-run:disabled { background: #334155; color: #64748b; box-shadow: none; cursor: not-allowed; }
-    .btn-report { background: rgba(56, 189, 248, 0.1); color: var(--primary); border: 1px solid rgba(56, 189, 248, 0.3); width: auto; padding: 9px 18px; font-size: 13px; display: none; }
-    .btn-report:hover { background: rgba(56, 189, 248, 0.2); }
+    .btn-run:disabled { background: #334155; color: #64748b; cursor: not-allowed; }
+    .btn-report { background: rgba(56, 189, 248, 0.1); color: var(--primary); border: 1px solid rgba(56, 189, 248, 0.3); width: auto; padding: 8px 16px; font-size: 13px; display: none; }
+    .btn-notify { background: var(--danger); color: white; border: none; padding: 7px 14px; border-radius: 6px; font-size: 12px; font-weight: 700; cursor: pointer; }
 
     /* Table */
-    table { width: 100%; border-collapse: collapse; margin-top: 14px; }
-    th { text-align: left; padding: 10px 14px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-muted); border-bottom: 1px solid var(--card-border); }
-    td { padding: 14px; font-size: 13px; border-bottom: 1px solid rgba(255,255,255,0.03); color: #cbd5e1; }
+    table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+    th { text-align: left; padding: 10px 12px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-muted); border-bottom: 1px solid var(--card-border); }
+    td { padding: 12px; font-size: 13px; border-bottom: 1px solid rgba(255,255,255,0.03); color: #cbd5e1; }
     .conf-badge { font-family: 'JetBrains Mono', monospace; font-weight: 700; color: #38bdf8; }
 
-    /* Visualizer Frame */
-    .viewer-frame { 
-      border: 2px dashed rgba(255,255,255,0.1); border-radius: 12px; min-height: 340px; 
-      display: flex; align-items: center; justify-content: center; background: #04060a; 
-      position: relative; overflow: hidden;
-    }
-    .viewer-frame img { width: 100%; height: auto; display: block; border-radius: 8px; }
-    .empty-state { text-align: center; color: #475569; font-size: 13px; font-weight: 500; }
+    /* Visualizer */
+    .viewer-frame { border: 2px dashed rgba(255,255,255,0.1); border-radius: 10px; min-height: 330px; display: flex; align-items: center; justify-content: center; background: #04060a; overflow: hidden; }
+    .viewer-frame img { width: 100%; height: auto; display: block; border-radius: 6px; }
 
-    /* Automated Work-Order Ticket */
-    .work-order { background: rgba(2, 6, 23, 0.8); border: 1px solid rgba(56, 189, 248, 0.2); border-radius: 12px; padding: 18px; margin-top: 22px; display: none; }
+    /* Work Order */
+    .work-order { background: rgba(2, 6, 23, 0.8); border: 1px solid rgba(56, 189, 248, 0.2); border-radius: 10px; padding: 16px; margin-top: 20px; display: none; }
     .wo-row { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 12px; }
     .wo-lbl { color: var(--text-muted); text-transform: uppercase; font-size: 11px; font-weight: 700; }
     .wo-data { font-family: 'JetBrains Mono', monospace; font-weight: 700; color: #fff; }
     .wo-instruct { background: rgba(239, 68, 68, 0.1); border-left: 3px solid var(--danger); padding: 10px 12px; border-radius: 4px; font-size: 12px; color: #cbd5e1; margin-top: 10px; line-height: 1.5; }
 
+    /* Auth Modal */
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); z-index: 100; align-items: center; justify-content: center; }
+    .modal-box { background: #111827; border: 1px solid var(--card-border); border-radius: 14px; width: 90%; max-width: 400px; padding: 24px; box-shadow: 0 10px 40px rgba(0,0,0,0.5); }
+    .modal-title { font-size: 18px; font-weight: 700; color: #fff; margin-bottom: 14px; }
+    .modal-input { width: 100%; background: #0b0f19; border: 1px solid var(--card-border); border-radius: 8px; padding: 10px 12px; color: #fff; font-size: 14px; margin-bottom: 12px; }
+    .modal-btn-row { display: flex; gap: 10px; margin-top: 8px; }
+
     @media print {
       body { background: white !important; color: black !important; padding: 0; }
       .navbar, .kpi-card, .section-card, .work-order { background: white !important; border: 1px solid #ccc !important; box-shadow: none !important; color: black !important; }
-      .btn, #fileInput, .live-badge { display: none !important; }
+      .btn, #fileInput, .live-badge, .nav-actions, #alertBanner { display: none !important; }
       .kpi-label, .sec-tag, .wo-lbl, th, td, h1, .brand-sub { color: #000 !important; }
     }
   </style>
@@ -124,10 +130,26 @@
       <div class="brand-logo">☀️</div>
       <div class="brand-text">
         <h1>SOLARIS <span>AI</span> <div class="live-badge"><span class="live-dot"></span> EDGE READY</div></h1>
-        <div class="brand-sub">Autonomous Thermographic Anomaly Localization & O&M Work-Order System</div>
+        <div class="brand-sub">Autonomous Thermographic Anomaly Localization & O&M Dispatch Suite</div>
       </div>
     </div>
-    <button id="pdfBtn" class="btn btn-report" onclick="window.print()">📥 Export Compliance Report (PDF)</button>
+    <div class="nav-actions">
+      <div id="userBadge" class="user-pill">👤 Eng. Guest (Demo)</div>
+      <button id="authBtn" class="btn-auth" onclick="toggleAuthModal()">Sign In / Profile</button>
+      <button id="pdfBtn" class="btn btn-report" onclick="window.print()">📥 Export PDF Report</button>
+    </div>
+  </div>
+
+  <!-- Incident Notification Banner -->
+  <div id="alertBanner">
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <span style="font-size: 20px;">🚨</span>
+      <div>
+        <div style="font-weight: 700; font-size: 13px; color: #fecaca;">CRITICAL CELL OVERHEATING DETECTED</div>
+        <div style="font-size: 12px; color: #cbd5e1;">Thermal runaway risk on localized sub-strings. Automatic dispatch recommended.</div>
+      </div>
+    </div>
+    <button class="btn-notify" onclick="sendDirectAlert()">📲 Dispatch Alert</button>
   </div>
 
   <!-- Telemetry Metrics Grid -->
@@ -174,9 +196,8 @@
     </div>
   </div>
 
-  <!-- Main Inspection Area -->
+  <!-- Workspace -->
   <div class="main-workspace">
-    <!-- Left Column: Controls & Ticket -->
     <div class="section-card">
       <div class="sec-tag">Step 01 / Image Telemetry</div>
       <div class="sec-title">Thermal Sensor Payload</div>
@@ -189,7 +210,7 @@
 
       <button id="runBtn" class="btn btn-run">⚡ Execute YOLOv8 Deep Diagnostics</button>
 
-      <div class="sec-tag" style="margin-top: 28px;">Step 02 / Telemetry Breakdown</div>
+      <div class="sec-tag" style="margin-top: 26px;">Step 02 / Telemetry Breakdown</div>
       <div class="sec-title">Classified Thermal Anomalies</div>
 
       <table>
@@ -201,7 +222,7 @@
         </thead>
         <tbody id="defect-table">
           <tr>
-            <td colspan="2" style="text-align: center; color: var(--text-muted); padding: 24px;">No diagnostic run active</td>
+            <td colspan="2" style="text-align: center; color: var(--text-muted); padding: 22px;">No diagnostic run active</td>
           </tr>
         </tbody>
       </table>
@@ -218,8 +239,8 @@
           <span id="woSeverity" class="wo-data" style="color: var(--danger);">CRITICAL DISPATCH</span>
         </div>
         <div class="wo-row">
-          <span class="wo-lbl">Sub-System</span>
-          <span class="wo-data">Photovoltaic Array Segment B</span>
+          <span class="wo-lbl">Assigned Technician</span>
+          <span id="woEngineer" class="wo-data">Field Duty Unit 01</span>
         </div>
         <div id="woAction" class="wo-instruct">
           Immediate field intervention required. Disconnect bypass string to prevent thermal runaway.
@@ -227,16 +248,30 @@
       </div>
     </div>
 
-    <!-- Right Column: Visualizer -->
+    <!-- Right: Visualizer -->
     <div class="section-card">
       <div class="sec-tag">Deep Learning Vision</div>
       <div class="sec-title">Module Anomaly Localization Map</div>
 
       <div class="viewer-frame">
-        <div id="emptyHint" class="empty-state">
+        <div id="emptyHint" style="text-align: center; color: #475569; font-size: 13px;">
           📡 Awaiting thermal image load...<br>Visual bounding boxes will render here.
         </div>
         <img id="annotatedView" style="display: none;">
+      </div>
+    </div>
+  </div>
+
+  <!-- Sign In / Register Modal -->
+  <div id="authModal" class="modal-overlay">
+    <div class="modal-box">
+      <div class="modal-title">Engineer Authorization</div>
+      <input type="text" id="engName" class="modal-input" placeholder="Field Engineer Name (e.g., Logesh)">
+      <input type="text" id="plantId" class="modal-input" placeholder="Plant ID (e.g., TN-CBE-SOLAR-01)">
+      <input type="tel" id="engPhone" class="modal-input" placeholder="Alert Phone Number (+91...)">
+      <div class="modal-btn-row">
+        <button class="btn btn-select" onclick="saveEngineerProfile()" style="background: var(--accent); color: white;">Register / Set Active</button>
+        <button class="btn btn-select" onclick="toggleAuthModal()">Cancel</button>
       </div>
     </div>
   </div>
@@ -260,12 +295,55 @@
     const moneyLoss = document.getElementById('money-loss');
     const defectTable = document.getElementById('defect-table');
 
+    const alertBanner = document.getElementById('alertBanner');
     const workOrderCard = document.getElementById('workOrderCard');
     const woNumber = document.getElementById('woNumber');
     const woSeverity = document.getElementById('woSeverity');
     const woAction = document.getElementById('woAction');
+    const woEngineer = document.getElementById('woEngineer');
+
+    const authModal = document.getElementById('authModal');
+    const userBadge = document.getElementById('userBadge');
+    const authBtn = document.getElementById('authBtn');
 
     let mountedFile = null;
+
+    // Load stored profile
+    window.onload = function() {
+      const stored = localStorage.getItem('solaris_engineer');
+      if (stored) {
+        const u = JSON.parse(stored);
+        userBadge.innerText = `👤 Eng. ${u.name} (${u.plant})`;
+        userBadge.style.display = 'inline-flex';
+        authBtn.innerText = "Switch Profile";
+        woEngineer.innerText = u.name + " (" + u.phone + ")";
+      }
+    };
+
+    function toggleAuthModal() {
+      authModal.style.display = authModal.style.display === 'flex' ? 'none' : 'flex';
+    }
+
+    function saveEngineerProfile() {
+      const name = document.getElementById('engName').value || 'Logesh';
+      const plant = document.getElementById('plantId').value || 'CBE-Array-01';
+      const phone = document.getElementById('engPhone').value || '+91 98765 43210';
+
+      const profile = { name, plant, phone };
+      localStorage.setItem('solaris_engineer', JSON.stringify(profile));
+
+      userBadge.innerText = `👤 Eng. ${name} (${plant})`;
+      userBadge.style.display = 'inline-flex';
+      authBtn.innerText = "Switch Profile";
+      woEngineer.innerText = `${name} (${phone})`;
+      toggleAuthModal();
+      alert(`✅ Profile authorized for Solar Asset Dispatch! Active Engineer: ${name}`);
+    }
+
+    function sendDirectAlert() {
+      const profile = JSON.parse(localStorage.getItem('solaris_engineer') || '{"phone":"Field Unit"}');
+      alert(`🔔 SMS & Email Alert Dispatched successfully to ${profile.phone || 'Technician Desk'}!\nWork Order Ref: ${woNumber.innerText}\nStatus: Technician On Route.`);
+    }
 
     fileInput.addEventListener('change', function(e) {
       const file = e.target.files[0];
@@ -280,6 +358,7 @@
       annotatedView.src = URL.createObjectURL(file);
       annotatedView.style.display = 'block';
       emptyHint.style.display = 'none';
+      alertBanner.style.display = 'none';
     });
 
     runBtn.addEventListener('click', async function() {
@@ -305,14 +384,12 @@
 
         const data = await response.json();
 
-        // 1. Image Render
         if (data.image_data) {
           annotatedView.src = data.image_data;
         } else if (data.image) {
           annotatedView.src = 'data:image/jpeg;base64,' + data.image;
         }
 
-        // 2. Count calculations
         let count = 0;
         if (data.total_faults !== undefined) count = Number(data.total_faults);
         else if (data.faults) count = data.faults.length;
@@ -328,7 +405,6 @@
         powerLoss.innerText = loss > 0 ? "~" + loss + "%" : "0.0%";
         moneyLoss.innerText = revenue > 0 ? "₹" + revenue.toLocaleString() : "₹0";
 
-        // 3. Status Badges & Tickets
         if (count === 0) {
           systemStatus.innerText = "OPTIMAL";
           systemStatus.style.color = "var(--success)";
@@ -340,6 +416,7 @@
           defectBadge.innerText = "0 HOTSPOTS";
           defectBadge.className = "status-pill pill-green";
           workOrderCard.style.display = 'none';
+          alertBanner.style.display = 'none';
         } else {
           workOrderCard.style.display = 'block';
           woNumber.innerText = "WO-" + Math.floor(100000 + Math.random() * 900000) + "-PV";
@@ -357,7 +434,8 @@
 
             woSeverity.innerText = "MEDIUM / SCHEDULED INSPECTION";
             woSeverity.style.color = "var(--warning)";
-            woAction.innerText = "Minor hot-spotting detected. Schedule string resistance measurement and surface cleaning during next preventive cycle.";
+            woAction.innerText = "Minor hot-spotting detected. Schedule string resistance measurement during next maintenance cycle.";
+            alertBanner.style.display = 'none';
           } else {
             systemStatus.innerText = "CRITICAL RISK";
             systemStatus.style.color = "var(--danger)";
@@ -371,11 +449,13 @@
 
             woSeverity.innerText = "HIGH / IMMEDIATE DISPATCH";
             woSeverity.style.color = "var(--danger)";
-            woAction.innerText = "Severe localized heating detected. Isolate sub-string immediately to eliminate fire risk. Check bypass diodes & busbar solder bonds.";
+            woAction.innerText = "Severe localized heating detected. Isolate sub-string immediately to eliminate fire risk. Check bypass diodes.";
+            
+            // Trigger Critical Alert Banner
+            alertBanner.style.display = 'flex';
           }
         }
 
-        // 4. Faults Table
         defectTable.innerHTML = '';
         let faultsList = data.faults || [];
         if (faultsList.length > 0) {
