@@ -24,7 +24,7 @@ def predict():
     img = Image.open(io.BytesIO(img_bytes)).convert("RGB")
 
     # Run inference
-    results = model.predict(source=img, conf=0.25, imgsz=320)
+    results = model.predict(source=img, conf=0.15, imgsz=640)
     res = results[0]
 
     # Draw bounding boxes
