@@ -15,20 +15,24 @@ model = YOLO("best.pt")
 # Fast2SMS API Key
 FAST2SMS_KEY = "6wLBQDbeHNzdm4JZysoOrcnkgXua32Y1pFS8xW5vGKIUjfPMT0YQzZOmbJCyfWvTscxahMkuAVdRwG7j"
 
-def send_instant_sms(phone, message_text):
+def send_instant_sms(target_phone, message_text):
     """
-    Direct Telecom Carrier SMS via Fast2SMS OTP Route
-    Bypasses DLT block for instant mobile delivery.
+    Direct Telecom Carrier SMS via Fast2SMS OTP Route.
+    Dynamically routes to whichever phone number the user logs in with.
     """
-    clean_phone = "".join(filter(str.isdigit, str(phone)))
+    # Clean non-digit characters
+    clean_phone = "".join(filter(str.isdigit, str(target_phone)))
     if len(clean_phone) > 10:
         clean_phone = clean_phone[-10:]
-    if not clean_phone or len(clean_phone) < 10:
-        clean_phone = "9344042534"
+    
+    # Validation check: must be a valid 10-digit mobile number
+    if not clean_phone or len(clean_phone) != 10:
+        print(f"[FAST2SMS REJECT] Invalid mobile number: {target_phone}")
+        return {"return": False, "message": "Invalid 10-digit mobile number"}
 
     url = "https://www.fast2sms.com/dev/bulkV2"
     
-    # Fast2SMS OTP route (Instant telecom dispatch)
+    # Fast2SMS OTP route (Instant telecom dispatch to the logged-in user)
     params = {
         "authorization": FAST2SMS_KEY,
         "variables_values": "9112",
@@ -38,7 +42,7 @@ def send_instant_sms(phone, message_text):
 
     try:
         response = requests.get(url, params=params, timeout=10)
-        print(f"[FAST2SMS STATUS] Sent to {clean_phone} -> {response.text}")
+        print(f"[FAST2SMS STATUS] Dispatched to logged-in user {clean_phone} -> {response.text}")
         return response.json()
     except Exception as e:
         print(f"[FAST2SMS ERROR] {e}")
@@ -51,17 +55,20 @@ def index():
 @app.route("/send_alert", methods=["POST"])
 def send_alert():
     data = request.get_json() or {}
-    phone = data.get("phone", "9344042534")
+    
+    # Dynamically extract whichever number was entered in the login/profile modal
+    logged_in_phone = data.get("phone", "")
     ticket_id = data.get("ticket_id", "WO-ALERT")
     fault_count = data.get("fault_count", 1)
 
     sms_body = f"SOLARIS AI ALERT: {fault_count} Critical Hotspots detected! WorkOrder: {ticket_id}. String isolation required."
     
-    api_res = send_instant_sms(phone, sms_body)
+    # Send directly to the active user's phone number
+    api_res = send_instant_sms(logged_in_phone, sms_body)
 
     return jsonify({
         "status": "SENT",
-        "target": phone,
+        "target_user_phone": logged_in_phone,
         "ticket": ticket_id,
         "gateway_response": api_res
     })
