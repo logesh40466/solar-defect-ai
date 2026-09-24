@@ -3,38 +3,53 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SolarGuard AI - Live YOLOv8 Web Dashboard</title>
+  <title>SolarGuard AI - Industrial Vision Dashboard</title>
   <style>
     body { background-color: #0b0f19; color: #f8fafc; font-family: 'Segoe UI', sans-serif; padding: 24px; margin: 0; }
-    .header { border-bottom: 1px solid #1e293b; padding-bottom: 15px; margin-bottom: 25px; }
-    h1 { margin: 0; color: #38bdf8; font-size: 26px; }
-    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 25px; }
+    .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #1e293b; padding-bottom: 15px; margin-bottom: 25px; flex-wrap: wrap; gap: 10px; }
+    h1 { margin: 0; color: #38bdf8; font-size: 24px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 25px; }
     .card { background: #161f30; padding: 18px; border-radius: 10px; border: 1px solid #24324c; }
-    .card h3 { margin: 0 0 8px 0; color: #94a3b8; font-size: 13px; text-transform: uppercase; }
-    .card p { margin: 0; font-size: 24px; font-weight: bold; }
+    .card h3 { margin: 0 0 8px 0; color: #94a3b8; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .card p { margin: 0; font-size: 22px; font-weight: bold; }
     .alert-val { color: #ef4444; }
+    .warning-val { color: #f59e0b; }
     .normal-val { color: #22c55e; }
     .workspace { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; }
     .panel { background: #161f30; padding: 20px; border-radius: 10px; border: 1px solid #24324c; }
-    .panel h2 { margin-top: 0; font-size: 18px; color: #38bdf8; border-bottom: 1px solid #24324c; padding-bottom: 10px; }
-    .btn { display: inline-block; background: #0284c7; color: white; padding: 12px 20px; border-radius: 6px; cursor: pointer; font-weight: bold; width: 100%; box-sizing: border-box; text-align: center; border: none; font-size: 15px; margin-top: 10px; }
+    .panel h2 { margin-top: 0; font-size: 16px; color: #38bdf8; border-bottom: 1px solid #24324c; padding-bottom: 10px; }
+    .btn { display: inline-block; background: #0284c7; color: white; padding: 12px 18px; border-radius: 6px; cursor: pointer; font-weight: bold; width: 100%; box-sizing: border-box; text-align: center; border: none; font-size: 14px; margin-top: 10px; }
     .btn:hover { background: #0369a1; }
     .btn-run { background: #10b981; }
     .btn-run:hover { background: #059669; }
+    .btn-report { background: #8b5cf6; display: none; }
+    .btn-report:hover { background: #7c3aed; }
     .btn:disabled { background: #475569; cursor: not-allowed; }
-    #status-text { margin-top: 8px; color: #94a3b8; font-size: 13px; font-style: italic; }
+    #status-text { margin-top: 8px; color: #94a3b8; font-size: 12px; font-style: italic; }
     .preview-box { border: 2px dashed #334155; border-radius: 8px; min-height: 260px; display: flex; align-items: center; justify-content: center; overflow: hidden; background: #0b0f19; margin-top: 15px; }
     .preview-box img { max-width: 100%; height: auto; display: block; border-radius: 6px; }
     table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-    th, td { text-align: left; padding: 10px; border-bottom: 1px solid #24324c; font-size: 14px; }
+    th, td { text-align: left; padding: 10px; border-bottom: 1px solid #24324c; font-size: 13px; }
     th { color: #94a3b8; font-weight: 600; }
+    .progress-bar-bg { width: 100%; background-color: #0b0f19; height: 10px; border-radius: 5px; margin-top: 8px; overflow: hidden; border: 1px solid #24324c; }
+    .progress-bar-fill { height: 100%; width: 100%; background-color: #22c55e; transition: width 0.5s ease; }
+    @media print {
+      body { background-color: #ffffff; color: #000000; padding: 10px; }
+      .header, .panel, .card { background: #ffffff !important; border: 1px solid #ccc !important; color: #000 !important; }
+      .btn, #imageInput, #status-text { display: none !important; }
+      .preview-box { border: 1px solid #aaa; background: #fff; }
+      h1, h2, h3, p, span, td, th { color: #000 !important; }
+    }
   </style>
 </head>
 <body>
 
   <div class="header">
-    <h1>☀️ SolarGuard Vision – Live AI Inference</h1>
-    <p style="margin: 5px 0 0 0; color: #64748b; font-size: 13px;">Fast Real-Time Detection Engine</p>
+    <div>
+      <h1>☀️ SolarGuard AI – Solar Module Diagnostic Suite</h1>
+      <p style="margin: 5px 0 0 0; color: #64748b; font-size: 13px;">Real-Time Industrial Inspection & Health Assessment</p>
+    </div>
+    <button id="pdfBtn" class="btn btn-report" style="width: auto; margin-top: 0;" onclick="window.print()">🖨️ Print / Save Audit Report</button>
   </div>
 
   <div class="grid">
@@ -43,46 +58,57 @@
       <p id="system-status" class="normal-val">READY</p>
     </div>
     <div class="card">
-      <h3>Faults Detected</h3>
+      <h3>Array Health</h3>
+      <p id="health-score" class="normal-val">100%</p>
+      <div class="progress-bar-bg">
+        <div id="health-bar" class="progress-bar-fill"></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3>Faults Count</h3>
       <p id="defect-count">0</p>
     </div>
     <div class="card">
-      <h3>Active Model</h3>
-      <p style="color: #38bdf8;">YOLOv8 best.pt</p>
+      <h3>Est. Efficiency Loss</h3>
+      <p id="power-loss" style="color: #94a3b8;">0%</p>
+    </div>
+    <div class="card">
+      <h3>Est. Revenue Risk</h3>
+      <p id="money-loss" style="color: #94a3b8;">₹0 / mo</p>
     </div>
   </div>
 
   <div class="workspace">
     <div class="panel">
-      <h2>1. Thermal Photo Input</h2>
+      <h2>1. Thermal Inspection Input</h2>
       <label class="btn">
         Select Thermal Image File
         <input type="file" id="imageInput" accept="image/*" style="display: none;">
       </label>
-      <div id="status-text">No file selected.</div>
+      <div id="status-text">Select or snap a solar thermal frame.</div>
 
-      <button id="runBtn" class="btn btn-run" style="display: none;">Run YOLOv8 Detection</button>
+      <button id="runBtn" class="btn btn-run" style="display: none;">Run YOLOv8 Diagnostic</button>
 
-      <h2 style="margin-top: 25px;">2. Defect Breakdown</h2>
+      <h2 style="margin-top: 25px;">2. Defect Analysis Breakdown</h2>
       <table>
         <thead>
           <tr>
-            <th>Defect Classification</th>
+            <th>Detected Anomaly</th>
             <th>Confidence</th>
           </tr>
         </thead>
         <tbody id="defect-table">
           <tr>
-            <td colspan="2" style="color: #64748b; text-align: center;">No data yet</td>
+            <td colspan="2" style="color: #64748b; text-align: center;">No diagnostic data available</td>
           </tr>
         </tbody>
       </table>
     </div>
 
     <div class="panel">
-      <h2>3. Visual Detection Output (Model Annotations)</h2>
+      <h2>3. Computer Vision Defect Localization</h2>
       <div class="preview-box" id="previewContainer">
-        <span id="placeholderText" style="color: #64748b;">Awaiting thermal image input...</span>
+        <span id="placeholderText" style="color: #64748b;">Awaiting inspection input...</span>
         <img id="resultImage" style="display: none;">
       </div>
     </div>
@@ -91,28 +117,32 @@
   <script>
     const imageInput = document.getElementById('imageInput');
     const runBtn = document.getElementById('runBtn');
+    const pdfBtn = document.getElementById('pdfBtn');
     const statusText = document.getElementById('status-text');
     const placeholderText = document.getElementById('placeholderText');
     const resultImage = document.getElementById('resultImage');
     const defectCount = document.getElementById('defect-count');
     const defectTable = document.getElementById('defect-table');
     const systemStatus = document.getElementById('system-status');
+    const healthScore = document.getElementById('health-score');
+    const healthBar = document.getElementById('health-bar');
+    const powerLoss = document.getElementById('power-loss');
+    const moneyLoss = document.getElementById('money-loss');
 
     let processedBlob = null;
 
-    // Fast image compression directly in browser
     imageInput.addEventListener('change', function(e) {
       const file = e.target.files[0];
       if (!file) return;
 
-      statusText.innerText = "Optimizing photo for fast upload...";
+      statusText.innerText = "Optimizing photo payload...";
       const reader = new FileReader();
 
       reader.onload = function(evt) {
         const img = new Image();
         img.onload = function() {
           const canvas = document.createElement('canvas');
-          const maxDim = 800; // Resize large mobile photos down to 800px max
+          const maxDim = 800;
           let width = img.width;
           let height = img.height;
 
@@ -131,10 +161,10 @@
 
           canvas.toBlob(function(blob) {
             processedBlob = blob;
-            statusText.innerText = "Ready (" + Math.round(blob.size / 1024) + " KB) - Instant upload enabled";
+            statusText.innerText = "Payload Ready (" + Math.round(blob.size / 1024) + " KB)";
             runBtn.style.display = 'block';
             runBtn.disabled = false;
-            runBtn.innerText = "Run YOLOv8 Detection";
+            runBtn.innerText = "Run YOLOv8 Diagnostic";
             
             resultImage.src = URL.createObjectURL(blob);
             resultImage.style.display = 'block';
@@ -150,10 +180,9 @@
       if (!processedBlob) return;
 
       runBtn.disabled = true;
-      runBtn.innerText = "Processing AI Inference...";
-      placeholderText.innerText = "Running YOLOv8 inference...";
-      systemStatus.innerText = "INSPECTING";
-      systemStatus.className = "alert-val";
+      runBtn.innerText = "Analyzing Module via YOLOv8...";
+      systemStatus.innerText = "DIAGNOSING";
+      systemStatus.className = "warning-val";
 
       const formData = new FormData();
       formData.append('file', processedBlob, 'thermal.jpg');
@@ -168,24 +197,45 @@
 
         const data = await response.json();
 
-        // Update image
         resultImage.src = 'data:image/jpeg;base64,' + data.image;
         resultImage.style.display = 'block';
         placeholderText.style.display = 'none';
 
-        // Update defects count
-        defectCount.innerText = data.count;
-        if (data.count > 0) {
-          defectCount.className = "alert-val";
-          systemStatus.innerText = "DEFECT DETECTED";
-          systemStatus.className = "alert-val";
-        } else {
-          defectCount.className = "normal-val";
-          systemStatus.innerText = "HEALTHY";
+        const count = data.count;
+        defectCount.innerText = count;
+
+        let health = Math.max(20, 100 - (count * 3.8));
+        let lossPercent = Math.min(85, count * 3.5);
+        let revenueLoss = Math.round(count * 150);
+
+        healthScore.innerText = Math.round(health) + "%";
+        healthBar.style.width = health + "%";
+        powerLoss.innerText = lossPercent > 0 ? "~" + Math.round(lossPercent) + "%" : "0%";
+        moneyLoss.innerText = revenueLoss > 0 ? "₹" + revenueLoss.toLocaleString() + " / mo" : "₹0 / mo";
+
+        if (count === 0) {
+          systemStatus.innerText = "OPTIMAL (HEALTHY)";
           systemStatus.className = "normal-val";
+          healthScore.className = "normal-val";
+          healthBar.style.backgroundColor = "#22c55e";
+          powerLoss.className = "normal-val";
+          moneyLoss.className = "normal-val";
+        } else if (count <= 3) {
+          systemStatus.innerText = "ATTENTION REQUIRED";
+          systemStatus.className = "warning-val";
+          healthScore.className = "warning-val";
+          healthBar.style.backgroundColor = "#f59e0b";
+          powerLoss.className = "warning-val";
+          moneyLoss.className = "warning-val";
+        } else {
+          systemStatus.innerText = "CRITICAL (HIGH RISK)";
+          systemStatus.className = "alert-val";
+          healthScore.className = "alert-val";
+          healthBar.style.backgroundColor = "#ef4444";
+          powerLoss.className = "alert-val";
+          moneyLoss.className = "alert-val";
         }
 
-        // Update defects breakdown table
         defectTable.innerHTML = '';
         if (data.detections && data.detections.length > 0) {
           data.detections.forEach(d => {
@@ -194,15 +244,17 @@
             defectTable.appendChild(tr);
           });
         } else {
-          defectTable.innerHTML = '<tr><td colspan="2" style="color: #22c55e; text-align: center;">No defects detected (Clean)</td></tr>';
+          defectTable.innerHTML = '<tr><td colspan="2" style="color: #22c55e; text-align: center;">Array verified healthy (Zero Hotspots)</td></tr>';
         }
 
+        pdfBtn.style.display = 'inline-block';
+
       } catch (err) {
-        alert("Inference error: " + err.message);
+        alert("Diagnostics error: " + err.message);
         systemStatus.innerText = "ERROR";
       } finally {
         runBtn.disabled = false;
-        runBtn.innerText = "Run YOLOv8 Detection";
+        runBtn.innerText = "Run YOLOv8 Diagnostic";
       }
     });
   </script>
