@@ -1,60 +1,307 @@
-import base64
-import io
-from flask import Flask, jsonify, render_template, request
-from PIL import Image
-from ultralytics import YOLO
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SolarGuard AI — Diagnostic Intelligence</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
+    body { background-color: #090d16; color: #e2e8f0; padding: 24px; min-height: 100vh; }
+    
+    .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 18px; margin-bottom: 24px; flex-wrap: wrap; gap: 14px; }
+    .brand-title { display: flex; align-items: center; gap: 10px; }
+    .brand-icon { background: linear-gradient(135deg, #0ea5e9, #38bdf8); padding: 8px 12px; border-radius: 8px; font-weight: 700; color: #fff; font-size: 16px; }
+    h1 { font-size: 20px; font-weight: 700; color: #f8fafc; letter-spacing: -0.3px; }
+    .subtitle { color: #64748b; font-size: 13px; font-weight: 400; margin-top: 3px; }
+    
+    .metrics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; margin-bottom: 24px; }
+    .card { background: #111827; padding: 18px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.06); box-shadow: 0 4px 20px rgba(0,0,0,0.2); }
+    .card-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; color: #94a3b8; margin-bottom: 8px; }
+    .card-value { font-size: 24px; font-weight: 700; letter-spacing: -0.5px; }
+    
+    .val-optimal { color: #10b981; }
+    .val-warning { color: #f59e0b; }
+    .val-critical { color: #f43f5e; }
+    
+    .bar-container { width: 100%; height: 6px; background: #1f2937; border-radius: 10px; margin-top: 10px; overflow: hidden; }
+    .bar-fill { height: 100%; width: 100%; background: #10b981; transition: all 0.6s ease; }
+    
+    .workspace { display: grid; grid-template-columns: 1fr 1.2fr; gap: 20px; }
+    @media (max-width: 900px) { .workspace { grid-template-columns: 1fr; } }
+    
+    .panel { background: #111827; padding: 22px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.06); }
+    .panel-header { font-size: 14px; font-weight: 600; color: #38bdf8; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 14px; }
+    
+    .btn { display: flex; align-items: center; justify-content: center; width: 100%; padding: 12px 18px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; border: none; transition: 0.2s ease; }
+    .btn-upload { background: #0284c7; color: white; margin-bottom: 8px; }
+    .btn-upload:hover { background: #0369a1; }
+    .btn-run { background: #10b981; color: white; display: none; margin-top: 10px; }
+    .btn-run:hover { background: #059669; }
+    .btn-run:disabled { background: #374151; color: #9ca3af; cursor: not-allowed; }
+    .btn-print { background: #6366f1; color: white; width: auto; padding: 8px 16px; font-size: 13px; display: none; }
+    
+    .file-status { font-size: 12px; color: #64748b; margin-top: 6px; }
+    
+    table { width: 100%; border-collapse: collapse; margin-top: 14px; }
+    th { text-align: left; padding: 10px 12px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: #64748b; border-bottom: 1px solid rgba(255,255,255,0.06); }
+    td { padding: 12px; font-size: 13px; border-bottom: 1px solid rgba(255,255,255,0.04); color: #cbd5e1; }
+    
+    .preview-container { border: 2px dashed rgba(255,255,255,0.1); border-radius: 10px; min-height: 320px; display: flex; align-items: center; justify-content: center; background: #090d16; overflow: hidden; }
+    .preview-container img { width: 100%; height: auto; display: block; border-radius: 6px; }
+    .placeholder-hint { color: #475569; font-size: 13px; }
 
-app = Flask(__name__)
+    @media print {
+      body { background: white; color: black; padding: 10px; }
+      .header, .card, .panel { background: white !important; border: 1px solid #ddd !important; box-shadow: none !important; }
+      .btn, .file-status, #imageInput { display: none !important; }
+      h1, .card-label, .card-value, td, th { color: #000 !important; }
+      .bar-container { border: 1px solid #ccc; }
+    }
+  </style>
+</head>
+<body>
 
-# Load unga trained YOLOv8 model weights
-model = YOLO("best.pt")
+  <div class="header">
+    <div class="brand-title">
+      <div class="brand-icon">⚡ AI</div>
+      <div>
+        <h1>SolarGuard — Module Diagnostic Suite</h1>
+        <div class="subtitle">Industrial Thermal Anomaly Localization & Asset Valuation</div>
+      </div>
+    </div>
+    <button id="pdfBtn" class="btn btn-print" onclick="window.print()">🖨️ Download Audit Report</button>
+  </div>
 
+  <div class="metrics-grid">
+    <div class="card">
+      <div class="card-label">Operational Status</div>
+      <div id="system-status" class="card-value val-optimal" style="font-size: 18px;">STANDBY</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Array Health</div>
+      <div id="health-score" class="card-value val-optimal">100%</div>
+      <div class="bar-container">
+        <div id="health-bar" class="bar-fill"></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-label">Faults Detected</div>
+      <div id="defect-count" class="card-value" style="color: #f8fafc;">0</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Est. Efficiency Loss</div>
+      <div id="power-loss" class="card-value" style="color: #94a3b8;">0%</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Est. Revenue Risk</div>
+      <div id="money-loss" class="card-value" style="color: #94a3b8;">₹0 / mo</div>
+    </div>
+  </div>
 
-@app.route("/")
-def home():
-  return render_template("index.html")
+  <div class="workspace">
+    <div class="panel">
+      <div class="panel-header">1. Thermal Image Payload</div>
+      <label class="btn btn-upload">
+        📁 Select Thermal Image
+        <input type="file" id="imageInput" accept="image/*" style="display: none;">
+      </label>
+      <div id="file-status" class="file-status">Awaiting photo selection...</div>
 
+      <button id="runBtn" class="btn btn-run">⚡ Run YOLOv8 Diagnostic</button>
 
-@app.route("/predict", methods=["POST"])
-def predict():
-  if "file" not in request.files:
-    return jsonify({"error": "No file uploaded"}), 400
+      <div class="panel-header" style="margin-top: 28px;">2. Anomaly Breakdown</div>
+      <table>
+        <thead>
+          <tr>
+            <th>Defect Classification</th>
+            <th>Confidence</th>
+          </tr>
+        </thead>
+        <tbody id="defect-table">
+          <tr>
+            <td colspan="2" style="text-align: center; color: #475569;">No diagnostic data processed</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
 
-  file = request.files["file"]
-  img_bytes = file.read()
-  img = Image.open(io.BytesIO(img_bytes)).convert("RGB")
+    <div class="panel">
+      <div class="panel-header">3. Computer Vision Defect Localization</div>
+      <div class="preview-container">
+        <div id="placeholderText" class="placeholder-hint">Thermal visualization preview will render here</div>
+        <img id="resultImage" style="display: none;">
+      </div>
+    </div>
+  </div>
 
-  # Run inference with best.pt
-  results = model.predict(source=img, conf=0.25, imgsz=320)
-  res = results[0]
+  <script>
+    const imageInput = document.getElementById('imageInput');
+    const runBtn = document.getElementById('runBtn');
+    const pdfBtn = document.getElementById('pdfBtn');
+    const fileStatus = document.getElementById('file-status');
+    const placeholderText = document.getElementById('placeholderText');
+    const resultImage = document.getElementById('resultImage');
+    const defectCount = document.getElementById('defect-count');
+    const defectTable = document.getElementById('defect-table');
+    const systemStatus = document.getElementById('system-status');
+    const healthScore = document.getElementById('health-score');
+    const healthBar = document.getElementById('health-bar');
+    const powerLoss = document.getElementById('power-loss');
+    const moneyLoss = document.getElementById('money-loss');
 
-  # Draw bounding boxes
-  res_plot = res.plot()
-  annotated_img = Image.fromarray(res_plot)
+    let processedBlob = null;
 
-  # Convert to base64 for browser display
-  buff = io.BytesIO()
-  annotated_img.save(buff, format="JPEG")
-  encoded_img = base64.b64encode(buff.getvalue()).decode("utf-8")
+    imageInput.addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (!file) return;
 
-  # Extract fault details
-  faults = []
-  if res.boxes is not None:
-    for box in res.boxes:
-      cls_id = int(box.cls[0].item())
-      conf = float(box.conf[0].item())
-      name = res.names[cls_id]
-      faults.append({"type": name, "confidence": round(conf * 100, 1)})
+      fileStatus.innerText = "Optimizing image resolution...";
+      const reader = new FileReader();
 
-  status = "ALERT" if len(faults) > 0 else "NORMAL"
+      reader.onload = function(evt) {
+        const img = new Image();
+        img.onload = function() {
+          const canvas = document.createElement('canvas');
+          const maxDim = 800;
+          let width = img.width;
+          let height = img.height;
 
-  return jsonify({
-      "status": status,
-      "total_faults": len(faults),
-      "faults": faults,
-      "image_data": f"data:image/jpeg;base64,{encoded_img}",
-  })
+          if (width > height && width > maxDim) {
+            height = Math.round((height * maxDim) / width);
+            width = maxDim;
+          } else if (height > maxDim) {
+            width = Math.round((width * maxDim) / height);
+            height = maxDim;
+          }
 
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, width, height);
 
-if __name__ == "__main__":
-  app.run(host="127.0.0.1", port=5000, debug=True)
+          canvas.toBlob(function(blob) {
+            processedBlob = blob;
+            fileStatus.innerText = "Ready (" + Math.round(blob.size / 1024) + " KB)";
+            runBtn.style.display = 'flex';
+            runBtn.disabled = false;
+            runBtn.innerText = "⚡ Run YOLOv8 Diagnostic";
+            
+            resultImage.src = URL.createObjectURL(blob);
+            resultImage.style.display = 'block';
+            placeholderText.style.display = 'none';
+          }, 'image/jpeg', 0.85);
+        };
+        img.src = evt.target.result;
+      };
+      reader.readAsDataURL(file);
+    });
+
+    runBtn.addEventListener('click', async function() {
+      if (!processedBlob) return;
+
+      runBtn.disabled = true;
+      runBtn.innerText = "Analyzing Module via YOLOv8...";
+      systemStatus.innerText = "ANALYZING...";
+      systemStatus.className = "card-value val-warning";
+
+      const formData = new FormData();
+      formData.append('file', processedBlob, 'thermal.jpg');
+
+      try {
+        const response = await fetch('/predict', {
+          method: 'POST',
+          body: formData
+        });
+
+        if (!response.ok) throw new Error("Inference failed");
+
+        const data = await response.json();
+
+        // 1. Image Render (handles image_data from backend)
+        if (data.image_data) {
+          resultImage.src = data.image_data;
+          resultImage.style.display = 'block';
+          placeholderText.style.display = 'none';
+        } else if (data.image) {
+          resultImage.src = 'data:image/jpeg;base64,' + data.image;
+          resultImage.style.display = 'block';
+          placeholderText.style.display = 'none';
+        }
+
+        // 2. Exact match for total_faults
+        let count = 0;
+        if (data.total_faults !== undefined) {
+          count = Number(data.total_faults);
+        } else if (data.count !== undefined) {
+          count = Number(data.count);
+        } else if (data.faults && Array.isArray(data.faults)) {
+          count = data.faults.length;
+        }
+
+        defectCount.innerText = count;
+
+        // 3. Mathematical Calculations
+        let health = Math.max(20, Math.round(100 - (count * 4)));
+        let lossPercent = Math.min(85, Math.round(count * 3.5));
+        let revenueLoss = Math.round(count * 160);
+
+        healthScore.innerText = health + "%";
+        healthBar.style.width = health + "%";
+        powerLoss.innerText = lossPercent > 0 ? "~" + lossPercent + "%" : "0%";
+        moneyLoss.innerText = revenueLoss > 0 ? "₹" + revenueLoss.toLocaleString() + " / mo" : "₹0 / mo";
+
+        // 4. Status UI update
+        if (count === 0) {
+          systemStatus.innerText = "OPTIMAL";
+          systemStatus.className = "card-value val-optimal";
+          healthScore.className = "card-value val-optimal";
+          healthBar.style.backgroundColor = "#10b981";
+          powerLoss.style.color = "#10b981";
+          moneyLoss.style.color = "#10b981";
+        } else if (count <= 3) {
+          systemStatus.innerText = "ATTENTION";
+          systemStatus.className = "card-value val-warning";
+          healthScore.className = "card-value val-warning";
+          healthBar.style.backgroundColor = "#f59e0b";
+          powerLoss.style.color = "#f59e0b";
+          moneyLoss.style.color = "#f59e0b";
+        } else {
+          systemStatus.innerText = "CRITICAL RISK";
+          systemStatus.className = "card-value val-critical";
+          healthScore.className = "card-value val-critical";
+          healthBar.style.backgroundColor = "#f43f5e";
+          powerLoss.style.color = "#f43f5e";
+          moneyLoss.style.color = "#f43f5e";
+        }
+
+        // 5. Table List population matching backend faults array
+        defectTable.innerHTML = '';
+        let faultsList = data.faults || data.detections || [];
+        if (faultsList.length > 0) {
+          faultsList.forEach(d => {
+            const label = d.type || d.label || 'Cell_Fault';
+            const conf = d.confidence !== undefined ? d.confidence : 60;
+            const tr = document.createElement('tr');
+            tr.innerHTML = `<td style="color:#f43f5e; font-weight:600;">${label}</td><td>${conf}%</td>`;
+            defectTable.appendChild(tr);
+          });
+        } else {
+          defectTable.innerHTML = '<tr><td colspan="2" style="color: #10b981; text-align: center; font-weight:500;">Zero Hotspots Verified — Panel Healthy</td></tr>';
+        }
+
+        pdfBtn.style.display = 'inline-flex';
+
+      } catch (err) {
+        alert("Diagnostic error: " + err.message);
+        systemStatus.innerText = "ERROR";
+      } finally {
+        runBtn.disabled = false;
+        runBtn.innerText = "⚡ Run YOLOv8 Diagnostic";
+      }
+    });
+  </script>
+</body>
+</html>
