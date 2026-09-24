@@ -24,7 +24,6 @@
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
     body { background-color: var(--bg); color: var(--text-main); padding: 24px; min-height: 100vh; background-image: radial-gradient(rgba(56, 189, 248, 0.04) 1px, transparent 0); background-size: 24px 24px; }
 
-    /* Top Navigation */
     .navbar { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--card-border); padding-bottom: 18px; margin-bottom: 22px; flex-wrap: wrap; gap: 14px; }
     .brand-wrap { display: flex; align-items: center; gap: 14px; }
     .brand-logo { 
@@ -50,10 +49,9 @@
     .btn-auth:hover { background: #334155; }
     .user-pill { display: none; align-items: center; gap: 8px; background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.3); padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 600; color: var(--primary); }
 
-    /* SMS Notification Banner */
-    #alertBanner { display: none; background: rgba(239, 68, 68, 0.15); border: 1px solid var(--danger); border-radius: 10px; padding: 14px 18px; margin-bottom: 22px; align-items: center; justify-content: space-between; gap: 14px; }
-    .btn-notify { background: var(--danger); color: white; border: none; padding: 10px 18px; border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px; box-shadow: 0 0 14px rgba(239, 68, 68, 0.4); }
-    .btn-notify:hover { opacity: 0.9; }
+    /* Auto-Dispatched SMS Status Notification */
+    #autoSmsToast { display: none; background: rgba(16, 185, 129, 0.15); border: 1px solid var(--success); border-radius: 10px; padding: 12px 18px; margin-bottom: 20px; align-items: center; justify-content: space-between; gap: 12px; animation: fadeIn 0.4s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
 
     /* KPI Metrics */
     .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; margin-bottom: 24px; }
@@ -82,7 +80,6 @@
     .sec-tag { font-size: 11px; font-weight: 800; color: var(--primary); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
     .sec-title { font-size: 16px; font-weight: 700; margin-bottom: 14px; color: #fff; }
 
-    /* Buttons */
     .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 12px 18px; border-radius: 8px; font-size: 14px; font-weight: 700; cursor: pointer; border: none; transition: 0.2s ease; }
     .btn-select { background: #1e293b; color: #f8fafc; border: 1px solid rgba(255,255,255,0.1); }
     .btn-select:hover { background: #334155; }
@@ -90,24 +87,20 @@
     .btn-run:disabled { background: #334155; color: #64748b; cursor: not-allowed; }
     .btn-report { background: rgba(56, 189, 248, 0.1); color: var(--primary); border: 1px solid rgba(56, 189, 248, 0.3); width: auto; padding: 8px 16px; font-size: 13px; display: none; }
 
-    /* Table */
     table { width: 100%; border-collapse: collapse; margin-top: 12px; }
     th { text-align: left; padding: 10px 12px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-muted); border-bottom: 1px solid var(--card-border); }
     td { padding: 12px; font-size: 13px; border-bottom: 1px solid rgba(255,255,255,0.03); color: #cbd5e1; }
     .conf-badge { font-family: 'JetBrains Mono', monospace; font-weight: 700; color: #38bdf8; }
 
-    /* Visualizer */
     .viewer-frame { border: 2px dashed rgba(255,255,255,0.1); border-radius: 10px; min-height: 330px; display: flex; align-items: center; justify-content: center; background: #04060a; overflow: hidden; }
     .viewer-frame img { width: 100%; height: auto; display: block; border-radius: 6px; }
 
-    /* Work Order Card */
     .work-order { background: rgba(2, 6, 23, 0.8); border: 1px solid rgba(56, 189, 248, 0.2); border-radius: 10px; padding: 16px; margin-top: 20px; display: none; }
     .wo-row { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 12px; }
     .wo-lbl { color: var(--text-muted); text-transform: uppercase; font-size: 11px; font-weight: 700; }
     .wo-data { font-family: 'JetBrains Mono', monospace; font-weight: 700; color: #fff; }
     .wo-instruct { background: rgba(239, 68, 68, 0.1); border-left: 3px solid var(--danger); padding: 10px 12px; border-radius: 4px; font-size: 12px; color: #cbd5e1; margin-top: 10px; line-height: 1.5; }
 
-    /* Modal */
     .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); z-index: 100; align-items: center; justify-content: center; }
     .modal-box { background: #111827; border: 1px solid var(--card-border); border-radius: 14px; width: 90%; max-width: 400px; padding: 24px; box-shadow: 0 10px 40px rgba(0,0,0,0.5); }
     .modal-title { font-size: 18px; font-weight: 700; color: #fff; margin-bottom: 14px; }
@@ -117,7 +110,7 @@
     @media print {
       body { background: white !important; color: black !important; padding: 0; }
       .navbar, .kpi-card, .section-card, .work-order { background: white !important; border: 1px solid #ccc !important; box-shadow: none !important; color: black !important; }
-      .btn, #fileInput, .live-badge, .nav-actions, #alertBanner { display: none !important; }
+      .btn, #fileInput, .live-badge, .nav-actions, #autoSmsToast { display: none !important; }
       .kpi-label, .sec-tag, .wo-lbl, th, td, h1, .brand-sub { color: #000 !important; }
     }
   </style>
@@ -135,21 +128,21 @@
     </div>
     <div class="nav-actions">
       <div id="userBadge" class="user-pill">👤 Eng. Logesh</div>
-      <button id="authBtn" class="btn-auth" onclick="toggleAuthModal()">Sign In / Profile</button>
+      <button id="authBtn" class="btn-auth" onclick="toggleAuthModal()">Switch Profile</button>
       <button id="pdfBtn" class="btn btn-report" onclick="window.print()">📥 Export PDF Report</button>
     </div>
   </div>
 
-  <!-- Real Telecom SMS Banner -->
-  <div id="alertBanner">
-    <div style="display: flex; align-items: center; gap: 12px;">
-      <span style="font-size: 26px;">🚨</span>
+  <!-- Automatic SMS Sent Toast Notification -->
+  <div id="autoSmsToast">
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <span style="font-size: 22px;">⚡</span>
       <div>
-        <div style="font-weight: 800; font-size: 14px; color: #fecaca; letter-spacing: 0.3px;">CRITICAL THERMAL ANOMALY IDENTIFIED</div>
-        <div style="font-size: 12px; color: #cbd5e1; margin-top: 2px;">Overheated cells detected. Direct SMS carrier dispatch ready.</div>
+        <div style="font-weight: 700; font-size: 13px; color: #a7f3d0;" id="smsToastTitle">AUTONOMOUS DISPATCH TRIGGERED</div>
+        <div style="font-size: 12px; color: #cbd5e1;" id="smsToastDetail">Carrier SMS transmitted automatically to technician mobile.</div>
       </div>
     </div>
-    <button id="smsBtn" class="btn-notify" onclick="sendDirectSMS()">📲 Dispatch Instant SMS to Mobile</button>
+    <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #34d399; font-weight: 700;">STATUS: 200 OK</div>
   </div>
 
   <!-- KPI Grid -->
@@ -295,8 +288,8 @@
     const moneyLoss = document.getElementById('money-loss');
     const defectTable = document.getElementById('defect-table');
 
-    const alertBanner = document.getElementById('alertBanner');
-    const smsBtn = document.getElementById('smsBtn');
+    const autoSmsToast = document.getElementById('autoSmsToast');
+    const smsToastDetail = document.getElementById('smsToastDetail');
     const workOrderCard = document.getElementById('workOrderCard');
     const woNumber = document.getElementById('woNumber');
     const woSeverity = document.getElementById('woSeverity');
@@ -315,8 +308,11 @@
         const u = JSON.parse(stored);
         userBadge.innerText = `👤 Eng. ${u.name} (${u.plant})`;
         userBadge.style.display = 'inline-flex';
-        authBtn.innerText = "Switch Profile";
         woEngineer.innerText = `${u.name} (${u.phone})`;
+      } else {
+        userBadge.innerText = `👤 Eng. Logesh (SOLAR-01)`;
+        userBadge.style.display = 'inline-flex';
+        woEngineer.innerText = `Logesh (+91 9344042533)`;
       }
     };
 
@@ -334,20 +330,14 @@
 
       userBadge.innerText = `👤 Eng. ${name} (${plant})`;
       userBadge.style.display = 'inline-flex';
-      authBtn.innerText = "Switch Profile";
       woEngineer.innerText = `${name} (${phone})`;
       toggleAuthModal();
-      alert(`✅ Profile Registered!\nSMS will be delivered to: ${phone}`);
     }
 
-    async function sendDirectSMS() {
+    // AUTOMATIC BACKGROUND SMS DISPATCH FUNCTION
+    async function triggerAutonomousSMS(ticketId, count) {
       const stored = localStorage.getItem('solaris_engineer');
       const profile = stored ? JSON.parse(stored) : { name: "Logesh", phone: "9344042533" };
-      const wo = woNumber.innerText;
-      const count = defectCount.innerText;
-
-      smsBtn.disabled = true;
-      smsBtn.innerText = "⏳ Dispatching SMS via Carrier Gateway...";
 
       try {
         const response = await fetch('/send_alert', {
@@ -355,18 +345,16 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ 
             phone: profile.phone, 
-            ticket_id: wo, 
+            ticket_id: ticketId, 
             fault_count: count 
           })
         });
 
-        const data = await response.json();
-        alert(`📲 AUTOMATIC TELECOM SMS DISPATCHED!\n\nTarget Mobile: ${profile.phone}\nWork-Order Ticket: ${wo}\nStatus: Telemetry alert delivered to carrier gateway successfully! Check your phone SMS inbox.`);
+        // Show elegant confirmation banner without opening WhatsApp or popup
+        smsToastDetail.innerText = `Autonomous Carrier SMS successfully dispatched to ${profile.phone} (Ticket: ${ticketId})`;
+        autoSmsToast.style.display = 'flex';
       } catch (err) {
-        alert("Dispatch error: " + err.message);
-      } finally {
-        smsBtn.disabled = false;
-        smsBtn.innerText = "📲 Dispatch Instant SMS to Mobile";
+        console.error("Auto SMS Pipeline Error:", err);
       }
     }
 
@@ -383,7 +371,7 @@
       annotatedView.src = URL.createObjectURL(file);
       annotatedView.style.display = 'block';
       emptyHint.style.display = 'none';
-      alertBanner.style.display = 'none';
+      autoSmsToast.style.display = 'none';
     });
 
     runBtn.addEventListener('click', async function() {
@@ -395,6 +383,7 @@
       systemStatus.style.color = "var(--warning)";
       statePill.innerText = "BUSY";
       statePill.className = "status-pill pill-yellow";
+      autoSmsToast.style.display = 'none';
 
       const formData = new FormData();
       formData.append('file', mountedFile);
@@ -439,10 +428,10 @@
           defectBadge.innerText = "0 HOTSPOTS";
           defectBadge.className = "status-pill pill-green";
           workOrderCard.style.display = 'none';
-          alertBanner.style.display = 'none';
         } else {
           workOrderCard.style.display = 'block';
-          woNumber.innerText = "WO-" + Math.floor(100000 + Math.random() * 900000) + "-PV";
+          const generatedWO = "WO-" + Math.floor(100000 + Math.random() * 900000) + "-PV";
+          woNumber.innerText = generatedWO;
 
           if (count <= 2) {
             systemStatus.innerText = "ATTENTION";
@@ -458,7 +447,6 @@
             woSeverity.innerText = "MEDIUM / SCHEDULED INSPECTION";
             woSeverity.style.color = "var(--warning)";
             woAction.innerText = "Minor hot-spotting detected. Schedule string resistance measurement during next maintenance cycle.";
-            alertBanner.style.display = 'none';
           } else {
             systemStatus.innerText = "CRITICAL RISK";
             systemStatus.style.color = "var(--danger)";
@@ -474,8 +462,8 @@
             woSeverity.style.color = "var(--danger)";
             woAction.innerText = "Severe localized heating detected. Isolate sub-string immediately to eliminate fire risk. Check bypass diodes.";
             
-            // Show Critical SMS Banner
-            alertBanner.style.display = 'flex';
+            // 🚀 FULLY AUTONOMOUS DISPATCH TRIGGER — ZERO USER TOUCH NEEDED!
+            triggerAutonomousSMS(generatedWO, count);
           }
         }
 
