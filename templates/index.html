@@ -3,182 +3,297 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SolarGuard AI — Diagnostic Intelligence</title>
+  <title>SOLARIS AI — Autonomous Thermographic Suite</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
-    body { background-color: #090d16; color: #e2e8f0; padding: 24px; min-height: 100vh; }
+    :root {
+      --bg: #07090e;
+      --card-bg: rgba(17, 24, 39, 0.7);
+      --card-border: rgba(255, 255, 255, 0.08);
+      --primary: #38bdf8;
+      --accent: #0ea5e9;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
+    body { background-color: var(--bg); color: var(--text-main); padding: 28px; min-height: 100vh; background-image: radial-gradient(rgba(56, 189, 248, 0.04) 1px, transparent 0); background-size: 24px 24px; }
+
+    /* Top Navigation / Brand */
+    .navbar { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--card-border); padding-bottom: 20px; margin-bottom: 26px; flex-wrap: wrap; gap: 16px; }
+    .brand-wrap { display: flex; align-items: center; gap: 14px; }
+    .brand-logo { 
+      width: 44px; height: 44px; border-radius: 10px; 
+      background: linear-gradient(135deg, #0284c7, #38bdf8); 
+      display: flex; align-items: center; justify-content: center; 
+      box-shadow: 0 0 20px rgba(56, 189, 248, 0.35);
+      font-size: 22px;
+    }
+    .brand-text h1 { font-size: 22px; font-weight: 800; letter-spacing: -0.5px; display: flex; align-items: center; gap: 8px; }
+    .brand-text h1 span { color: var(--primary); }
+    .live-badge {
+      display: inline-flex; align-items: center; gap: 6px; 
+      background: rgba(16, 185, 129, 0.12); color: var(--success); 
+      padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 700;
+      border: 1px solid rgba(16, 185, 129, 0.25);
+    }
+    .live-dot { width: 7px; height: 7px; border-radius: 50%; background-color: var(--success); box-shadow: 0 0 8px var(--success); }
+    .brand-sub { color: var(--text-muted); font-size: 13px; font-weight: 500; margin-top: 2px; }
+
+    /* KPI Cards */
+    .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 26px; }
+    .kpi-card { 
+      background: var(--card-bg); border: 1px solid var(--card-border); 
+      border-radius: 14px; padding: 20px; backdrop-filter: blur(12px);
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3); transition: transform 0.2s ease;
+    }
+    .kpi-card:hover { transform: translateY(-2px); border-color: rgba(56, 189, 248, 0.3); }
+    .kpi-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+    .kpi-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-muted); }
+    .kpi-val { font-size: 26px; font-weight: 800; letter-spacing: -0.8px; font-family: 'JetBrains Mono', monospace; }
     
-    .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 18px; margin-bottom: 24px; flex-wrap: wrap; gap: 14px; }
-    .brand-title { display: flex; align-items: center; gap: 10px; }
-    .brand-icon { background: linear-gradient(135deg, #0ea5e9, #38bdf8); padding: 8px 12px; border-radius: 8px; font-weight: 700; color: #fff; font-size: 16px; }
-    h1 { font-size: 20px; font-weight: 700; color: #f8fafc; letter-spacing: -0.3px; }
-    .subtitle { color: #64748b; font-size: 13px; font-weight: 400; margin-top: 3px; }
-    
-    .metrics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; margin-bottom: 24px; }
-    .card { background: #111827; padding: 18px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.06); box-shadow: 0 4px 20px rgba(0,0,0,0.2); }
-    .card-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; color: #94a3b8; margin-bottom: 8px; }
-    .card-value { font-size: 24px; font-weight: 700; letter-spacing: -0.5px; }
-    
-    .val-optimal { color: #10b981; }
-    .val-warning { color: #f59e0b; }
-    .val-critical { color: #f43f5e; }
-    
-    .bar-container { width: 100%; height: 6px; background: #1f2937; border-radius: 10px; margin-top: 10px; overflow: hidden; }
-    .bar-fill { height: 100%; width: 100%; background: #10b981; transition: all 0.6s ease; }
-    
-    .workspace { display: grid; grid-template-columns: 1fr 1.2fr; gap: 20px; }
-    @media (max-width: 900px) { .workspace { grid-template-columns: 1fr; } }
-    
-    .panel { background: #111827; padding: 22px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.06); }
-    .panel-header { font-size: 14px; font-weight: 600; color: #38bdf8; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 14px; }
-    
-    .btn { display: flex; align-items: center; justify-content: center; width: 100%; padding: 12px 18px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; border: none; transition: 0.2s ease; }
-    .btn-upload { background: #0284c7; color: white; margin-bottom: 8px; }
-    .btn-upload:hover { background: #0369a1; }
-    .btn-run { background: #10b981; color: white; display: none; margin-top: 10px; }
-    .btn-run:hover { background: #059669; }
-    .btn-run:disabled { background: #374151; color: #9ca3af; cursor: not-allowed; }
-    .btn-print { background: #6366f1; color: white; width: auto; padding: 8px 16px; font-size: 13px; display: none; }
-    
-    .file-status { font-size: 12px; color: #64748b; margin-top: 6px; }
-    
+    .status-pill { font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 6px; text-transform: uppercase; }
+    .pill-green { background: rgba(16, 185, 129, 0.15); color: var(--success); border: 1px solid rgba(16, 185, 129, 0.3); }
+    .pill-yellow { background: rgba(245, 158, 11, 0.15); color: var(--warning); border: 1px solid rgba(245, 158, 11, 0.3); }
+    .pill-red { background: rgba(239, 68, 68, 0.15); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.3); }
+
+    .health-bar-bg { width: 100%; height: 6px; background: rgba(255, 255, 255, 0.08); border-radius: 10px; margin-top: 12px; overflow: hidden; }
+    .health-bar-fill { height: 100%; width: 100%; background: var(--success); transition: width 0.6s ease, background-color 0.6s ease; }
+
+    /* Layout Content */
+    .main-workspace { display: grid; grid-template-columns: 1fr 1.3fr; gap: 24px; }
+    @media (max-width: 950px) { .main-workspace { grid-template-columns: 1fr; } }
+
+    .section-card { 
+      background: var(--card-bg); border: 1px solid var(--card-border); 
+      border-radius: 14px; padding: 24px; backdrop-filter: blur(12px);
+    }
+    .sec-tag { font-size: 11px; font-weight: 800; color: var(--primary); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+    .sec-title { font-size: 16px; font-weight: 700; margin-bottom: 16px; color: #fff; }
+
+    /* Actions & Buttons */
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 13px 18px; border-radius: 10px; font-size: 14px; font-weight: 700; cursor: pointer; border: none; transition: 0.2s ease; }
+    .btn-select { background: #1e293b; color: #f8fafc; border: 1px solid rgba(255,255,255,0.1); }
+    .btn-select:hover { background: #334155; }
+    .btn-run { background: linear-gradient(135deg, #0284c7, #0ea5e9); color: white; margin-top: 10px; display: none; box-shadow: 0 4px 20px rgba(14, 165, 233, 0.4); }
+    .btn-run:hover { opacity: 0.95; }
+    .btn-run:disabled { background: #334155; color: #64748b; box-shadow: none; cursor: not-allowed; }
+    .btn-report { background: rgba(56, 189, 248, 0.1); color: var(--primary); border: 1px solid rgba(56, 189, 248, 0.3); width: auto; padding: 9px 18px; font-size: 13px; display: none; }
+    .btn-report:hover { background: rgba(56, 189, 248, 0.2); }
+
+    /* Table */
     table { width: 100%; border-collapse: collapse; margin-top: 14px; }
-    th { text-align: left; padding: 10px 12px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: #64748b; border-bottom: 1px solid rgba(255,255,255,0.06); }
-    td { padding: 12px; font-size: 13px; border-bottom: 1px solid rgba(255,255,255,0.04); color: #cbd5e1; }
-    
-    .preview-container { border: 2px dashed rgba(255,255,255,0.1); border-radius: 10px; min-height: 320px; display: flex; align-items: center; justify-content: center; background: #090d16; overflow: hidden; }
-    .preview-container img { width: 100%; height: auto; display: block; border-radius: 6px; }
-    .placeholder-hint { color: #475569; font-size: 13px; }
+    th { text-align: left; padding: 10px 14px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-muted); border-bottom: 1px solid var(--card-border); }
+    td { padding: 14px; font-size: 13px; border-bottom: 1px solid rgba(255,255,255,0.03); color: #cbd5e1; }
+    .conf-badge { font-family: 'JetBrains Mono', monospace; font-weight: 700; color: #38bdf8; }
+
+    /* Visualizer Frame */
+    .viewer-frame { 
+      border: 2px dashed rgba(255,255,255,0.1); border-radius: 12px; min-height: 340px; 
+      display: flex; align-items: center; justify-content: center; background: #04060a; 
+      position: relative; overflow: hidden;
+    }
+    .viewer-frame img { width: 100%; height: auto; display: block; border-radius: 8px; }
+    .empty-state { text-align: center; color: #475569; font-size: 13px; font-weight: 500; }
+
+    /* Automated Work-Order Ticket */
+    .work-order { background: rgba(2, 6, 23, 0.8); border: 1px solid rgba(56, 189, 248, 0.2); border-radius: 12px; padding: 18px; margin-top: 22px; display: none; }
+    .wo-row { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 12px; }
+    .wo-lbl { color: var(--text-muted); text-transform: uppercase; font-size: 11px; font-weight: 700; }
+    .wo-data { font-family: 'JetBrains Mono', monospace; font-weight: 700; color: #fff; }
+    .wo-instruct { background: rgba(239, 68, 68, 0.1); border-left: 3px solid var(--danger); padding: 10px 12px; border-radius: 4px; font-size: 12px; color: #cbd5e1; margin-top: 10px; line-height: 1.5; }
 
     @media print {
-      body { background: white; color: black; padding: 10px; }
-      .header, .card, .panel { background: white !important; border: 1px solid #ddd !important; box-shadow: none !important; }
-      .btn, .file-status, #imageInput { display: none !important; }
-      h1, .card-label, .card-value, td, th { color: #000 !important; }
-      .bar-container { border: 1px solid #ccc; }
+      body { background: white !important; color: black !important; padding: 0; }
+      .navbar, .kpi-card, .section-card, .work-order { background: white !important; border: 1px solid #ccc !important; box-shadow: none !important; color: black !important; }
+      .btn, #fileInput, .live-badge { display: none !important; }
+      .kpi-label, .sec-tag, .wo-lbl, th, td, h1, .brand-sub { color: #000 !important; }
     }
   </style>
 </head>
 <body>
 
-  <div class="header">
-    <div class="brand-title">
-      <div class="brand-icon">⚡ AI</div>
-      <div>
-        <h1>SolarGuard — Module Diagnostic Suite</h1>
-        <div class="subtitle">Industrial Thermal Anomaly Localization & Asset Valuation</div>
+  <!-- Top Navbar -->
+  <div class="navbar">
+    <div class="brand-wrap">
+      <div class="brand-logo">☀️</div>
+      <div class="brand-text">
+        <h1>SOLARIS <span>AI</span> <div class="live-badge"><span class="live-dot"></span> EDGE READY</div></h1>
+        <div class="brand-sub">Autonomous Thermographic Anomaly Localization & O&M Work-Order System</div>
       </div>
     </div>
-    <button id="pdfBtn" class="btn btn-print" onclick="window.print()">🖨️ Download Audit Report</button>
+    <button id="pdfBtn" class="btn btn-report" onclick="window.print()">📥 Export Compliance Report (PDF)</button>
   </div>
 
-  <div class="metrics-grid">
-    <div class="card">
-      <div class="card-label">Operational Status</div>
-      <div id="system-status" class="card-value val-optimal" style="font-size: 18px;">STANDBY</div>
+  <!-- Telemetry Metrics Grid -->
+  <div class="kpi-grid">
+    <div class="kpi-card">
+      <div class="kpi-header">
+        <span class="kpi-label">System State</span>
+        <span id="state-pill" class="status-pill pill-green">ONLINE</span>
+      </div>
+      <div id="system-status" class="kpi-val" style="font-size: 20px; color: var(--success);">STANDBY</div>
     </div>
-    <div class="card">
-      <div class="card-label">Array Health</div>
-      <div id="health-score" class="card-value val-optimal">100%</div>
-      <div class="bar-container">
-        <div id="health-bar" class="bar-fill"></div>
+
+    <div class="kpi-card">
+      <div class="kpi-header">
+        <span class="kpi-label">Array Health Meter</span>
+        <span id="health-tag" class="status-pill pill-green">OPTIMAL</span>
+      </div>
+      <div id="health-score" class="kpi-val" style="color: var(--success);">100%</div>
+      <div class="health-bar-bg">
+        <div id="health-bar" class="health-bar-fill"></div>
       </div>
     </div>
-    <div class="card">
-      <div class="card-label">Faults Detected</div>
-      <div id="defect-count" class="card-value" style="color: #f8fafc;">0</div>
+
+    <div class="kpi-card">
+      <div class="kpi-header">
+        <span class="kpi-label">Defects Localized</span>
+        <span class="status-pill pill-green" id="defect-badge">0 DETECTED</span>
+      </div>
+      <div id="defect-count" class="kpi-val">0</div>
     </div>
-    <div class="card">
-      <div class="card-label">Est. Efficiency Loss</div>
-      <div id="power-loss" class="card-value" style="color: #94a3b8;">0%</div>
+
+    <div class="kpi-card">
+      <div class="kpi-header">
+        <span class="kpi-label">Efficiency Loss</span>
+      </div>
+      <div id="power-loss" class="kpi-val" style="color: var(--text-muted);">0.0%</div>
     </div>
-    <div class="card">
-      <div class="card-label">Est. Revenue Risk</div>
-      <div id="money-loss" class="card-value" style="color: #94a3b8;">₹0 / mo</div>
+
+    <div class="kpi-card">
+      <div class="kpi-header">
+        <span class="kpi-label">Revenue Risk / mo</span>
+      </div>
+      <div id="money-loss" class="kpi-val" style="color: var(--text-muted);">₹0</div>
     </div>
   </div>
 
-  <div class="workspace">
-    <div class="panel">
-      <div class="panel-header">1. Thermal Image Payload</div>
-      <label class="btn btn-upload">
-        📁 Select Thermal Image
-        <input type="file" id="imageInput" accept="image/*" style="display: none;">
+  <!-- Main Inspection Area -->
+  <div class="main-workspace">
+    <!-- Left Column: Controls & Ticket -->
+    <div class="section-card">
+      <div class="sec-tag">Step 01 / Image Telemetry</div>
+      <div class="sec-title">Thermal Sensor Payload</div>
+
+      <label class="btn btn-select">
+        📁 Load Infrared Inspection Image
+        <input type="file" id="fileInput" accept="image/*" style="display: none;">
       </label>
-      <div id="file-status" class="file-status">Awaiting photo selection...</div>
+      <div id="file-status" style="font-size: 12px; color: var(--text-muted); margin: 8px 0 14px 2px;">No image mounted</div>
 
-      <button id="runBtn" class="btn btn-run">⚡ Run YOLOv8 Diagnostic</button>
+      <button id="runBtn" class="btn btn-run">⚡ Execute YOLOv8 Deep Diagnostics</button>
 
-      <div class="panel-header" style="margin-top: 28px;">2. Anomaly Breakdown</div>
+      <div class="sec-tag" style="margin-top: 28px;">Step 02 / Telemetry Breakdown</div>
+      <div class="sec-title">Classified Thermal Anomalies</div>
+
       <table>
         <thead>
           <tr>
-            <th>Defect Classification</th>
+            <th>Anomaly Type</th>
             <th>Confidence</th>
           </tr>
         </thead>
         <tbody id="defect-table">
           <tr>
-            <td colspan="2" style="text-align: center; color: #475569;">No diagnostic data processed</td>
+            <td colspan="2" style="text-align: center; color: var(--text-muted); padding: 24px;">No diagnostic run active</td>
           </tr>
         </tbody>
       </table>
+
+      <!-- Enterprise Work-Order Ticket -->
+      <div id="workOrderCard" class="work-order">
+        <div class="sec-tag" style="color: var(--warning);">Step 03 / O&M Action Order</div>
+        <div class="wo-row">
+          <span class="wo-lbl">Work-Order Ref</span>
+          <span id="woNumber" class="wo-data">WO-89210-SOL</span>
+        </div>
+        <div class="wo-row">
+          <span class="wo-lbl">Severity Tier</span>
+          <span id="woSeverity" class="wo-data" style="color: var(--danger);">CRITICAL DISPATCH</span>
+        </div>
+        <div class="wo-row">
+          <span class="wo-lbl">Sub-System</span>
+          <span class="wo-data">Photovoltaic Array Segment B</span>
+        </div>
+        <div id="woAction" class="wo-instruct">
+          Immediate field intervention required. Disconnect bypass string to prevent thermal runaway.
+        </div>
+      </div>
     </div>
 
-    <div class="panel">
-      <div class="panel-header">3. Computer Vision Defect Localization</div>
-      <div class="preview-container">
-        <div id="placeholderText" class="placeholder-hint">Thermal visualization preview will render here</div>
-        <img id="resultImage" style="display: none;">
+    <!-- Right Column: Visualizer -->
+    <div class="section-card">
+      <div class="sec-tag">Deep Learning Vision</div>
+      <div class="sec-title">Module Anomaly Localization Map</div>
+
+      <div class="viewer-frame">
+        <div id="emptyHint" class="empty-state">
+          📡 Awaiting thermal image load...<br>Visual bounding boxes will render here.
+        </div>
+        <img id="annotatedView" style="display: none;">
       </div>
     </div>
   </div>
 
   <script>
-    const imageInput = document.getElementById('imageInput');
+    const fileInput = document.getElementById('fileInput');
     const runBtn = document.getElementById('runBtn');
     const pdfBtn = document.getElementById('pdfBtn');
     const fileStatus = document.getElementById('file-status');
-    const placeholderText = document.getElementById('placeholderText');
-    const resultImage = document.getElementById('resultImage');
-    const defectCount = document.getElementById('defect-count');
-    const defectTable = document.getElementById('defect-table');
+    const emptyHint = document.getElementById('emptyHint');
+    const annotatedView = document.getElementById('annotatedView');
+
     const systemStatus = document.getElementById('system-status');
+    const statePill = document.getElementById('state-pill');
     const healthScore = document.getElementById('health-score');
     const healthBar = document.getElementById('health-bar');
+    const healthTag = document.getElementById('health-tag');
+    const defectCount = document.getElementById('defect-count');
+    const defectBadge = document.getElementById('defect-badge');
     const powerLoss = document.getElementById('power-loss');
     const moneyLoss = document.getElementById('money-loss');
+    const defectTable = document.getElementById('defect-table');
 
-    let originalFile = null;
+    const workOrderCard = document.getElementById('workOrderCard');
+    const woNumber = document.getElementById('woNumber');
+    const woSeverity = document.getElementById('woSeverity');
+    const woAction = document.getElementById('woAction');
 
-    imageInput.addEventListener('change', function(e) {
+    let mountedFile = null;
+
+    fileInput.addEventListener('change', function(e) {
       const file = e.target.files[0];
       if (!file) return;
 
-      originalFile = file;
-      fileStatus.innerText = "Ready (" + Math.round(file.size / 1024) + " KB)";
+      mountedFile = file;
+      fileStatus.innerText = "Loaded: " + file.name + " (" + Math.round(file.size / 1024) + " KB)";
       runBtn.style.display = 'flex';
       runBtn.disabled = false;
-      runBtn.innerText = "⚡ Run YOLOv8 Diagnostic";
-      
-      resultImage.src = URL.createObjectURL(file);
-      resultImage.style.display = 'block';
-      placeholderText.style.display = 'none';
+      runBtn.innerText = "⚡ Execute YOLOv8 Deep Diagnostics";
+
+      annotatedView.src = URL.createObjectURL(file);
+      annotatedView.style.display = 'block';
+      emptyHint.style.display = 'none';
     });
 
     runBtn.addEventListener('click', async function() {
-      if (!originalFile) return;
+      if (!mountedFile) return;
 
       runBtn.disabled = true;
-      runBtn.innerText = "Analyzing Module via YOLOv8...";
-      systemStatus.innerText = "ANALYZING...";
-      systemStatus.className = "card-value val-warning";
+      runBtn.innerText = "Running Neural Inference...";
+      systemStatus.innerText = "SCANNING";
+      systemStatus.style.color = "var(--warning)";
+      statePill.innerText = "BUSY";
+      statePill.className = "status-pill pill-yellow";
 
       const formData = new FormData();
-      formData.append('file', originalFile);
+      formData.append('file', mountedFile);
 
       try {
         const response = await fetch('/predict', {
@@ -190,82 +305,101 @@
 
         const data = await response.json();
 
-        // Show annotated image returned by model
+        // 1. Image Render
         if (data.image_data) {
-          resultImage.src = data.image_data;
-          resultImage.style.display = 'block';
-          placeholderText.style.display = 'none';
+          annotatedView.src = data.image_data;
         } else if (data.image) {
-          resultImage.src = 'data:image/jpeg;base64,' + data.image;
-          resultImage.style.display = 'block';
-          placeholderText.style.display = 'none';
+          annotatedView.src = 'data:image/jpeg;base64,' + data.image;
         }
 
+        // 2. Count calculations
         let count = 0;
-        if (data.total_faults !== undefined) {
-          count = Number(data.total_faults);
-        } else if (data.count !== undefined) {
-          count = Number(data.count);
-        } else if (data.faults && Array.isArray(data.faults)) {
-          count = data.faults.length;
-        }
+        if (data.total_faults !== undefined) count = Number(data.total_faults);
+        else if (data.faults) count = data.faults.length;
 
         defectCount.innerText = count;
 
-        let health = Math.max(20, Math.round(100 - (count * 4)));
-        let lossPercent = Math.min(85, Math.round(count * 3.5));
-        let revenueLoss = Math.round(count * 160);
+        let health = Math.max(15, Math.round(100 - (count * 4)));
+        let loss = Math.min(85, Math.round(count * 3.5));
+        let revenue = Math.round(count * 160);
 
         healthScore.innerText = health + "%";
         healthBar.style.width = health + "%";
-        powerLoss.innerText = lossPercent > 0 ? "~" + lossPercent + "%" : "0%";
-        moneyLoss.innerText = revenueLoss > 0 ? "₹" + revenueLoss.toLocaleString() + " / mo" : "₹0 / mo";
+        powerLoss.innerText = loss > 0 ? "~" + loss + "%" : "0.0%";
+        moneyLoss.innerText = revenue > 0 ? "₹" + revenue.toLocaleString() : "₹0";
 
+        // 3. Status Badges & Tickets
         if (count === 0) {
           systemStatus.innerText = "OPTIMAL";
-          systemStatus.className = "card-value val-optimal";
-          healthScore.className = "card-value val-optimal";
-          healthBar.style.backgroundColor = "#10b981";
-          powerLoss.style.color = "#10b981";
-          moneyLoss.style.color = "#10b981";
-        } else if (count <= 3) {
-          systemStatus.innerText = "ATTENTION";
-          systemStatus.className = "card-value val-warning";
-          healthScore.className = "card-value val-warning";
-          healthBar.style.backgroundColor = "#f59e0b";
-          powerLoss.style.color = "#f59e0b";
-          moneyLoss.style.color = "#f59e0b";
+          systemStatus.style.color = "var(--success)";
+          statePill.innerText = "NOMINAL";
+          statePill.className = "status-pill pill-green";
+          healthTag.innerText = "PRISTINE";
+          healthTag.className = "status-pill pill-green";
+          healthBar.style.backgroundColor = "var(--success)";
+          defectBadge.innerText = "0 HOTSPOTS";
+          defectBadge.className = "status-pill pill-green";
+          workOrderCard.style.display = 'none';
         } else {
-          systemStatus.innerText = "CRITICAL RISK";
-          systemStatus.className = "card-value val-critical";
-          healthScore.className = "card-value val-critical";
-          healthBar.style.backgroundColor = "#f43f5e";
-          powerLoss.style.color = "#f43f5e";
-          moneyLoss.style.color = "#f43f5e";
+          workOrderCard.style.display = 'block';
+          woNumber.innerText = "WO-" + Math.floor(100000 + Math.random() * 900000) + "-PV";
+
+          if (count <= 2) {
+            systemStatus.innerText = "ATTENTION";
+            systemStatus.style.color = "var(--warning)";
+            statePill.innerText = "WARNING";
+            statePill.className = "status-pill pill-yellow";
+            healthTag.innerText = "MODERATE";
+            healthTag.className = "status-pill pill-yellow";
+            healthBar.style.backgroundColor = "var(--warning)";
+            defectBadge.innerText = count + " ANOMALIES";
+            defectBadge.className = "status-pill pill-yellow";
+
+            woSeverity.innerText = "MEDIUM / SCHEDULED INSPECTION";
+            woSeverity.style.color = "var(--warning)";
+            woAction.innerText = "Minor hot-spotting detected. Schedule string resistance measurement and surface cleaning during next preventive cycle.";
+          } else {
+            systemStatus.innerText = "CRITICAL RISK";
+            systemStatus.style.color = "var(--danger)";
+            statePill.innerText = "FAULT";
+            statePill.className = "status-pill pill-red";
+            healthTag.innerText = "DEGRADED";
+            healthTag.className = "status-pill pill-red";
+            healthBar.style.backgroundColor = "var(--danger)";
+            defectBadge.innerText = count + " CRITICAL HOTSPOTS";
+            defectBadge.className = "status-pill pill-red";
+
+            woSeverity.innerText = "HIGH / IMMEDIATE DISPATCH";
+            woSeverity.style.color = "var(--danger)";
+            woAction.innerText = "Severe localized heating detected. Isolate sub-string immediately to eliminate fire risk. Check bypass diodes & busbar solder bonds.";
+          }
         }
 
+        // 4. Faults Table
         defectTable.innerHTML = '';
-        let faultsList = data.faults || data.detections || [];
+        let faultsList = data.faults || [];
         if (faultsList.length > 0) {
           faultsList.forEach(d => {
-            const label = d.type || d.label || 'Cell_Fault';
+            const label = d.type || 'Thermal_Hotspot';
             const conf = d.confidence !== undefined ? d.confidence : 60;
             const tr = document.createElement('tr');
-            tr.innerHTML = `<td style="color:#f43f5e; font-weight:600;">${label}</td><td>${conf}%</td>`;
+            tr.innerHTML = `<td style="color:var(--danger); font-weight:700;">${label}</td><td class="conf-badge">${conf}%</td>`;
             defectTable.appendChild(tr);
           });
         } else {
-          defectTable.innerHTML = '<tr><td colspan="2" style="color: #10b981; text-align: center; font-weight:500;">Zero Hotspots Verified — Panel Healthy</td></tr>';
+          defectTable.innerHTML = '<tr><td colspan="2" style="color: var(--success); text-align: center; font-weight:600;">Zero Hotspots — Panel Fully Efficient</td></tr>';
         }
 
         pdfBtn.style.display = 'inline-flex';
 
       } catch (err) {
-        alert("Diagnostic error: " + err.message);
-        systemStatus.innerText = "ERROR";
+        alert("Inference Error: " + err.message);
+        systemStatus.innerText = "SYS_ERROR";
+        statePill.innerText = "ERROR";
+        statePill.className = "status-pill pill-red";
       } finally {
         runBtn.disabled = false;
-        runBtn.innerText = "⚡ Run YOLOv8 Diagnostic";
+        runBtn.innerText = "⚡ Execute YOLOv8 Deep Diagnostics";
       }
     });
   </script>
