@@ -2,59 +2,68 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SolarGuard AI - Live YOLOv8 Web Dashboard</title>
   <style>
-    body { background-color: #0b0f19; color: #f8fafc; font-family: 'Segoe UI', sans-serif; padding: 25px; margin: 0; }
+    body { background-color: #0b0f19; color: #f8fafc; font-family: 'Segoe UI', sans-serif; padding: 24px; margin: 0; }
     .header { border-bottom: 1px solid #1e293b; padding-bottom: 15px; margin-bottom: 25px; }
     h1 { margin: 0; color: #38bdf8; font-size: 26px; }
-    .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 25px; }
-    .card { background: #161f30; padding: 18px; border-radius: 10px; border: 1px solid #24324c; text-align: center; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 25px; }
+    .card { background: #161f30; padding: 18px; border-radius: 10px; border: 1px solid #24324c; }
     .card h3 { margin: 0 0 8px 0; color: #94a3b8; font-size: 13px; text-transform: uppercase; }
-    .card p { margin: 0; font-size: 26px; font-weight: bold; }
+    .card p { margin: 0; font-size: 24px; font-weight: bold; }
     .alert-val { color: #ef4444; }
     .normal-val { color: #22c55e; }
-    .workspace { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .workspace { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; }
     .panel { background: #161f30; padding: 20px; border-radius: 10px; border: 1px solid #24324c; }
-    .upload-btn { display: block; width: 100%; padding: 14px; background: #0284c7; border: none; border-radius: 8px; color: white; font-weight: bold; cursor: pointer; margin-top: 15px; font-size: 15px; }
-    .upload-btn:hover { background: #0369a1; }
-    .preview-box { width: 100%; min-height: 320px; background: #070a12; border-radius: 8px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
-    .preview-box img { max-width: 100%; height: auto; }
+    .panel h2 { margin-top: 0; font-size: 18px; color: #38bdf8; border-bottom: 1px solid #24324c; padding-bottom: 10px; }
+    .btn { display: inline-block; background: #0284c7; color: white; padding: 12px 20px; border-radius: 6px; cursor: pointer; font-weight: bold; width: 100%; box-sizing: border-box; text-align: center; border: none; font-size: 15px; margin-top: 10px; }
+    .btn:hover { background: #0369a1; }
+    .btn-run { background: #10b981; }
+    .btn-run:hover { background: #059669; }
+    .btn:disabled { background: #475569; cursor: not-allowed; }
+    #status-text { margin-top: 8px; color: #94a3b8; font-size: 13px; font-style: italic; }
+    .preview-box { border: 2px dashed #334155; border-radius: 8px; min-height: 260px; display: flex; align-items: center; justify-content: center; overflow: hidden; background: #0b0f19; margin-top: 15px; }
+    .preview-box img { max-width: 100%; height: auto; display: block; border-radius: 6px; }
     table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-    th, td { padding: 10px; border-bottom: 1px solid #24324c; text-align: left; font-size: 14px; }
-    th { color: #94a3b8; }
+    th, td { text-align: left; padding: 10px; border-bottom: 1px solid #24324c; font-size: 14px; }
+    th { color: #94a3b8; font-weight: 600; }
   </style>
 </head>
 <body>
 
   <div class="header">
-    <h1>☀️ SolarGuard Vision - Live AI Inference</h1>
-    <small style="color: #64748b;">Powered by Local YOLOv8 (best.pt) Engine</small>
+    <h1>☀️ SolarGuard Vision – Live AI Inference</h1>
+    <p style="margin: 5px 0 0 0; color: #64748b; font-size: 13px;">Fast Real-Time Detection Engine</p>
   </div>
 
   <div class="grid">
     <div class="card">
       <h3>System Status</h3>
-      <p id="txtStatus" class="normal-val">READY</p>
+      <p id="system-status" class="normal-val">READY</p>
     </div>
     <div class="card">
       <h3>Faults Detected</h3>
-      <p id="txtCount">0</p>
+      <p id="defect-count">0</p>
     </div>
     <div class="card">
       <h3>Active Model</h3>
-      <p style="color: #38bdf8; font-size: 20px; margin-top: 6px;">YOLOv8 best.pt</p>
+      <p style="color: #38bdf8;">YOLOv8 best.pt</p>
     </div>
   </div>
 
   <div class="workspace">
     <div class="panel">
-      <h3 style="color: #38bdf8; margin-top: 0;">1. Thermal Photo Input</h3>
-      <input type="file" id="imageInput" accept="image/*" style="display: none;">
-      <button class="upload-btn" onclick="document.getElementById('imageInput').click()">Select Thermal Image File</button>
-      <div id="fileName" style="margin-top: 10px; color: #94a3b8; font-size: 13px;">No file selected.</div>
-      <button class="upload-btn" id="btnRun" style="background: #10b981; margin-top: 20px;">Run YOLOv8 Detection</button>
+      <h2>1. Thermal Photo Input</h2>
+      <label class="btn">
+        Select Thermal Image File
+        <input type="file" id="imageInput" accept="image/*" style="display: none;">
+      </label>
+      <div id="status-text">No file selected.</div>
 
-      <h3 style="color: #38bdf8; margin-top: 25px;">2. Defect Breakdown</h3>
+      <button id="runBtn" class="btn btn-run" style="display: none;">Run YOLOv8 Detection</button>
+
+      <h2 style="margin-top: 25px;">2. Defect Breakdown</h2>
       <table>
         <thead>
           <tr>
@@ -62,81 +71,138 @@
             <th>Confidence</th>
           </tr>
         </thead>
-        <tbody id="faultRows">
-          <tr><td colspan="2" style="text-align: center; color: #64748b;">No data yet.</td></tr>
+        <tbody id="defect-table">
+          <tr>
+            <td colspan="2" style="color: #64748b; text-align: center;">No data yet</td>
+          </tr>
         </tbody>
       </table>
     </div>
 
     <div class="panel">
-      <h3 style="color: #38bdf8; margin-top: 0;">3. Visual Detection Output (Model Annotations)</h3>
-      <div class="preview-box">
-        <img id="outputImg" src="" style="display: none;" />
-        <span id="holderTxt" style="color: #64748b;">Annotated result will appear here.</span>
+      <h2>3. Visual Detection Output (Model Annotations)</h2>
+      <div class="preview-box" id="previewContainer">
+        <span id="placeholderText" style="color: #64748b;">Awaiting thermal image input...</span>
+        <img id="resultImage" style="display: none;">
       </div>
     </div>
   </div>
 
   <script>
     const imageInput = document.getElementById('imageInput');
-    let selectedFile = null;
+    const runBtn = document.getElementById('runBtn');
+    const statusText = document.getElementById('status-text');
+    const placeholderText = document.getElementById('placeholderText');
+    const resultImage = document.getElementById('resultImage');
+    const defectCount = document.getElementById('defect-count');
+    const defectTable = document.getElementById('defect-table');
+    const systemStatus = document.getElementById('system-status');
 
-    imageInput.addEventListener('change', (e) => {
-      if (e.target.files.length > 0) {
-        selectedFile = e.target.files[0];
-        document.getElementById('fileName').innerText = "Selected: " + selectedFile.name;
-      }
+    let processedBlob = null;
+
+    // Fast image compression directly in browser
+    imageInput.addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      statusText.innerText = "Optimizing photo for fast upload...";
+      const reader = new FileReader();
+
+      reader.onload = function(evt) {
+        const img = new Image();
+        img.onload = function() {
+          const canvas = document.createElement('canvas');
+          const maxDim = 800; // Resize large mobile photos down to 800px max
+          let width = img.width;
+          let height = img.height;
+
+          if (width > height && width > maxDim) {
+            height = Math.round((height * maxDim) / width);
+            width = maxDim;
+          } else if (height > maxDim) {
+            width = Math.round((width * maxDim) / height);
+            height = maxDim;
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, width, height);
+
+          canvas.toBlob(function(blob) {
+            processedBlob = blob;
+            statusText.innerText = "Ready (" + Math.round(blob.size / 1024) + " KB) - Instant upload enabled";
+            runBtn.style.display = 'block';
+            runBtn.disabled = false;
+            runBtn.innerText = "Run YOLOv8 Detection";
+            
+            resultImage.src = URL.createObjectURL(blob);
+            resultImage.style.display = 'block';
+            placeholderText.style.display = 'none';
+          }, 'image/jpeg', 0.85);
+        };
+        img.src = evt.target.result;
+      };
+      reader.readAsDataURL(file);
     });
 
-    document.getElementById('btnRun').addEventListener('click', async () => {
-      if (!selectedFile) {
-        alert("Please choose an image first!");
-        return;
-      }
+    runBtn.addEventListener('click', async function() {
+      if (!processedBlob) return;
 
-      document.getElementById('holderTxt').innerText = "Running YOLOv8 inference...";
-      document.getElementById('holderTxt').style.display = "block";
-      document.getElementById('outputImg').style.display = "none";
+      runBtn.disabled = true;
+      runBtn.innerText = "Processing AI Inference...";
+      placeholderText.innerText = "Running YOLOv8 inference...";
+      systemStatus.innerText = "INSPECTING";
+      systemStatus.className = "alert-val";
 
       const formData = new FormData();
-      formData.append("file", selectedFile);
+      formData.append('file', processedBlob, 'thermal.jpg');
 
       try {
-        const response = await fetch("/predict", {
-          method: "POST",
+        const response = await fetch('/predict', {
+          method: 'POST',
           body: formData
         });
 
+        if (!response.ok) throw new Error("Inference failed");
+
         const data = await response.json();
 
-        // Update cards
-        const st = document.getElementById('txtStatus');
-        st.innerText = data.status;
-        st.className = data.status === "ALERT" ? "alert-val" : "normal-val";
-        document.getElementById('txtCount').innerText = data.total_faults;
+        // Update image
+        resultImage.src = 'data:image/jpeg;base64,' + data.image;
+        resultImage.style.display = 'block';
+        placeholderText.style.display = 'none';
 
-        // Display image
-        const img = document.getElementById('outputImg');
-        img.src = data.image_data;
-        img.style.display = "block";
-        document.getElementById('holderTxt').style.display = "none";
+        // Update defects count
+        defectCount.innerText = data.count;
+        if (data.count > 0) {
+          defectCount.className = "alert-val";
+          systemStatus.innerText = "DEFECT DETECTED";
+          systemStatus.className = "alert-val";
+        } else {
+          defectCount.className = "normal-val";
+          systemStatus.innerText = "HEALTHY";
+          systemStatus.className = "normal-val";
+        }
 
-        // Display table
-        const tbody = document.getElementById('faultRows');
-        tbody.innerHTML = "";
-        if (data.faults.length > 0) {
-          data.faults.forEach(f => {
+        // Update defects breakdown table
+        defectTable.innerHTML = '';
+        if (data.detections && data.detections.length > 0) {
+          data.detections.forEach(d => {
             const tr = document.createElement('tr');
-            tr.innerHTML = `<td><span style="color:#ef4444; font-weight:bold;">${f.type}</span></td><td>${f.confidence}%</td>`;
-            tbody.appendChild(tr);
+            tr.innerHTML = `<td style="color:#ef4444; font-weight:bold;">${d.label}</td><td>${(d.confidence * 100).toFixed(1)}%</td>`;
+            defectTable.appendChild(tr);
           });
         } else {
-          tbody.innerHTML = `<tr><td colspan="2" style="text-align: center; color:#22c55e;">Clean panel! No thermal hotspots detected.</td></tr>`;
+          defectTable.innerHTML = '<tr><td colspan="2" style="color: #22c55e; text-align: center;">No defects detected (Clean)</td></tr>';
         }
 
       } catch (err) {
-        alert("Inference failed: Check Python terminal.");
-        console.error(err);
+        alert("Inference error: " + err.message);
+        systemStatus.innerText = "ERROR";
+      } finally {
+        runBtn.disabled = false;
+        runBtn.innerText = "Run YOLOv8 Detection";
       }
     });
   </script>
