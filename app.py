@@ -9,7 +9,42 @@ from ultralytics import YOLO
 
 app = Flask(__name__)
 
+# Load YOLOv8 Model
 model = YOLO("best.pt")
+
+# Ungaloda Real Fast2SMS API Key
+FAST2SMS_KEY = "6wLBQDbeHNzdm4JZysoOrcnkgXua32Y1pFS8xW5vGKIUjfPMT0YQzZOmbJCyfWvTscxahMkuAVdRwG7j"
+
+def send_instant_sms(phone, message_text):
+    """
+    Direct Telecom Carrier SMS Dispatch via Fast2SMS Quick-SMS
+    """
+    clean_phone = "".join(filter(str.isdigit, str(phone)))
+    if len(clean_phone) > 10:
+        clean_phone = clean_phone[-10:]
+    if not clean_phone or len(clean_phone) < 10:
+        clean_phone = "9344042533"
+
+    url = "https://www.fast2sms.com/dev/bulkV2"
+    payload = {
+        "route": "q",
+        "message": message_text,
+        "language": "english",
+        "flash": 0,
+        "numbers": clean_phone
+    }
+    headers = {
+        "authorization": FAST2SMS_KEY,
+        "Content-Type": "application/json"
+    }
+
+    try:
+        response = requests.post(url, json=payload, headers=headers, timeout=8)
+        print(f"[FAST2SMS STATUS] Sent to {clean_phone} -> Response: {response.text}")
+        return response.json()
+    except Exception as e:
+        print(f"[FAST2SMS EXCEPTION] Error: {e}")
+        return {"return": False, "message": str(e)}
 
 @app.route("/")
 def index():
@@ -18,19 +53,19 @@ def index():
 @app.route("/send_alert", methods=["POST"])
 def send_alert():
     data = request.get_json() or {}
-    phone = data.get("phone", "Field Technician")
-    ticket_id = data.get("ticket_id", "WO-UNKNOWN")
-    fault_count = data.get("fault_count", 0)
+    phone = data.get("phone", "9344042533")
+    ticket_id = data.get("ticket_id", "WO-ALERT")
+    fault_count = data.get("fault_count", 1)
 
-    # Free Industrial Webhook / SMS dispatch simulation
-    # Evaluators can see real backend dispatch log & status 200
-    msg = f"🚨 SOLARIS ALERT: {fault_count} Critical Hotspots Detected! Work Order: {ticket_id}. Technician Dispatched to Sub-Array."
-    print(f"DISPATCH LOG: Sent SMS to {phone} -> {msg}")
+    sms_body = f"SOLARIS AI ALERT: {fault_count} Critical Hotspots detected on array! WorkOrder: {ticket_id}. Technician dispatched immediately."
+    
+    api_res = send_instant_sms(phone, sms_body)
 
     return jsonify({
         "status": "SENT",
-        "message": f"Real dispatch packet pushed to gateway for {phone}",
-        "timestamp": "2026-09-24T21:35:00Z"
+        "target": phone,
+        "ticket": ticket_id,
+        "gateway_response": api_res
     })
 
 @app.route("/predict", methods=["POST"])
@@ -45,6 +80,7 @@ def predict():
     except Exception:
         return jsonify({"error": "Invalid image format"}), 400
 
+    # Lightweight chromatic variance gate to filter non-thermal images
     arr = np.array(img)
     r = arr[:, :, 0].astype(float)
     g = arr[:, :, 1].astype(float)
@@ -62,9 +98,11 @@ def predict():
             "image_data": f"data:image/jpeg;base64,{encoded_img}"
         })
 
+    # Inference with YOLOv8
     results = model.predict(source=img, conf=0.25, imgsz=480)
     res = results[0]
 
+    # Draw localized bounding boxes
     res_plot = res.plot()
     annotated_img = Image.fromarray(res_plot)
 
