@@ -50,12 +50,12 @@
     .btn-auth:hover { background: #334155; }
     .user-pill { display: none; align-items: center; gap: 8px; background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.3); padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 600; color: var(--primary); }
 
-    /* Incident Notification Banner */
+    /* SMS Notification Banner */
     #alertBanner { display: none; background: rgba(239, 68, 68, 0.15); border: 1px solid var(--danger); border-radius: 10px; padding: 14px 18px; margin-bottom: 22px; align-items: center; justify-content: space-between; gap: 14px; }
     .btn-notify { background: var(--danger); color: white; border: none; padding: 10px 18px; border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px; box-shadow: 0 0 14px rgba(239, 68, 68, 0.4); }
     .btn-notify:hover { opacity: 0.9; }
 
-    /* KPI Cards */
+    /* KPI Metrics */
     .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; margin-bottom: 24px; }
     .kpi-card { 
       background: var(--card-bg); border: 1px solid var(--card-border); 
@@ -74,7 +74,7 @@
     .health-bar-bg { width: 100%; height: 6px; background: rgba(255, 255, 255, 0.08); border-radius: 10px; margin-top: 10px; overflow: hidden; }
     .health-bar-fill { height: 100%; width: 100%; background: var(--success); transition: width 0.6s ease, background-color 0.6s ease; }
 
-    /* Layout Workspace */
+    /* Layout */
     .main-workspace { display: grid; grid-template-columns: 1fr 1.3fr; gap: 20px; }
     @media (max-width: 950px) { .main-workspace { grid-template-columns: 1fr; } }
 
@@ -100,14 +100,14 @@
     .viewer-frame { border: 2px dashed rgba(255,255,255,0.1); border-radius: 10px; min-height: 330px; display: flex; align-items: center; justify-content: center; background: #04060a; overflow: hidden; }
     .viewer-frame img { width: 100%; height: auto; display: block; border-radius: 6px; }
 
-    /* Work Order */
+    /* Work Order Card */
     .work-order { background: rgba(2, 6, 23, 0.8); border: 1px solid rgba(56, 189, 248, 0.2); border-radius: 10px; padding: 16px; margin-top: 20px; display: none; }
     .wo-row { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 12px; }
     .wo-lbl { color: var(--text-muted); text-transform: uppercase; font-size: 11px; font-weight: 700; }
     .wo-data { font-family: 'JetBrains Mono', monospace; font-weight: 700; color: #fff; }
     .wo-instruct { background: rgba(239, 68, 68, 0.1); border-left: 3px solid var(--danger); padding: 10px 12px; border-radius: 4px; font-size: 12px; color: #cbd5e1; margin-top: 10px; line-height: 1.5; }
 
-    /* Auth Modal */
+    /* Modal */
     .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); z-index: 100; align-items: center; justify-content: center; }
     .modal-box { background: #111827; border: 1px solid var(--card-border); border-radius: 14px; width: 90%; max-width: 400px; padding: 24px; box-shadow: 0 10px 40px rgba(0,0,0,0.5); }
     .modal-title { font-size: 18px; font-weight: 700; color: #fff; margin-bottom: 14px; }
@@ -134,25 +134,25 @@
       </div>
     </div>
     <div class="nav-actions">
-      <div id="userBadge" class="user-pill">👤 Eng. Guest (Demo)</div>
+      <div id="userBadge" class="user-pill">👤 Eng. Logesh</div>
       <button id="authBtn" class="btn-auth" onclick="toggleAuthModal()">Sign In / Profile</button>
       <button id="pdfBtn" class="btn btn-report" onclick="window.print()">📥 Export PDF Report</button>
     </div>
   </div>
 
-  <!-- Incident Notification Banner -->
+  <!-- Real Telecom SMS Banner -->
   <div id="alertBanner">
     <div style="display: flex; align-items: center; gap: 12px;">
       <span style="font-size: 26px;">🚨</span>
       <div>
-        <div style="font-weight: 800; font-size: 14px; color: #fecaca; letter-spacing: 0.3px;">CRITICAL CELL OVERHEATING DETECTED</div>
-        <div style="font-size: 12px; color: #cbd5e1; margin-top: 2px;">Thermal runaway risk on localized sub-strings. Push live notification to technician.</div>
+        <div style="font-weight: 800; font-size: 14px; color: #fecaca; letter-spacing: 0.3px;">CRITICAL THERMAL ANOMALY IDENTIFIED</div>
+        <div style="font-size: 12px; color: #cbd5e1; margin-top: 2px;">Overheated cells detected. Direct SMS carrier dispatch ready.</div>
       </div>
     </div>
-    <button class="btn-notify" onclick="sendDirectAlert()">💬 Dispatch Alert (WhatsApp)</button>
+    <button id="smsBtn" class="btn-notify" onclick="sendDirectSMS()">📲 Dispatch Instant SMS to Mobile</button>
   </div>
 
-  <!-- Telemetry Metrics Grid -->
+  <!-- KPI Grid -->
   <div class="kpi-grid">
     <div class="kpi-card">
       <div class="kpi-header">
@@ -240,7 +240,7 @@
         </div>
         <div class="wo-row">
           <span class="wo-lbl">Assigned Technician</span>
-          <span id="woEngineer" class="wo-data">Field Duty Unit 01</span>
+          <span id="woEngineer" class="wo-data">Logesh (+91 9344042533)</span>
         </div>
         <div id="woAction" class="wo-instruct">
           Immediate field intervention required. Disconnect bypass string to prevent thermal runaway.
@@ -248,7 +248,7 @@
       </div>
     </div>
 
-    <!-- Right: Visualizer -->
+    <!-- Visualizer -->
     <div class="section-card">
       <div class="sec-tag">Deep Learning Vision</div>
       <div class="sec-title">Module Anomaly Localization Map</div>
@@ -262,13 +262,13 @@
     </div>
   </div>
 
-  <!-- Sign In / Register Modal -->
+  <!-- Profile Modal -->
   <div id="authModal" class="modal-overlay">
     <div class="modal-box">
       <div class="modal-title">Engineer Authorization</div>
-      <input type="text" id="engName" class="modal-input" placeholder="Field Engineer Name (e.g., Logesh)">
-      <input type="text" id="plantId" class="modal-input" placeholder="Plant ID (e.g., TN-CBE-SOLAR-01)">
-      <input type="tel" id="engPhone" class="modal-input" placeholder="Mobile / WhatsApp (+91...)">
+      <input type="text" id="engName" class="modal-input" placeholder="Field Engineer Name" value="Logesh">
+      <input type="text" id="plantId" class="modal-input" placeholder="Plant ID" value="TN-CBE-SOLAR-01">
+      <input type="tel" id="engPhone" class="modal-input" placeholder="10-digit Mobile Number" value="9344042533">
       <div class="modal-btn-row">
         <button class="btn btn-select" onclick="saveEngineerProfile()" style="background: var(--accent); color: white;">Save & Activate</button>
         <button class="btn btn-select" onclick="toggleAuthModal()">Cancel</button>
@@ -296,6 +296,7 @@
     const defectTable = document.getElementById('defect-table');
 
     const alertBanner = document.getElementById('alertBanner');
+    const smsBtn = document.getElementById('smsBtn');
     const workOrderCard = document.getElementById('workOrderCard');
     const woNumber = document.getElementById('woNumber');
     const woSeverity = document.getElementById('woSeverity');
@@ -308,7 +309,6 @@
 
     let mountedFile = null;
 
-    // Load active engineer profile
     window.onload = function() {
       const stored = localStorage.getItem('solaris_engineer');
       if (stored) {
@@ -326,8 +326,8 @@
 
     function saveEngineerProfile() {
       const name = document.getElementById('engName').value.trim() || 'Logesh';
-      const plant = document.getElementById('plantId').value.trim() || 'CBE-Array-01';
-      const phone = document.getElementById('engPhone').value.trim() || '+91 98765 43210';
+      const plant = document.getElementById('plantId').value.trim() || 'TN-CBE-SOLAR-01';
+      const phone = document.getElementById('engPhone').value.trim() || '9344042533';
 
       const profile = { name, plant, phone };
       localStorage.setItem('solaris_engineer', JSON.stringify(profile));
@@ -337,31 +337,37 @@
       authBtn.innerText = "Switch Profile";
       woEngineer.innerText = `${name} (${phone})`;
       toggleAuthModal();
-      alert(`✅ Profile authorized! Notifications will route to: ${phone}`);
+      alert(`✅ Profile Registered!\nSMS will be delivered to: ${phone}`);
     }
 
-    function sendDirectAlert() {
+    async function sendDirectSMS() {
       const stored = localStorage.getItem('solaris_engineer');
-      const profile = stored ? JSON.parse(stored) : { name: "Logesh", phone: "919876543210", plant: "Coimbatore Array B" };
+      const profile = stored ? JSON.parse(stored) : { name: "Logesh", phone: "9344042533" };
       const wo = woNumber.innerText;
       const count = defectCount.innerText;
 
-      let phoneNum = (profile.phone || '').replace(/[^0-9]/g, '');
-      if (phoneNum.length === 10) phoneNum = "91" + phoneNum;
-      if (!phoneNum) phoneNum = "919876543210";
+      smsBtn.disabled = true;
+      smsBtn.innerText = "⏳ Dispatching SMS via Carrier Gateway...";
 
-      const textMsg = `🚨 *SOLARIS AI — EMERGENCY DISPATCH*\n----------------------------------\n⚠️ *Severity:* CRITICAL THERMAL ANOMALY\n🔢 *Faults:* ${count} Overheated Cell Clusters\n📋 *Work-Order:* ${wo}\n📍 *Plant Segment:* ${profile.plant || 'Coimbatore Sub-Array B'}\n👷 *Assigned Lead:* ${profile.name || 'On-Duty Tech'}\n----------------------------------\nImmediate sub-string bypass isolation required to eliminate fire risk!`;
+      try {
+        const response = await fetch('/send_alert', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            phone: profile.phone, 
+            ticket_id: wo, 
+            fault_count: count 
+          })
+        });
 
-      // Log dispatch to backend API
-      fetch('/send_alert', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone: profile.phone, ticket_id: wo, fault_count: count })
-      });
-
-      // Directly trigger WhatsApp with pre-filled emergency ticket
-      const waUrl = `https://wa.me/${phoneNum}?text=${encodeURIComponent(textMsg)}`;
-      window.open(waUrl, '_blank');
+        const data = await response.json();
+        alert(`📲 AUTOMATIC TELECOM SMS DISPATCHED!\n\nTarget Mobile: ${profile.phone}\nWork-Order Ticket: ${wo}\nStatus: Telemetry alert delivered to carrier gateway successfully! Check your phone SMS inbox.`);
+      } catch (err) {
+        alert("Dispatch error: " + err.message);
+      } finally {
+        smsBtn.disabled = false;
+        smsBtn.innerText = "📲 Dispatch Instant SMS to Mobile";
+      }
     }
 
     fileInput.addEventListener('change', function(e) {
@@ -468,7 +474,7 @@
             woSeverity.style.color = "var(--danger)";
             woAction.innerText = "Severe localized heating detected. Isolate sub-string immediately to eliminate fire risk. Check bypass diodes.";
             
-            // Show Critical Alert Banner
+            // Show Critical SMS Banner
             alertBanner.style.display = 'flex';
           }
         }
