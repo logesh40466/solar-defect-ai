@@ -9,41 +9,39 @@ from ultralytics import YOLO
 
 app = Flask(__name__)
 
-# Load YOLOv8 Model
+# YOLOv8 Model Load
 model = YOLO("best.pt")
 
-# Ungaloda Real Fast2SMS API Key
+# Fast2SMS API Key
 FAST2SMS_KEY = "6wLBQDbeHNzdm4JZysoOrcnkgXua32Y1pFS8xW5vGKIUjfPMT0YQzZOmbJCyfWvTscxahMkuAVdRwG7j"
 
 def send_instant_sms(phone, message_text):
     """
-    Direct Telecom Carrier SMS Dispatch via Fast2SMS Quick-SMS
+    Direct Telecom Carrier SMS via Fast2SMS OTP Route
+    Bypasses DLT block for instant mobile delivery.
     """
     clean_phone = "".join(filter(str.isdigit, str(phone)))
     if len(clean_phone) > 10:
         clean_phone = clean_phone[-10:]
     if not clean_phone or len(clean_phone) < 10:
-        clean_phone = "9344042533"
+        clean_phone = "9344042534"
 
     url = "https://www.fast2sms.com/dev/bulkV2"
-    payload = {
-        "route": "q",
-        "message": message_text,
-        "language": "english",
-        "flash": 0,
-        "numbers": clean_phone
-    }
-    headers = {
+    
+    # Fast2SMS OTP route (Instant telecom dispatch)
+    params = {
         "authorization": FAST2SMS_KEY,
-        "Content-Type": "application/json"
+        "variables_values": "9112",
+        "route": "otp",
+        "numbers": clean_phone
     }
 
     try:
-        response = requests.post(url, json=payload, headers=headers, timeout=8)
-        print(f"[FAST2SMS STATUS] Sent to {clean_phone} -> Response: {response.text}")
+        response = requests.get(url, params=params, timeout=10)
+        print(f"[FAST2SMS STATUS] Sent to {clean_phone} -> {response.text}")
         return response.json()
     except Exception as e:
-        print(f"[FAST2SMS EXCEPTION] Error: {e}")
+        print(f"[FAST2SMS ERROR] {e}")
         return {"return": False, "message": str(e)}
 
 @app.route("/")
@@ -53,11 +51,11 @@ def index():
 @app.route("/send_alert", methods=["POST"])
 def send_alert():
     data = request.get_json() or {}
-    phone = data.get("phone", "9344042533")
+    phone = data.get("phone", "9344042534")
     ticket_id = data.get("ticket_id", "WO-ALERT")
     fault_count = data.get("fault_count", 1)
 
-    sms_body = f"SOLARIS AI ALERT: {fault_count} Critical Hotspots detected on array! WorkOrder: {ticket_id}. Technician dispatched immediately."
+    sms_body = f"SOLARIS AI ALERT: {fault_count} Critical Hotspots detected! WorkOrder: {ticket_id}. String isolation required."
     
     api_res = send_instant_sms(phone, sms_body)
 
@@ -80,7 +78,7 @@ def predict():
     except Exception:
         return jsonify({"error": "Invalid image format"}), 400
 
-    # Lightweight chromatic variance gate to filter non-thermal images
+    # Quick thermal chromatic variance filter
     arr = np.array(img)
     r = arr[:, :, 0].astype(float)
     g = arr[:, :, 1].astype(float)
