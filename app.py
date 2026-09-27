@@ -9,7 +9,7 @@ from ultralytics import YOLO
 
 app = Flask(__name__)
 
-# YOLOv8 Model Load
+# YOLOv8 Solar Model
 model = YOLO("best.pt")
 
 # Fast2SMS API Key
@@ -17,19 +17,19 @@ FAST2SMS_KEY = "6wLBQDbeHNzdm4JZysoOrcnkgXua32Y1pFS8xW5vGKIUjfPMT0YQzZOmbJCyfWvT
 
 def send_instant_sms(target_phone, message_text):
     """
-    Direct Telecom Carrier SMS via Fast2SMS Quick Route (No Domain Verification Required)
+    VOLTIX AI Carrier Alert Pipeline
+    Dynamically routes to whichever technician account is logged in.
     """
     clean_phone = "".join(filter(str.isdigit, str(target_phone)))
     if len(clean_phone) > 10:
         clean_phone = clean_phone[-10:]
     
     if not clean_phone or len(clean_phone) != 10:
-        print(f"[FAST2SMS REJECT] Invalid mobile number: {target_phone}")
+        print(f"[VOLTIX ALERT REJECT] Invalid mobile number: {target_phone}")
         return {"return": False, "message": "Invalid 10-digit mobile number"}
 
     url = "https://www.fast2sms.com/dev/bulkV2"
     
-    # Fast2SMS Quick Route JSON payload
     payload = {
         "route": "q",
         "message": message_text,
@@ -45,10 +45,10 @@ def send_instant_sms(target_phone, message_text):
 
     try:
         response = requests.post(url, json=payload, headers=headers, timeout=10)
-        print(f"[FAST2SMS STATUS] Dispatched to logged-in user {clean_phone} -> {response.text}")
+        print(f"[VOLTIX STATUS] Dispatched to logged-in user {clean_phone} -> {response.text}")
         return response.json()
     except Exception as e:
-        print(f"[FAST2SMS ERROR] {e}")
+        print(f"[VOLTIX ERROR] {e}")
         return {"return": False, "message": str(e)}
 
 @app.route("/")
@@ -59,19 +59,17 @@ def index():
 def send_alert():
     data = request.get_json() or {}
     
-    # Dynamically extract whichever number was entered in the profile
-    logged_in_phone = data.get("phone", "")
+    target_phone = data.get("phone", "9344042534")
     ticket_id = data.get("ticket_id", "WO-ALERT")
     fault_count = data.get("fault_count", 1)
 
-    sms_body = f"SOLARIS AI ALERT: {fault_count} Critical Hotspots detected! WorkOrder: {ticket_id}. String isolation required."
+    sms_body = f"VOLTIX AI ALERT: {fault_count} Critical Hotspots detected! WorkOrder: {ticket_id}. String isolation required."
     
-    # Send directly to active user's phone number
-    api_res = send_instant_sms(logged_in_phone, sms_body)
+    api_res = send_instant_sms(target_phone, sms_body)
 
     return jsonify({
         "status": "SENT",
-        "target_user_phone": logged_in_phone,
+        "technician_mobile": target_phone,
         "ticket": ticket_id,
         "gateway_response": api_res
     })
@@ -88,7 +86,7 @@ def predict():
     except Exception:
         return jsonify({"error": "Invalid image format"}), 400
 
-    # Lightweight chromatic variance gate
+    # Chromatic thermal variance verification
     arr = np.array(img)
     r = arr[:, :, 0].astype(float)
     g = arr[:, :, 1].astype(float)
