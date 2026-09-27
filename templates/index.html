@@ -6,6 +6,7 @@
     <title>VOLTIX AI — Autonomous Photovoltaic Diagnostic Suite</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
         :root {
             --bg-base: #06090e;
@@ -39,7 +40,6 @@
             flex-direction: column;
         }
 
-        /* Top Industrial Header */
         header {
             height: 70px;
             background: rgba(12, 18, 29, 0.85);
@@ -140,7 +140,6 @@
             background: rgba(0, 210, 255, 0.08);
         }
 
-        /* Main Workspace Container */
         .workspace {
             max-width: 1540px;
             width: 100%;
@@ -152,7 +151,6 @@
             flex: 1;
         }
 
-        /* Top 5 KPI Strip */
         .kpi-strip {
             display: grid;
             grid-template-columns: repeat(5, 1fr);
@@ -215,7 +213,6 @@
         .badge-nominal { background: rgba(16, 185, 129, 0.15); color: var(--accent-emerald); }
         .badge-critical { background: rgba(239, 68, 68, 0.15); color: var(--accent-rose); }
 
-        /* Dual Inspection Grid */
         .inspection-grid {
             display: grid;
             grid-template-columns: 460px 1fr;
@@ -260,7 +257,6 @@
             flex: 1;
         }
 
-        /* Upload Dropzone */
         .dropzone {
             border: 2px dashed var(--border);
             border-radius: 12px;
@@ -310,7 +306,6 @@
             display: none;
         }
 
-        /* Buttons */
         .btn-diagnose {
             background: linear-gradient(135deg, #0070f3, #00d2ff);
             color: #040810;
@@ -339,7 +334,28 @@
             transform: none;
         }
 
-        /* Telemetry Breakdown Table */
+        .btn-pdf {
+            background: var(--bg-elevated);
+            color: var(--text-main);
+            border: 1px solid var(--border-hover);
+            padding: 0.75rem;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            cursor: pointer;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            transition: all 0.2s ease;
+        }
+
+        .btn-pdf:hover {
+            border-color: var(--accent-cyan);
+            color: var(--accent-cyan);
+            background: rgba(0, 210, 255, 0.05);
+        }
+
         .telemetry-table-wrapper {
             flex: 1;
             overflow-y: auto;
@@ -380,7 +396,6 @@
             font-size: 0.82rem;
         }
 
-        /* Right Canvas Heatmap Display */
         .canvas-container {
             flex: 1;
             background: #020408;
@@ -416,7 +431,6 @@
             stroke: var(--text-dim);
         }
 
-        /* Floating Modern Toast Alerts */
         .toast-container {
             position: fixed;
             bottom: 2rem;
@@ -459,7 +473,6 @@
             font-family: 'JetBrains Mono', monospace;
         }
 
-        /* Login Modal */
         .modal-overlay {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -523,6 +536,15 @@
             font-size: 0.9rem;
             cursor: pointer;
         }
+
+        /* Printable Hidden Audit Layout */
+        #printableReportArea {
+            display: none;
+            background: #ffffff;
+            color: #111827;
+            padding: 30px;
+            font-family: Arial, sans-serif;
+        }
     </style>
 </head>
 <body>
@@ -546,9 +568,8 @@
         </div>
     </header>
 
-    <main class="workspace">
+    <main class="workspace" id="reportContentArea">
         
-        <!-- Top 5 Industrial KPI Cards -->
         <div class="kpi-strip">
             <div class="kpi-card">
                 <div class="kpi-label">System State <span class="pill-badge badge-standby" id="statusBadge">STANDBY</span></div>
@@ -581,10 +602,7 @@
             </div>
         </div>
 
-        <!-- Dual Inspection Grid -->
         <div class="inspection-grid">
-            
-            <!-- Left Control Panel -->
             <div class="panel-box">
                 <div class="panel-header">
                     <span class="panel-heading">Thermal Sensor Ingestion</span>
@@ -595,12 +613,16 @@
                         <input type="file" id="imageInput" accept="image/*" onchange="handleFileSelected(event)">
                         <span class="dropzone-icon">📷</span>
                         <div class="dropzone-text">Load Infrared / Thermographic Image</div>
-                        <div class="dropzone-hint">Supports FLIR radiometric JPG, PNG</div>
+                        <div class="dropzone-hint">Supports radiometric JPG, PNG</div>
                         <div class="file-status" id="fileStatusText"></div>
                     </div>
 
                     <button class="btn-diagnose" id="btnDiagnose" disabled onclick="executeDiagnostics()">
                         ⚡ Run Deep Vision Diagnostics
+                    </button>
+
+                    <button class="btn-pdf" id="btnDownloadPDF" onclick="exportPDFReport()">
+                        📄 Download PDF Audit Maintenance Report
                     </button>
 
                     <div class="panel-heading" style="margin-top: 0.5rem;">Localized Anomaly Logs</div>
@@ -623,7 +645,6 @@
                 </div>
             </div>
 
-            <!-- Right AI Vision Heatmap Panel -->
             <div class="panel-box">
                 <div class="panel-header">
                     <span class="panel-heading">Deep Learning Vision Localization Map</span>
@@ -639,11 +660,48 @@
                     </div>
                 </div>
             </div>
-
         </div>
     </main>
 
-    <!-- Floating Modern Toast -->
+    <!-- Hidden Layout for Printable PDF -->
+    <div id="printableReportArea">
+        <div style="border-bottom: 2px solid #111827; padding-bottom: 12px; margin-bottom: 20px;">
+            <h1 style="font-size: 22px; color: #111827; margin: 0;">VOLTIX AI — PV O&M Maintenance Inspection Report</h1>
+            <p style="font-size: 11px; color: #6b7280; margin: 4px 0 0 0;">Autonomous Deep Learning Infrared Thermography Audit</p>
+        </div>
+        <div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 20px;">
+            <div>
+                <strong>Auditor / Engineer:</strong> <span id="pdfAuditorName">Lead Operator</span><br>
+                <strong>Audit Ticket:</strong> <span id="pdfTicketId">WO-XXXX-PV</span>
+            </div>
+            <div>
+                <strong>Generated On:</strong> <span id="pdfTimestamp"></span><br>
+                <strong>Inspection Engine:</strong> YOLOv8 (conf: 0.25)
+            </div>
+        </div>
+        <table style="width: 100%; border: 1px solid #e5e7eb; margin-bottom: 20px; font-size: 12px; text-align: center;">
+            <tr style="background: #f3f4f6;">
+                <th style="padding: 8px;">Array Health</th>
+                <th style="padding: 8px;">Defects Found</th>
+                <th style="padding: 8px;">Efficiency Loss</th>
+                <th style="padding: 8px;">Monthly Risk (₹)</th>
+            </tr>
+            <tr>
+                <td id="pdfHealth" style="padding: 8px; font-weight: bold;">--%</td>
+                <td id="pdfFaults" style="padding: 8px; font-weight: bold;">--</td>
+                <td id="pdfLoss" style="padding: 8px; font-weight: bold;">--%</td>
+                <td id="pdfCost" style="padding: 8px; font-weight: bold; color: #b91c1c;">₹--</td>
+            </tr>
+        </table>
+        <div style="text-align: center; margin-bottom: 15px;">
+            <div style="font-size: 12px; font-weight: bold; margin-bottom: 6px; text-align: left;">Thermographic Anomaly Localization Map:</div>
+            <img id="pdfPreviewImg" style="max-width: 100%; max-height: 380px; border: 1px solid #d1d5db; border-radius: 6px;">
+        </div>
+        <div style="font-size: 10px; color: #6b7280; border-top: 1px solid #e5e7eb; padding-top: 10px;">
+            Notice: Autonomous work-order generated by VOLTIX AI. Strings exceeding baseline thermal threshold must be isolated prior to physical maintenance.
+        </div>
+    </div>
+
     <div class="toast-container" id="toastContainer"></div>
 
     <!-- Login Profile Modal -->
@@ -655,8 +713,8 @@
                 <input type="text" id="inputTechName" placeholder="e.g. Eng. Logesh">
             </div>
             <div class="modal-field">
-                <label>Dispatch Alert Mobile (10-Digit)</label>
-                <input type="tel" id="inputTechPhone" placeholder="e.g. 9344042534">
+                <label>Alert Email Address</label>
+                <input type="email" id="inputTechEmail" placeholder="e.g. logesh@gmail.com">
             </div>
             <button class="btn-modal-save" onclick="saveLoginCredentials()">Authenticate & Bind Alerts</button>
         </div>
@@ -664,6 +722,7 @@
 
     <script>
         let selectedFile = null;
+        let lastInferenceData = null;
         let activeUser = JSON.parse(localStorage.getItem("voltix_user")) || null;
 
         function syncAuthState() {
@@ -672,7 +731,7 @@
             const dot = document.getElementById("userStatusDot");
 
             if (activeUser && activeUser.name) {
-                userNameEl.innerText = `${activeUser.name} (${activeUser.phone.slice(-4)})`;
+                userNameEl.innerText = `${activeUser.name} (${activeUser.email.split('@')[0]})`;
                 authBtn.innerText = "Logout";
                 dot.style.background = "var(--accent-emerald)";
             } else {
@@ -696,18 +755,18 @@
 
         function saveLoginCredentials() {
             const name = document.getElementById("inputTechName").value.trim();
-            const phone = document.getElementById("inputTechPhone").value.trim();
+            const email = document.getElementById("inputTechEmail").value.trim();
 
-            if (!name || phone.length < 10) {
-                alert("Please enter a valid Operator Name and 10-digit Phone Number!");
+            if (!name || !email.includes("@")) {
+                alert("Please enter a valid Operator Name and Email Address!");
                 return;
             }
 
-            activeUser = { name, phone };
+            activeUser = { name, email };
             localStorage.setItem("voltix_user", JSON.stringify(activeUser));
             document.getElementById("loginModal").style.display = "none";
             syncAuthState();
-            triggerToast("Operator Authenticated", `Alerts bound to ${phone}`, "#10b981");
+            triggerToast("Operator Authenticated", `Alerts bound to ${email}`, "#10b981");
         }
 
         function handleFileSelected(event) {
@@ -737,7 +796,7 @@
                     body: formData
                 });
                 const data = await response.json();
-
+                lastInferenceData = data;
                 renderInspectionResults(data);
             } catch (err) {
                 console.error(err);
@@ -766,8 +825,10 @@
             const lossVal = document.getElementById("efficiencyLossVal");
             const revenueVal = document.getElementById("revenueRiskVal");
             const tbody = document.getElementById("telemetryBody");
+            const btnPdf = document.getElementById("btnDownloadPDF");
 
             faultCount.innerText = count;
+            btnPdf.style.display = "flex";
 
             if (count > 0) {
                 stateText.innerText = "CRITICAL RISK";
@@ -812,7 +873,7 @@
         }
 
         async function dispatchAutonomousAlert(faultCount) {
-            const targetPhone = activeUser ? activeUser.phone : "9344042534";
+            const targetEmail = activeUser ? activeUser.email : "technician@voltix.ai";
             const ticketId = "WO-" + Math.floor(100000 + Math.random() * 900000) + "-PV";
 
             try {
@@ -820,20 +881,48 @@
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
-                        phone: targetPhone,
+                        email: targetEmail,
                         ticket_id: ticketId,
                         fault_count: faultCount
                     })
                 });
-                const result = await res.json();
                 triggerToast(
                     "AUTONOMOUS DISPATCH TRIGGERED",
-                    `Dispatched alert to ${targetPhone} (${ticketId})`,
+                    `Dispatched email to ${targetEmail} (${ticketId})`,
                     "#00d2ff"
                 );
             } catch (e) {
                 console.error("Alert trigger failed:", e);
             }
+        }
+
+        function exportPDFReport() {
+            if (!lastInferenceData) return;
+
+            const reportEl = document.getElementById("printableReportArea");
+            document.getElementById("pdfAuditorName").innerText = activeUser ? activeUser.name : "Field Operator";
+            document.getElementById("pdfTicketId").innerText = "WO-" + Math.floor(100000 + Math.random() * 900000) + "-PV";
+            document.getElementById("pdfTimestamp").innerText = new Date().toLocaleString();
+            document.getElementById("pdfHealth").innerText = document.getElementById("arrayHealthVal").innerText;
+            document.getElementById("pdfFaults").innerText = document.getElementById("faultCountVal").innerText;
+            document.getElementById("pdfLoss").innerText = document.getElementById("efficiencyLossVal").innerText;
+            document.getElementById("pdfCost").innerText = document.getElementById("revenueRiskVal").innerText;
+            document.getElementById("pdfPreviewImg").src = lastInferenceData.image_data;
+
+            reportEl.style.display = "block";
+
+            const opt = {
+                margin: 0.4,
+                filename: `VOLTIX_Audit_Report_${Date.now()}.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2 },
+                jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+            };
+
+            html2pdf().set(opt).from(reportEl).save().then(() => {
+                reportEl.style.display = "none";
+                triggerToast("REPORT GENERATED", "Audit PDF successfully downloaded.", "#10b981");
+            });
         }
 
         function triggerToast(title, message, accentColor) {
