@@ -1,498 +1,859 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SOLARIS AI — Autonomous Thermographic Suite</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --bg: #07090e;
-      --card-bg: rgba(17, 24, 39, 0.7);
-      --card-border: rgba(255, 255, 255, 0.08);
-      --primary: #38bdf8;
-      --accent: #0ea5e9;
-      --success: #10b981;
-      --warning: #f59e0b;
-      --danger: #ef4444;
-      --text-main: #f8fafc;
-      --text-muted: #94a3b8;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VOLTIX AI — Autonomous Photovoltaic Diagnostic Suite</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-base: #06090e;
+            --bg-surface: #0c121d;
+            --bg-elevated: #131d2e;
+            --border: #1e2c42;
+            --border-hover: #2e4466;
+            --accent-cyan: #00d2ff;
+            --accent-blue: #0070f3;
+            --accent-emerald: #10b981;
+            --accent-amber: #f59e0b;
+            --accent-rose: #ef4444;
+            --text-main: #f1f5f9;
+            --text-muted: #8494ab;
+            --text-dim: #4c5b73;
+        }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
-    body { background-color: var(--bg); color: var(--text-main); padding: 24px; min-height: 100vh; background-image: radial-gradient(rgba(56, 189, 248, 0.04) 1px, transparent 0); background-size: 24px 24px; }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
 
-    .navbar { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--card-border); padding-bottom: 18px; margin-bottom: 22px; flex-wrap: wrap; gap: 14px; }
-    .brand-wrap { display: flex; align-items: center; gap: 14px; }
-    .brand-logo { 
-      width: 44px; height: 44px; border-radius: 10px; 
-      background: linear-gradient(135deg, #0284c7, #38bdf8); 
-      display: flex; align-items: center; justify-content: center; 
-      box-shadow: 0 0 20px rgba(56, 189, 248, 0.35);
-      font-size: 22px;
-    }
-    .brand-text h1 { font-size: 22px; font-weight: 800; letter-spacing: -0.5px; display: flex; align-items: center; gap: 8px; }
-    .brand-text h1 span { color: var(--primary); }
-    .live-badge {
-      display: inline-flex; align-items: center; gap: 6px; 
-      background: rgba(16, 185, 129, 0.12); color: var(--success); 
-      padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 700;
-      border: 1px solid rgba(16, 185, 129, 0.25);
-    }
-    .live-dot { width: 7px; height: 7px; border-radius: 50%; background-color: var(--success); box-shadow: 0 0 8px var(--success); }
-    .brand-sub { color: var(--text-muted); font-size: 13px; font-weight: 500; margin-top: 2px; }
+        body {
+            background-color: var(--bg-base);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
 
-    .nav-actions { display: flex; align-items: center; gap: 12px; }
-    .btn-auth { background: #1e293b; color: #f8fafc; border: 1px solid rgba(255,255,255,0.1); padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; transition: 0.2s; }
-    .btn-auth:hover { background: #334155; }
-    .user-pill { display: none; align-items: center; gap: 8px; background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.3); padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 600; color: var(--primary); }
+        /* Top Industrial Header */
+        header {
+            height: 70px;
+            background: rgba(12, 18, 29, 0.85);
+            backdrop-filter: blur(14px);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
 
-    /* Auto-Dispatched SMS Status Notification */
-    #autoSmsToast { display: none; background: rgba(16, 185, 129, 0.15); border: 1px solid var(--success); border-radius: 10px; padding: 12px 18px; margin-bottom: 20px; align-items: center; justify-content: space-between; gap: 12px; animation: fadeIn 0.4s ease; }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+        .brand-cluster {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
 
-    /* KPI Metrics */
-    .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; margin-bottom: 24px; }
-    .kpi-card { 
-      background: var(--card-bg); border: 1px solid var(--card-border); 
-      border-radius: 12px; padding: 18px; backdrop-filter: blur(12px);
-      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
-    }
-    .kpi-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-    .kpi-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-muted); }
-    .kpi-val { font-size: 26px; font-weight: 800; letter-spacing: -0.8px; font-family: 'JetBrains Mono', monospace; }
-    
-    .status-pill { font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 6px; text-transform: uppercase; }
-    .pill-green { background: rgba(16, 185, 129, 0.15); color: var(--success); border: 1px solid rgba(16, 185, 129, 0.3); }
-    .pill-yellow { background: rgba(245, 158, 11, 0.15); color: var(--warning); border: 1px solid rgba(245, 158, 11, 0.3); }
-    .pill-red { background: rgba(239, 68, 68, 0.15); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.3); }
+        .brand-icon {
+            width: 42px;
+            height: 42px;
+            background: linear-gradient(135deg, #00d2ff, #0070f3);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 20px rgba(0, 210, 255, 0.35);
+        }
 
-    .health-bar-bg { width: 100%; height: 6px; background: rgba(255, 255, 255, 0.08); border-radius: 10px; margin-top: 10px; overflow: hidden; }
-    .health-bar-fill { height: 100%; width: 100%; background: var(--success); transition: width 0.6s ease, background-color 0.6s ease; }
+        .brand-icon svg {
+            width: 24px;
+            height: 24px;
+            fill: #ffffff;
+        }
 
-    /* Layout */
-    .main-workspace { display: grid; grid-template-columns: 1fr 1.3fr; gap: 20px; }
-    @media (max-width: 950px) { .main-workspace { grid-template-columns: 1fr; } }
+        .brand-title {
+            font-size: 1.25rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
 
-    .section-card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 12px; padding: 22px; backdrop-filter: blur(12px); }
-    .sec-tag { font-size: 11px; font-weight: 800; color: var(--primary); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
-    .sec-title { font-size: 16px; font-weight: 700; margin-bottom: 14px; color: #fff; }
+        .brand-badge {
+            background: rgba(0, 210, 255, 0.1);
+            color: var(--accent-cyan);
+            border: 1px solid rgba(0, 210, 255, 0.3);
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 0.2rem 0.5rem;
+            border-radius: 6px;
+            font-family: 'JetBrains Mono', monospace;
+        }
 
-    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 12px 18px; border-radius: 8px; font-size: 14px; font-weight: 700; cursor: pointer; border: none; transition: 0.2s ease; }
-    .btn-select { background: #1e293b; color: #f8fafc; border: 1px solid rgba(255,255,255,0.1); }
-    .btn-select:hover { background: #334155; }
-    .btn-run { background: linear-gradient(135deg, #0284c7, #0ea5e9); color: white; margin-top: 10px; display: none; box-shadow: 0 4px 20px rgba(14, 165, 233, 0.4); }
-    .btn-run:disabled { background: #334155; color: #64748b; cursor: not-allowed; }
-    .btn-report { background: rgba(56, 189, 248, 0.1); color: var(--primary); border: 1px solid rgba(56, 189, 248, 0.3); width: auto; padding: 8px 16px; font-size: 13px; display: none; }
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 1.25rem;
+        }
 
-    table { width: 100%; border-collapse: collapse; margin-top: 12px; }
-    th { text-align: left; padding: 10px 12px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-muted); border-bottom: 1px solid var(--card-border); }
-    td { padding: 12px; font-size: 13px; border-bottom: 1px solid rgba(255,255,255,0.03); color: #cbd5e1; }
-    .conf-badge { font-family: 'JetBrains Mono', monospace; font-weight: 700; color: #38bdf8; }
+        .user-tag {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border);
+            padding: 0.45rem 0.9rem;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
 
-    .viewer-frame { border: 2px dashed rgba(255,255,255,0.1); border-radius: 10px; min-height: 330px; display: flex; align-items: center; justify-content: center; background: #04060a; overflow: hidden; }
-    .viewer-frame img { width: 100%; height: auto; display: block; border-radius: 6px; }
+        .user-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--text-dim);
+        }
 
-    .work-order { background: rgba(2, 6, 23, 0.8); border: 1px solid rgba(56, 189, 248, 0.2); border-radius: 10px; padding: 16px; margin-top: 20px; display: none; }
-    .wo-row { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 12px; }
-    .wo-lbl { color: var(--text-muted); text-transform: uppercase; font-size: 11px; font-weight: 700; }
-    .wo-data { font-family: 'JetBrains Mono', monospace; font-weight: 700; color: #fff; }
-    .wo-instruct { background: rgba(239, 68, 68, 0.1); border-left: 3px solid var(--danger); padding: 10px 12px; border-radius: 4px; font-size: 12px; color: #cbd5e1; margin-top: 10px; line-height: 1.5; }
+        .btn-auth {
+            background: transparent;
+            border: 1px solid var(--border-hover);
+            color: var(--text-main);
+            padding: 0.45rem 1rem;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
 
-    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); z-index: 100; align-items: center; justify-content: center; }
-    .modal-box { background: #111827; border: 1px solid var(--card-border); border-radius: 14px; width: 90%; max-width: 400px; padding: 24px; box-shadow: 0 10px 40px rgba(0,0,0,0.5); }
-    .modal-title { font-size: 18px; font-weight: 700; color: #fff; margin-bottom: 14px; }
-    .modal-input { width: 100%; background: #0b0f19; border: 1px solid var(--card-border); border-radius: 8px; padding: 10px 12px; color: #fff; font-size: 14px; margin-bottom: 12px; }
-    .modal-btn-row { display: flex; gap: 10px; margin-top: 8px; }
+        .btn-auth:hover {
+            border-color: var(--accent-cyan);
+            color: var(--accent-cyan);
+            background: rgba(0, 210, 255, 0.08);
+        }
 
-    @media print {
-      body { background: white !important; color: black !important; padding: 0; }
-      .navbar, .kpi-card, .section-card, .work-order { background: white !important; border: 1px solid #ccc !important; box-shadow: none !important; color: black !important; }
-      .btn, #fileInput, .live-badge, .nav-actions, #autoSmsToast { display: none !important; }
-      .kpi-label, .sec-tag, .wo-lbl, th, td, h1, .brand-sub { color: #000 !important; }
-    }
-  </style>
+        /* Main Workspace Container */
+        .workspace {
+            max-width: 1540px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.75rem;
+            flex: 1;
+        }
+
+        /* Top 5 KPI Strip */
+        .kpi-strip {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 1rem;
+        }
+
+        .kpi-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.2rem 1.4rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: border-color 0.2s ease, transform 0.2s ease;
+        }
+
+        .kpi-card:hover {
+            border-color: var(--border-hover);
+            transform: translateY(-2px);
+        }
+
+        .kpi-label {
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .kpi-value {
+            font-size: 1.75rem;
+            font-weight: 800;
+            margin-top: 0.5rem;
+            font-family: 'JetBrains Mono', monospace;
+            display: flex;
+            align-items: baseline;
+            gap: 0.4rem;
+        }
+
+        .kpi-sub {
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            font-weight: 600;
+            margin-top: 0.25rem;
+        }
+
+        .pill-badge {
+            font-size: 0.65rem;
+            padding: 0.15rem 0.45rem;
+            border-radius: 4px;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+        }
+
+        .badge-standby { background: rgba(132, 148, 171, 0.15); color: var(--text-muted); }
+        .badge-nominal { background: rgba(16, 185, 129, 0.15); color: var(--accent-emerald); }
+        .badge-critical { background: rgba(239, 68, 68, 0.15); color: var(--accent-rose); }
+
+        /* Dual Inspection Grid */
+        .inspection-grid {
+            display: grid;
+            grid-template-columns: 460px 1fr;
+            gap: 1.5rem;
+            flex: 1;
+        }
+
+        .panel-box {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .panel-header {
+            padding: 1rem 1.4rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(19, 29, 46, 0.35);
+        }
+
+        .panel-heading {
+            font-size: 0.85rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .panel-body {
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+            flex: 1;
+        }
+
+        /* Upload Dropzone */
+        .dropzone {
+            border: 2px dashed var(--border);
+            border-radius: 12px;
+            padding: 2rem 1.5rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background: rgba(19, 29, 46, 0.2);
+            position: relative;
+        }
+
+        .dropzone:hover {
+            border-color: var(--accent-cyan);
+            background: rgba(0, 210, 255, 0.03);
+        }
+
+        .dropzone input {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .dropzone-icon {
+            font-size: 2.2rem;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        .dropzone-text {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        .dropzone-hint {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 0.3rem;
+        }
+
+        .file-status {
+            font-size: 0.8rem;
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--accent-cyan);
+            margin-top: 0.5rem;
+            display: none;
+        }
+
+        /* Buttons */
+        .btn-diagnose {
+            background: linear-gradient(135deg, #0070f3, #00d2ff);
+            color: #040810;
+            border: none;
+            padding: 0.95rem;
+            border-radius: 10px;
+            font-weight: 800;
+            font-size: 0.9rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            transition: transform 0.15s ease, box-shadow 0.2s ease;
+            box-shadow: 0 4px 18px rgba(0, 210, 255, 0.25);
+        }
+
+        .btn-diagnose:hover:not(:disabled) {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 22px rgba(0, 210, 255, 0.4);
+        }
+
+        .btn-diagnose:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Telemetry Breakdown Table */
+        .telemetry-table-wrapper {
+            flex: 1;
+            overflow-y: auto;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: var(--bg-base);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.8rem;
+            text-align: left;
+        }
+
+        th {
+            background: var(--bg-elevated);
+            color: var(--text-muted);
+            padding: 0.65rem 0.9rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 0.68rem;
+            letter-spacing: 0.05em;
+            border-bottom: 1px solid var(--border);
+        }
+
+        td {
+            padding: 0.65rem 0.9rem;
+            border-bottom: 1px solid rgba(30, 44, 66, 0.4);
+            color: var(--text-main);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .empty-placeholder {
+            padding: 2.5rem 1rem;
+            text-align: center;
+            color: var(--text-dim);
+            font-size: 0.82rem;
+        }
+
+        /* Right Canvas Heatmap Display */
+        .canvas-container {
+            flex: 1;
+            background: #020408;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            min-height: 480px;
+        }
+
+        .canvas-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            display: none;
+        }
+
+        .canvas-empty {
+            text-align: center;
+            color: var(--text-dim);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .canvas-empty svg {
+            width: 48px;
+            height: 48px;
+            stroke: var(--text-dim);
+        }
+
+        /* Floating Modern Toast Alerts */
+        .toast-container {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            z-index: 1000;
+        }
+
+        .toast {
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-hover);
+            border-left: 4px solid var(--accent-cyan);
+            border-radius: 10px;
+            padding: 1rem 1.4rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            transform: translateX(120%);
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            max-width: 420px;
+        }
+
+        .toast.show {
+            transform: translateX(0);
+        }
+
+        .toast-content h4 {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .toast-content p {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 0.2rem;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* Login Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(2, 4, 8, 0.85);
+            backdrop-filter: blur(8px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+
+        .modal-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-hover);
+            border-radius: 16px;
+            padding: 2rem;
+            width: 420px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+
+        .modal-card h3 {
+            font-size: 1.15rem;
+            font-weight: 800;
+        }
+
+        .modal-field label {
+            display: block;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            margin-bottom: 0.4rem;
+            text-transform: uppercase;
+        }
+
+        .modal-field input {
+            width: 100%;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 0.75rem 0.9rem;
+            color: var(--text-main);
+            font-size: 0.9rem;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .modal-field input:focus {
+            outline: none;
+            border-color: var(--accent-cyan);
+        }
+
+        .btn-modal-save {
+            background: linear-gradient(135deg, #0070f3, #00d2ff);
+            color: #040810;
+            border: none;
+            padding: 0.8rem;
+            border-radius: 8px;
+            font-weight: 800;
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+    </style>
 </head>
 <body>
 
-  <!-- Top Navbar -->
-  <div class="navbar">
-    <div class="brand-wrap">
-      <div class="brand-logo">☀️</div>
-      <div class="brand-text">
-        <h1>SOLARIS <span>AI</span> <div class="live-badge"><span class="live-dot"></span> EDGE READY</div></h1>
-        <div class="brand-sub">Autonomous Thermographic Anomaly Localization & O&M Dispatch Suite</div>
-      </div>
-    </div>
-    <div class="nav-actions">
-      <div id="userBadge" class="user-pill">👤 Eng. Logesh</div>
-      <button id="authBtn" class="btn-auth" onclick="toggleAuthModal()">Switch Profile</button>
-      <button id="pdfBtn" class="btn btn-report" onclick="window.print()">📥 Export PDF Report</button>
-    </div>
-  </div>
-
-  <!-- Automatic SMS Sent Toast Notification -->
-  <div id="autoSmsToast">
-    <div style="display: flex; align-items: center; gap: 10px;">
-      <span style="font-size: 22px;">⚡</span>
-      <div>
-        <div style="font-weight: 700; font-size: 13px; color: #a7f3d0;" id="smsToastTitle">AUTONOMOUS DISPATCH TRIGGERED</div>
-        <div style="font-size: 12px; color: #cbd5e1;" id="smsToastDetail">Carrier SMS transmitted automatically to technician mobile.</div>
-      </div>
-    </div>
-    <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #34d399; font-weight: 700;">STATUS: 200 OK</div>
-  </div>
-
-  <!-- KPI Grid -->
-  <div class="kpi-grid">
-    <div class="kpi-card">
-      <div class="kpi-header">
-        <span class="kpi-label">System State</span>
-        <span id="state-pill" class="status-pill pill-green">ONLINE</span>
-      </div>
-      <div id="system-status" class="kpi-val" style="font-size: 20px; color: var(--success);">STANDBY</div>
-    </div>
-
-    <div class="kpi-card">
-      <div class="kpi-header">
-        <span class="kpi-label">Array Health Meter</span>
-        <span id="health-tag" class="status-pill pill-green">OPTIMAL</span>
-      </div>
-      <div id="health-score" class="kpi-val" style="color: var(--success);">100%</div>
-      <div class="health-bar-bg">
-        <div id="health-bar" class="health-bar-fill"></div>
-      </div>
-    </div>
-
-    <div class="kpi-card">
-      <div class="kpi-header">
-        <span class="kpi-label">Defects Localized</span>
-        <span class="status-pill pill-green" id="defect-badge">0 DETECTED</span>
-      </div>
-      <div id="defect-count" class="kpi-val">0</div>
-    </div>
-
-    <div class="kpi-card">
-      <div class="kpi-header">
-        <span class="kpi-label">Efficiency Loss</span>
-      </div>
-      <div id="power-loss" class="kpi-val" style="color: var(--text-muted);">0.0%</div>
-    </div>
-
-    <div class="kpi-card">
-      <div class="kpi-header">
-        <span class="kpi-label">Revenue Risk / mo</span>
-      </div>
-      <div id="money-loss" class="kpi-val" style="color: var(--text-muted);">₹0</div>
-    </div>
-  </div>
-
-  <!-- Workspace -->
-  <div class="main-workspace">
-    <div class="section-card">
-      <div class="sec-tag">Step 01 / Image Telemetry</div>
-      <div class="sec-title">Thermal Sensor Payload</div>
-
-      <label class="btn btn-select">
-        📁 Load Infrared Inspection Image
-        <input type="file" id="fileInput" accept="image/*" style="display: none;">
-      </label>
-      <div id="file-status" style="font-size: 12px; color: var(--text-muted); margin: 8px 0 14px 2px;">No image mounted</div>
-
-      <button id="runBtn" class="btn btn-run">⚡ Execute YOLOv8 Deep Diagnostics</button>
-
-      <div class="sec-tag" style="margin-top: 26px;">Step 02 / Telemetry Breakdown</div>
-      <div class="sec-title">Classified Thermal Anomalies</div>
-
-      <table>
-        <thead>
-          <tr>
-            <th>Anomaly Type</th>
-            <th>Confidence</th>
-          </tr>
-        </thead>
-        <tbody id="defect-table">
-          <tr>
-            <td colspan="2" style="text-align: center; color: var(--text-muted); padding: 22px;">No diagnostic run active</td>
-          </tr>
-        </tbody>
-      </table>
-
-      <!-- Enterprise Work-Order Ticket -->
-      <div id="workOrderCard" class="work-order">
-        <div class="sec-tag" style="color: var(--warning);">Step 03 / O&M Action Order</div>
-        <div class="wo-row">
-          <span class="wo-lbl">Work-Order Ref</span>
-          <span id="woNumber" class="wo-data">WO-89210-SOL</span>
+    <header>
+        <div class="brand-cluster">
+            <div class="brand-icon">
+                <svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+            </div>
+            <div>
+                <div class="brand-title">VOLTIX AI <span class="brand-badge">SCADA-V2</span></div>
+            </div>
         </div>
-        <div class="wo-row">
-          <span class="wo-lbl">Severity Tier</span>
-          <span id="woSeverity" class="wo-data" style="color: var(--danger);">CRITICAL DISPATCH</span>
+
+        <div class="header-controls">
+            <div class="user-tag">
+                <span class="user-dot" id="userStatusDot"></span>
+                <span id="activeUserName">Guest Operator</span>
+            </div>
+            <button class="btn-auth" id="authBtn" onclick="toggleAuth()">Login</button>
         </div>
-        <div class="wo-row">
-          <span class="wo-lbl">Assigned Technician</span>
-          <span id="woEngineer" class="wo-data">Logesh (+91 9344042533)</span>
+    </header>
+
+    <main class="workspace">
+        
+        <!-- Top 5 Industrial KPI Cards -->
+        <div class="kpi-strip">
+            <div class="kpi-card">
+                <div class="kpi-label">System State <span class="pill-badge badge-standby" id="statusBadge">STANDBY</span></div>
+                <div class="kpi-value" id="systemStateText" style="color: var(--text-muted);">READY</div>
+                <div class="kpi-sub" id="systemSubText">Telemetry awaiting input</div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-label">Array Health</div>
+                <div class="kpi-value" id="arrayHealthVal" style="color: var(--text-muted);">--%</div>
+                <div class="kpi-sub">Baseline efficiency ratio</div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-label">Defects Localized</div>
+                <div class="kpi-value" id="faultCountVal">--</div>
+                <div class="kpi-sub">Anomalies classified</div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-label">Efficiency Loss</div>
+                <div class="kpi-value" id="efficiencyLossVal">--%</div>
+                <div class="kpi-sub">Calculated drop rate</div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-label">Revenue Risk / Mo</div>
+                <div class="kpi-value" id="revenueRiskVal">--</div>
+                <div class="kpi-sub">Estimated kWh impact</div>
+            </div>
         </div>
-        <div id="woAction" class="wo-instruct">
-          Immediate field intervention required. Disconnect bypass string to prevent thermal runaway.
-        </div>
-      </div>
-    </div>
 
-    <!-- Visualizer -->
-    <div class="section-card">
-      <div class="sec-tag">Deep Learning Vision</div>
-      <div class="sec-title">Module Anomaly Localization Map</div>
-
-      <div class="viewer-frame">
-        <div id="emptyHint" style="text-align: center; color: #475569; font-size: 13px;">
-          📡 Awaiting thermal image load...<br>Visual bounding boxes will render here.
-        </div>
-        <img id="annotatedView" style="display: none;">
-      </div>
-    </div>
-  </div>
-
-  <!-- Profile Modal -->
-  <div id="authModal" class="modal-overlay">
-    <div class="modal-box">
-      <div class="modal-title">Engineer Authorization</div>
-      <input type="text" id="engName" class="modal-input" placeholder="Field Engineer Name" value="Logesh">
-      <input type="text" id="plantId" class="modal-input" placeholder="Plant ID" value="TN-CBE-SOLAR-01">
-      <input type="tel" id="engPhone" class="modal-input" placeholder="10-digit Mobile Number" value="9344042533">
-      <div class="modal-btn-row">
-        <button class="btn btn-select" onclick="saveEngineerProfile()" style="background: var(--accent); color: white;">Save & Activate</button>
-        <button class="btn btn-select" onclick="toggleAuthModal()">Cancel</button>
-      </div>
-    </div>
-  </div>
-
-  <script>
-    const fileInput = document.getElementById('fileInput');
-    const runBtn = document.getElementById('runBtn');
-    const pdfBtn = document.getElementById('pdfBtn');
-    const fileStatus = document.getElementById('file-status');
-    const emptyHint = document.getElementById('emptyHint');
-    const annotatedView = document.getElementById('annotatedView');
-
-    const systemStatus = document.getElementById('system-status');
-    const statePill = document.getElementById('state-pill');
-    const healthScore = document.getElementById('health-score');
-    const healthBar = document.getElementById('health-bar');
-    const healthTag = document.getElementById('health-tag');
-    const defectCount = document.getElementById('defect-count');
-    const defectBadge = document.getElementById('defect-badge');
-    const powerLoss = document.getElementById('power-loss');
-    const moneyLoss = document.getElementById('money-loss');
-    const defectTable = document.getElementById('defect-table');
-
-    const autoSmsToast = document.getElementById('autoSmsToast');
-    const smsToastDetail = document.getElementById('smsToastDetail');
-    const workOrderCard = document.getElementById('workOrderCard');
-    const woNumber = document.getElementById('woNumber');
-    const woSeverity = document.getElementById('woSeverity');
-    const woAction = document.getElementById('woAction');
-    const woEngineer = document.getElementById('woEngineer');
-
-    const authModal = document.getElementById('authModal');
-    const userBadge = document.getElementById('userBadge');
-    const authBtn = document.getElementById('authBtn');
-
-    let mountedFile = null;
-
-    window.onload = function() {
-      const stored = localStorage.getItem('solaris_engineer');
-      if (stored) {
-        const u = JSON.parse(stored);
-        userBadge.innerText = `👤 Eng. ${u.name} (${u.plant})`;
-        userBadge.style.display = 'inline-flex';
-        woEngineer.innerText = `${u.name} (${u.phone})`;
-      } else {
-        userBadge.innerText = `👤 Eng. Logesh (SOLAR-01)`;
-        userBadge.style.display = 'inline-flex';
-        woEngineer.innerText = `Logesh (+91 9344042533)`;
-      }
-    };
-
-    function toggleAuthModal() {
-      authModal.style.display = authModal.style.display === 'flex' ? 'none' : 'flex';
-    }
-
-    function saveEngineerProfile() {
-      const name = document.getElementById('engName').value.trim() || 'Logesh';
-      const plant = document.getElementById('plantId').value.trim() || 'TN-CBE-SOLAR-01';
-      const phone = document.getElementById('engPhone').value.trim() || '9344042533';
-
-      const profile = { name, plant, phone };
-      localStorage.setItem('solaris_engineer', JSON.stringify(profile));
-
-      userBadge.innerText = `👤 Eng. ${name} (${plant})`;
-      userBadge.style.display = 'inline-flex';
-      woEngineer.innerText = `${name} (${phone})`;
-      toggleAuthModal();
-    }
-
-    // AUTOMATIC BACKGROUND SMS DISPATCH FUNCTION
-    async function triggerAutonomousSMS(ticketId, count) {
-      const stored = localStorage.getItem('solaris_engineer');
-      const profile = stored ? JSON.parse(stored) : { name: "Logesh", phone: "9344042533" };
-
-      try {
-        const response = await fetch('/send_alert', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ 
-            phone: profile.phone, 
-            ticket_id: ticketId, 
-            fault_count: count 
-          })
-        });
-
-        // Show elegant confirmation banner without opening WhatsApp or popup
-        smsToastDetail.innerText = `Autonomous Carrier SMS successfully dispatched to ${profile.phone} (Ticket: ${ticketId})`;
-        autoSmsToast.style.display = 'flex';
-      } catch (err) {
-        console.error("Auto SMS Pipeline Error:", err);
-      }
-    }
-
-    fileInput.addEventListener('change', function(e) {
-      const file = e.target.files[0];
-      if (!file) return;
-
-      mountedFile = file;
-      fileStatus.innerText = "Loaded: " + file.name + " (" + Math.round(file.size / 1024) + " KB)";
-      runBtn.style.display = 'flex';
-      runBtn.disabled = false;
-      runBtn.innerText = "⚡ Execute YOLOv8 Deep Diagnostics";
-
-      annotatedView.src = URL.createObjectURL(file);
-      annotatedView.style.display = 'block';
-      emptyHint.style.display = 'none';
-      autoSmsToast.style.display = 'none';
-    });
-
-    runBtn.addEventListener('click', async function() {
-      if (!mountedFile) return;
-
-      runBtn.disabled = true;
-      runBtn.innerText = "Running Neural Inference...";
-      systemStatus.innerText = "SCANNING";
-      systemStatus.style.color = "var(--warning)";
-      statePill.innerText = "BUSY";
-      statePill.className = "status-pill pill-yellow";
-      autoSmsToast.style.display = 'none';
-
-      const formData = new FormData();
-      formData.append('file', mountedFile);
-
-      try {
-        const response = await fetch('/predict', {
-          method: 'POST',
-          body: formData
-        });
-
-        if (!response.ok) throw new Error("Inference failed");
-
-        const data = await response.json();
-
-        if (data.image_data) {
-          annotatedView.src = data.image_data;
-        }
-
-        let count = 0;
-        if (data.total_faults !== undefined) count = Number(data.total_faults);
-        else if (data.faults) count = data.faults.length;
-
-        defectCount.innerText = count;
-
-        let health = Math.max(15, Math.round(100 - (count * 4)));
-        let loss = Math.min(85, Math.round(count * 3.5));
-        let revenue = Math.round(count * 160);
-
-        healthScore.innerText = health + "%";
-        healthBar.style.width = health + "%";
-        powerLoss.innerText = loss > 0 ? "~" + loss + "%" : "0.0%";
-        moneyLoss.innerText = revenue > 0 ? "₹" + revenue.toLocaleString() : "₹0";
-
-        if (count === 0) {
-          systemStatus.innerText = "OPTIMAL";
-          systemStatus.style.color = "var(--success)";
-          statePill.innerText = "NOMINAL";
-          statePill.className = "status-pill pill-green";
-          healthTag.innerText = "PRISTINE";
-          healthTag.className = "status-pill pill-green";
-          healthBar.style.backgroundColor = "var(--success)";
-          defectBadge.innerText = "0 HOTSPOTS";
-          defectBadge.className = "status-pill pill-green";
-          workOrderCard.style.display = 'none';
-        } else {
-          workOrderCard.style.display = 'block';
-          const generatedWO = "WO-" + Math.floor(100000 + Math.random() * 900000) + "-PV";
-          woNumber.innerText = generatedWO;
-
-          if (count <= 2) {
-            systemStatus.innerText = "ATTENTION";
-            systemStatus.style.color = "var(--warning)";
-            statePill.innerText = "WARNING";
-            statePill.className = "status-pill pill-yellow";
-            healthTag.innerText = "MODERATE";
-            healthTag.className = "status-pill pill-yellow";
-            healthBar.style.backgroundColor = "var(--warning)";
-            defectBadge.innerText = count + " ANOMALIES";
-            defectBadge.className = "status-pill pill-yellow";
-
-            woSeverity.innerText = "MEDIUM / SCHEDULED INSPECTION";
-            woSeverity.style.color = "var(--warning)";
-            woAction.innerText = "Minor hot-spotting detected. Schedule string resistance measurement during next maintenance cycle.";
-          } else {
-            systemStatus.innerText = "CRITICAL RISK";
-            systemStatus.style.color = "var(--danger)";
-            statePill.innerText = "FAULT";
-            statePill.className = "status-pill pill-red";
-            healthTag.innerText = "DEGRADED";
-            healthTag.className = "status-pill pill-red";
-            healthBar.style.backgroundColor = "var(--danger)";
-            defectBadge.innerText = count + " CRITICAL HOTSPOTS";
-            defectBadge.className = "status-pill pill-red";
-
-            woSeverity.innerText = "HIGH / IMMEDIATE DISPATCH";
-            woSeverity.style.color = "var(--danger)";
-            woAction.innerText = "Severe localized heating detected. Isolate sub-string immediately to eliminate fire risk. Check bypass diodes.";
+        <!-- Dual Inspection Grid -->
+        <div class="inspection-grid">
             
-            // 🚀 FULLY AUTONOMOUS DISPATCH TRIGGER — ZERO USER TOUCH NEEDED!
-            triggerAutonomousSMS(generatedWO, count);
-          }
+            <!-- Left Control Panel -->
+            <div class="panel-box">
+                <div class="panel-header">
+                    <span class="panel-heading">Thermal Sensor Ingestion</span>
+                    <span class="pill-badge badge-standby" id="sensorEngineStatus">YOLOv8.0</span>
+                </div>
+                <div class="panel-body">
+                    <div class="dropzone" id="dropzoneBox">
+                        <input type="file" id="imageInput" accept="image/*" onchange="handleFileSelected(event)">
+                        <span class="dropzone-icon">📷</span>
+                        <div class="dropzone-text">Load Infrared / Thermographic Image</div>
+                        <div class="dropzone-hint">Supports FLIR radiometric JPG, PNG</div>
+                        <div class="file-status" id="fileStatusText"></div>
+                    </div>
+
+                    <button class="btn-diagnose" id="btnDiagnose" disabled onclick="executeDiagnostics()">
+                        ⚡ Run Deep Vision Diagnostics
+                    </button>
+
+                    <div class="panel-heading" style="margin-top: 0.5rem;">Localized Anomaly Logs</div>
+                    <div class="telemetry-table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Anomaly ID</th>
+                                    <th>Class</th>
+                                    <th>Confidence</th>
+                                </tr>
+                            </thead>
+                            <tbody id="telemetryBody">
+                                <tr>
+                                    <td colspan="3" class="empty-placeholder">No active telemetry loaded. Upload image to inspect.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right AI Vision Heatmap Panel -->
+            <div class="panel-box">
+                <div class="panel-header">
+                    <span class="panel-heading">Deep Learning Vision Localization Map</span>
+                    <span class="pill-badge badge-nominal" id="modelResolutionBadge">480px SENSOR RES</span>
+                </div>
+                <div class="panel-body" style="padding: 1.25rem;">
+                    <div class="canvas-container">
+                        <div class="canvas-empty" id="canvasEmptyPlaceholder">
+                            <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><path d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                            <div>Awaiting thermal sensor image stream...</div>
+                        </div>
+                        <img id="annotatedStream" alt="Thermal Anomaly Map">
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Floating Modern Toast -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Login Profile Modal -->
+    <div class="modal-overlay" id="loginModal">
+        <div class="modal-card">
+            <h3>Technician Authentication (VOLTIX AI)</h3>
+            <div class="modal-field">
+                <label>Operator / Engineer Name</label>
+                <input type="text" id="inputTechName" placeholder="e.g. Eng. Logesh">
+            </div>
+            <div class="modal-field">
+                <label>Dispatch Alert Mobile (10-Digit)</label>
+                <input type="tel" id="inputTechPhone" placeholder="e.g. 9344042534">
+            </div>
+            <button class="btn-modal-save" onclick="saveLoginCredentials()">Authenticate & Bind Alerts</button>
+        </div>
+    </div>
+
+    <script>
+        let selectedFile = null;
+        let activeUser = JSON.parse(localStorage.getItem("voltix_user")) || null;
+
+        function syncAuthState() {
+            const userNameEl = document.getElementById("activeUserName");
+            const authBtn = document.getElementById("authBtn");
+            const dot = document.getElementById("userStatusDot");
+
+            if (activeUser && activeUser.name) {
+                userNameEl.innerText = `${activeUser.name} (${activeUser.phone.slice(-4)})`;
+                authBtn.innerText = "Logout";
+                dot.style.background = "var(--accent-emerald)";
+            } else {
+                userNameEl.innerText = "Guest Operator";
+                authBtn.innerText = "Login";
+                dot.style.background = "var(--text-dim)";
+            }
+        }
+        syncAuthState();
+
+        function toggleAuth() {
+            if (activeUser) {
+                localStorage.removeItem("voltix_user");
+                activeUser = null;
+                syncAuthState();
+                triggerToast("Session Terminated", "Logged out to guest mode.", "#8494ab");
+            } else {
+                document.getElementById("loginModal").style.display = "flex";
+            }
         }
 
-        defectTable.innerHTML = '';
-        let faultsList = data.faults || [];
-        if (faultsList.length > 0) {
-          faultsList.forEach(d => {
-            const label = d.type || 'Thermal_Hotspot';
-            const conf = d.confidence !== undefined ? d.confidence : 60;
-            const tr = document.createElement('tr');
-            tr.innerHTML = `<td style="color:var(--danger); font-weight:700;">${label}</td><td class="conf-badge">${conf}%</td>`;
-            defectTable.appendChild(tr);
-          });
-        } else {
-          defectTable.innerHTML = '<tr><td colspan="2" style="color: var(--success); text-align: center; font-weight:600;">Zero Hotspots — Panel Fully Efficient</td></tr>';
+        function saveLoginCredentials() {
+            const name = document.getElementById("inputTechName").value.trim();
+            const phone = document.getElementById("inputTechPhone").value.trim();
+
+            if (!name || phone.length < 10) {
+                alert("Please enter a valid Operator Name and 10-digit Phone Number!");
+                return;
+            }
+
+            activeUser = { name, phone };
+            localStorage.setItem("voltix_user", JSON.stringify(activeUser));
+            document.getElementById("loginModal").style.display = "none";
+            syncAuthState();
+            triggerToast("Operator Authenticated", `Alerts bound to ${phone}`, "#10b981");
         }
 
-        pdfBtn.style.display = 'inline-flex';
+        function handleFileSelected(event) {
+            const file = event.target.files[0];
+            if (!file) return;
 
-      } catch (err) {
-        alert("Inference Error: " + err.message);
-        systemStatus.innerText = "SYS_ERROR";
-        statePill.innerText = "ERROR";
-        statePill.className = "status-pill pill-red";
-      } finally {
-        runBtn.disabled = false;
-        runBtn.innerText = "⚡ Execute YOLOv8 Deep Diagnostics";
-      }
-    });
-  </script>
+            selectedFile = file;
+            const fileStatus = document.getElementById("fileStatusText");
+            fileStatus.style.display = "block";
+            fileStatus.innerText = `READY: ${file.name} (${(file.size / 1024).toFixed(1)} KB)`;
+            document.getElementById("btnDiagnose").disabled = false;
+        }
+
+        async function executeDiagnostics() {
+            if (!selectedFile) return;
+
+            const btn = document.getElementById("btnDiagnose");
+            btn.disabled = true;
+            btn.innerText = "Analyzing Infrared Radiometry...";
+
+            const formData = new FormData();
+            formData.append("file", selectedFile);
+
+            try {
+                const response = await fetch("/predict", {
+                    method: "POST",
+                    body: formData
+                });
+                const data = await response.json();
+
+                renderInspectionResults(data);
+            } catch (err) {
+                console.error(err);
+                alert("Inspection server error. Please retry.");
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "⚡ Run Deep Vision Diagnostics";
+            }
+        }
+
+        function renderInspectionResults(data) {
+            const streamImg = document.getElementById("annotatedStream");
+            const placeholder = document.getElementById("canvasEmptyPlaceholder");
+            
+            streamImg.src = data.image_data;
+            streamImg.style.display = "block";
+            placeholder.style.display = "none";
+
+            const faults = data.faults || [];
+            const count = faults.length;
+
+            const stateText = document.getElementById("systemStateText");
+            const stateBadge = document.getElementById("statusBadge");
+            const healthVal = document.getElementById("arrayHealthVal");
+            const faultCount = document.getElementById("faultCountVal");
+            const lossVal = document.getElementById("efficiencyLossVal");
+            const revenueVal = document.getElementById("revenueRiskVal");
+            const tbody = document.getElementById("telemetryBody");
+
+            faultCount.innerText = count;
+
+            if (count > 0) {
+                stateText.innerText = "CRITICAL RISK";
+                stateText.style.color = "var(--accent-rose)";
+                stateBadge.className = "pill-badge badge-critical";
+                stateBadge.innerText = "FAULT DETECTED";
+
+                const calculatedHealth = Math.max(10, 100 - (count * 4));
+                const calculatedLoss = Math.min(95, count * 3.5);
+                const estimatedCost = count * 160;
+
+                healthVal.innerText = `${calculatedHealth}%`;
+                healthVal.style.color = calculatedHealth < 75 ? "var(--accent-rose)" : "var(--accent-amber)";
+                lossVal.innerText = `~${calculatedLoss.toFixed(0)}%`;
+                revenueVal.innerText = `₹${estimatedCost.toLocaleString()}`;
+
+                tbody.innerHTML = "";
+                faults.forEach((f, idx) => {
+                    const row = `<tr>
+                        <td>#ANO-0${idx + 1}</td>
+                        <td style="color: var(--accent-rose); font-weight:700;">${f.type}</td>
+                        <td>${f.confidence}%</td>
+                    </tr>`;
+                    tbody.innerHTML += row;
+                });
+
+                dispatchAutonomousAlert(count);
+
+            } else {
+                stateText.innerText = "NOMINAL";
+                stateText.style.color = "var(--accent-emerald)";
+                stateBadge.className = "pill-badge badge-nominal";
+                stateBadge.innerText = "OPTIMAL";
+
+                healthVal.innerText = "100%";
+                healthVal.style.color = "var(--accent-emerald)";
+                lossVal.innerText = "0%";
+                revenueVal.innerText = "₹0";
+
+                tbody.innerHTML = `<tr><td colspan="3" class="empty-placeholder" style="color: var(--accent-emerald);">All strings operating under baseline thermal thresholds. Zero anomalies detected.</td></tr>`;
+            }
+        }
+
+        async function dispatchAutonomousAlert(faultCount) {
+            const targetPhone = activeUser ? activeUser.phone : "9344042534";
+            const ticketId = "WO-" + Math.floor(100000 + Math.random() * 900000) + "-PV";
+
+            try {
+                const res = await fetch("/send_alert", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        phone: targetPhone,
+                        ticket_id: ticketId,
+                        fault_count: faultCount
+                    })
+                });
+                const result = await res.json();
+                triggerToast(
+                    "AUTONOMOUS DISPATCH TRIGGERED",
+                    `Dispatched alert to ${targetPhone} (${ticketId})`,
+                    "#00d2ff"
+                );
+            } catch (e) {
+                console.error("Alert trigger failed:", e);
+            }
+        }
+
+        function triggerToast(title, message, accentColor) {
+            const container = document.getElementById("toastContainer");
+            const toast = document.createElement("div");
+            toast.className = "toast";
+            toast.style.borderLeftColor = accentColor;
+            toast.innerHTML = `
+                <div class="toast-content">
+                    <h4>${title}</h4>
+                    <p>${message}</p>
+                </div>
+            `;
+            container.appendChild(toast);
+            setTimeout(() => toast.classList.add("show"), 50);
+            setTimeout(() => {
+                toast.classList.remove("show");
+                setTimeout(() => toast.remove(), 400);
+            }, 5500);
+        }
+    </script>
 </body>
 </html>
