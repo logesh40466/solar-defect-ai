@@ -1,7 +1,9 @@
 import os
 import io
 import base64
-import requests
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 import numpy as np
 from flask import Flask, request, jsonify, render_template
 from PIL import Image
@@ -9,46 +11,56 @@ from ultralytics import YOLO
 
 app = Flask(__name__)
 
-# YOLOv8 Solar Model
+# Load YOLOv8 Model
 model = YOLO("best.pt")
 
-# Fast2SMS API Key
-FAST2SMS_KEY = "6wLBQDbeHNzdm4JZysoOrcnkgXua32Y1pFS8xW5vGKIUjfPMT0YQzZOmbJCyfWvTscxahMkuAVdRwG7j"
+# Email Pipeline (Unga sender Gmail matrum 16-digit Google App Password inga fill pannunga)
+SENDER_EMAIL = "your_email@gmail.com"
+SENDER_APP_PASSWORD = "xxxx xxxx xxxx xxxx"
 
-def send_instant_sms(target_phone, message_text):
-    """
-    VOLTIX AI Carrier Alert Pipeline
-    Dynamically routes to whichever technician account is logged in.
-    """
-    clean_phone = "".join(filter(str.isdigit, str(target_phone)))
-    if len(clean_phone) > 10:
-        clean_phone = clean_phone[-10:]
-    
-    if not clean_phone or len(clean_phone) != 10:
-        print(f"[VOLTIX ALERT REJECT] Invalid mobile number: {target_phone}")
-        return {"return": False, "message": "Invalid 10-digit mobile number"}
+def send_instant_email(recipient_email, ticket_id, fault_count):
+    if not recipient_email or "@" not in recipient_email:
+        print(f"[VOLTIX ALERT REJECT] Invalid Email: {recipient_email}")
+        return {"return": False, "message": "Invalid email address"}
 
-    url = "https://www.fast2sms.com/dev/bulkV2"
+    subject = f"🚨 VOLTIX AI CRITICAL ALERT: {fault_count} Hotspots Detected [{ticket_id}]"
     
-    payload = {
-        "route": "q",
-        "message": message_text,
-        "language": "english",
-        "flash": 0,
-        "numbers": clean_phone
-    }
-    
-    headers = {
-        "authorization": FAST2SMS_KEY,
-        "Content-Type": "application/json"
-    }
+    html_body = f"""
+    <html>
+      <body style="font-family: Arial, sans-serif; background-color: #0c121d; color: #ffffff; padding: 20px;">
+        <div style="max-width: 600px; margin: 0 auto; background: #131d2e; border: 1px solid #1e2c42; border-radius: 10px; padding: 25px;">
+          <h2 style="color: #00d2ff; margin-top: 0;">VOLTIX AI — Critical O&M Alert</h2>
+          <p style="color: #8494ab;">Autonomous Thermographic Fault Localization Engine</p>
+          <hr style="border: 0; border-top: 1px solid #1e2c42;">
+          
+          <p><strong style="color: #ef4444;">Status:</strong> CRITICAL RISK (Action Required)</p>
+          <p><strong>Work Order Ticket:</strong> <span style="font-family: monospace; color: #00d2ff;">{ticket_id}</span></p>
+          <p><strong>Defects Classified:</strong> <span style="color: #ef4444; font-weight: bold;">{fault_count} Critical Hotspots</span></p>
+          <p><strong>Recommended Action:</strong> Immediate PV String isolation & thermographic field bypass inspection.</p>
+          
+          <hr style="border: 0; border-top: 1px solid #1e2c42;">
+          <p style="font-size: 12px; color: #4c5b73;">This is an autonomous telemetry-generated alert dispatched by VOLTIX AI SCADA Core.</p>
+        </div>
+      </body>
+    </html>
+    """
+
+    msg = MIMEMultipart()
+    msg['From'] = f"VOLTIX AI Sentinel <{SENDER_EMAIL}>"
+    msg['To'] = recipient_email
+    msg['Subject'] = subject
+    msg.attach(MIMEText(html_body, 'html'))
 
     try:
-        response = requests.post(url, json=payload, headers=headers, timeout=10)
-        print(f"[VOLTIX STATUS] Dispatched to logged-in user {clean_phone} -> {response.text}")
-        return response.json()
+        server = smtplib.SMTP('smtp.gmail.com', 587)
+        server.starttls()
+        server.login(SENDER_EMAIL, SENDER_APP_PASSWORD)
+        server.sendmail(SENDER_EMAIL, recipient_email, msg.as_string())
+        server.quit()
+        print(f"[VOLTIX EMAIL SUCCESS] Dispatched ticket {ticket_id} to {recipient_email}")
+        return {"return": True, "message": "Email dispatched successfully"}
     except Exception as e:
-        print(f"[VOLTIX ERROR] {e}")
+        print(f"[VOLTIX EMAIL ERROR] {e}")
         return {"return": False, "message": str(e)}
 
 @app.route("/")
@@ -58,18 +70,15 @@ def index():
 @app.route("/send_alert", methods=["POST"])
 def send_alert():
     data = request.get_json() or {}
-    
-    target_phone = data.get("phone", "9344042534")
+    target_email = data.get("email", "")
     ticket_id = data.get("ticket_id", "WO-ALERT")
     fault_count = data.get("fault_count", 1)
 
-    sms_body = f"VOLTIX AI ALERT: {fault_count} Critical Hotspots detected! WorkOrder: {ticket_id}. String isolation required."
-    
-    api_res = send_instant_sms(target_phone, sms_body)
+    api_res = send_instant_email(target_email, ticket_id, fault_count)
 
     return jsonify({
         "status": "SENT",
-        "technician_mobile": target_phone,
+        "technician_email": target_email,
         "ticket": ticket_id,
         "gateway_response": api_res
     })
@@ -86,7 +95,6 @@ def predict():
     except Exception:
         return jsonify({"error": "Invalid image format"}), 400
 
-    # Chromatic thermal variance verification
     arr = np.array(img)
     r = arr[:, :, 0].astype(float)
     g = arr[:, :, 1].astype(float)
@@ -104,11 +112,9 @@ def predict():
             "image_data": f"data:image/jpeg;base64,{encoded_img}"
         })
 
-    # Inference with YOLOv8
     results = model.predict(source=img, conf=0.25, imgsz=480)
     res = results[0]
 
-    # Draw localized bounding boxes
     res_plot = res.plot()
     annotated_img = Image.fromarray(res_plot)
 
