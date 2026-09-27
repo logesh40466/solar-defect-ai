@@ -15,8 +15,8 @@ app = Flask(__name__)
 model = YOLO("best.pt")
 
 # Email Pipeline (Unga sender Gmail matrum 16-digit Google App Password inga fill pannunga)
-SENDER_EMAIL = "your_email@gmail.com"
-SENDER_APP_PASSWORD = "xxxx xxxx xxxx xxxx"
+SENDER_EMAIL = "logeshajay1701@gmail.com"
+SENDER_APP_PASSWORD = "ndfu itzq cjus xuoa"
 
 def send_instant_email(recipient_email, ticket_id, fault_count):
     if not recipient_email or "@" not in recipient_email:
