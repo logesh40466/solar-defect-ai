@@ -73,8 +73,8 @@
 <body class="min-h-screen flex flex-col select-none">
 
     <!-- Top Navigation Bar -->
-    <header class="border-b border-[#162238] bg-[#070a12]/95 backdrop-blur px-6 py-3.5 sticky top-0 z-50 flex items-center justify-between">
-        <div onclick="openAboutModal()" class="flex items-center space-x-3.5 cursor-pointer group" title="Click to view System Specifications">
+    <header class="border-b border-[#162238] bg-[#070a12]/95 backdrop-blur px-4 sm:px-6 py-3.5 sticky top-0 z-50 flex items-center justify-between">
+        <div onclick="openAboutModal()" class="flex items-center space-x-3 cursor-pointer group" title="Click to view System Specifications">
             <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-400 via-blue-600 to-rose-600 flex items-center justify-center font-black text-black text-xl shadow-lg shadow-cyan-500/25 group-hover:scale-105 transition">
                 ⚡
             </div>
@@ -83,23 +83,23 @@
                     <span class="font-black text-lg tracking-wider text-white group-hover:text-cyan-400 transition">VOLTIX AI</span>
                     <span class="text-[10px] font-mono text-cyan-400 bg-cyan-950/70 border border-cyan-800/80 px-2 py-0.5 rounded-full">SPECS ℹ</span>
                 </div>
-                <p class="text-[10px] text-gray-500 font-mono tracking-wider uppercase">Solar Defect AI SCADA Diagnostic System</p>
+                <p class="text-[10px] text-gray-500 font-mono tracking-wider uppercase hidden sm:block">Solar Defect AI SCADA Diagnostic System</p>
             </div>
         </div>
 
-        <div class="hidden sm:flex items-center space-x-2 font-mono text-xs">
+        <div class="hidden md:flex items-center space-x-2 font-mono text-xs">
             <span id="navStatusBadge" class="px-3 py-1 rounded-lg bg-cyan-950/50 border border-cyan-500/40 text-cyan-400 font-bold">
                 DIAGNOSTIC SCANNER
             </span>
         </div>
 
-        <div id="userProfileSlot" class="relative font-mono"></div>
+        <div id="userProfileSlot" class="relative font-mono flex items-center"></div>
     </header>
 
     <!-- Main Workspace -->
-    <main class="flex-1 p-6 max-w-7xl mx-auto w-full space-y-6">
+    <main class="flex-1 p-4 sm:p-6 max-w-7xl mx-auto w-full space-y-6">
 
-        <!-- ======================= WORKSPACE VIEW 1: SCANNER ======================= -->
+        <!-- WORKSPACE VIEW 1: SCANNER -->
         <div id="scanWorkflow" class="space-y-6">
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4 font-mono">
                 <div class="scada-box p-4 rounded-xl border-l-4 border-l-cyan-500">
@@ -197,7 +197,7 @@
             </div>
         </div>
 
-        <!-- ======================= WORKSPACE VIEW 2: AUDIT & CRITICAL METRICS ======================= -->
+        <!-- WORKSPACE VIEW 2: AUDIT & CRITICAL METRICS -->
         <div id="auditWorkflow" class="hidden space-y-6 font-mono">
             <div class="flex items-center justify-between border-b border-[#162238] pb-4">
                 <button onclick="switchWorkflowView('scan')" class="px-5 py-2.5 rounded-xl bg-[#0d1422] border border-[#1b2b46] text-gray-300 hover:text-white text-xs font-bold tap-active flex items-center space-x-2">
@@ -256,7 +256,7 @@
                 </div>
             </div>
 
-            <!-- Historical Defect Ledger (Clickable Detailed Rows) -->
+            <!-- Historical Defect Ledger -->
             <div class="scada-box p-6 rounded-2xl space-y-4">
                 <div class="flex items-center justify-between pb-3 border-b border-[#162238]">
                     <div class="flex items-center space-x-2">
@@ -291,7 +291,7 @@
 
     </main>
 
-    <!-- DETAILED INSPECTION RECORD MODAL (Opens on clicking any log row) -->
+    <!-- DETAILED INSPECTION RECORD MODAL -->
     <div id="detailInspectionModal" class="fixed inset-0 bg-black/90 backdrop-blur-xl z-[10005] hidden items-center justify-center p-4">
         <div class="scada-box max-w-lg w-full p-6 rounded-2xl border border-cyan-500/50 shadow-2xl space-y-5 font-mono relative">
             <div class="flex items-center justify-between border-b border-[#162238] pb-3">
@@ -302,7 +302,6 @@
                 <button onclick="closeDetailModal()" class="text-gray-400 hover:text-white text-lg tap-active">&times;</button>
             </div>
 
-            <!-- Header Info -->
             <div class="grid grid-cols-2 gap-3 text-xs bg-[#050810] p-3 rounded-xl border border-[#162238]">
                 <div>
                     <span class="text-[10px] text-gray-500 block uppercase">Work Order ID</span>
@@ -314,7 +313,6 @@
                 </div>
             </div>
 
-            <!-- Key Metric Breakdown -->
             <div class="grid grid-cols-3 gap-2.5 text-center text-xs">
                 <div class="p-2.5 rounded-lg bg-[#0e1626] border border-[#1b2b46]">
                     <span class="text-[10px] text-gray-400 block uppercase">Defects</span>
@@ -330,7 +328,6 @@
                 </div>
             </div>
 
-            <!-- Maintenance & Hazard Details -->
             <div class="space-y-2 text-xs">
                 <div class="p-3 rounded-xl bg-[#090e18] border border-[#18263d]">
                     <span class="text-[10px] text-amber-400 font-bold uppercase block">Thermal Hazard Diagnosis</span>
@@ -342,7 +339,6 @@
                 </div>
             </div>
 
-            <!-- Action Buttons: Download PDF & Share -->
             <div class="flex items-center space-x-3 pt-2">
                 <button onclick="downloadDetailRecordPDF()" class="flex-1 py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-black font-black text-xs uppercase tap-active flex items-center justify-center space-x-2 shadow-lg shadow-cyan-500/20">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
@@ -487,7 +483,7 @@
         </div>
     </div>
 
-    <!-- INCIDENT DISPATCH POPUP -->
+    <!-- INCIDENT ALERT MODAL -->
     <div id="alertSuccessModal" class="fixed inset-0 bg-black/90 backdrop-blur-xl z-[10003] hidden items-center justify-center p-4">
         <div class="scada-box max-w-md w-full p-6 rounded-2xl border border-rose-500 shadow-2xl space-y-5 text-center relative overflow-hidden font-mono">
             <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-rose-500 via-amber-500 to-cyan-500"></div>
@@ -538,7 +534,6 @@
             loadOperatorHistory();
         };
 
-        // Password Show/Hide Toggle
         function togglePasswordVisibility(inputId, iconId) {
             const input = document.getElementById(inputId);
             const icon = document.getElementById(iconId);
@@ -551,7 +546,6 @@
             }
         }
 
-        // Navigation Flow Switcher
         function switchWorkflowView(view) {
             const scan = document.getElementById("scanWorkflow");
             const audit = document.getElementById("auditWorkflow");
@@ -572,7 +566,6 @@
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        // Multi-Account Storage Engine
         function getAllStoredAccounts() {
             return JSON.parse(localStorage.getItem("voltix_accounts_list") || "[]");
         }
@@ -604,9 +597,9 @@
                 `;
             } else {
                 slot.innerHTML = `
-                    <button onclick="openLoginModal()" class="px-4 py-2 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:brightness-110 text-black font-mono text-xs font-bold shadow-lg shadow-cyan-500/20 tap-active flex items-center space-x-2">
+                    <button onclick="openLoginModal()" class="px-4 py-2 rounded-xl bg-gradient-to-r from-rose-600 via-red-600 to-amber-500 hover:brightness-110 text-white font-mono text-xs font-black shadow-lg shadow-red-600/30 tap-active flex items-center space-x-2 animate-pulse">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
-                        <span>SIGN IN</span>
+                        <span>OPERATOR SIGN IN</span>
                     </button>
                 `;
             }
@@ -958,14 +951,13 @@
                 });
         }
 
-        // ================= CROSS-DEVICE CLOUD SYNC & DETAILED LEDGER =================
+        // CROSS-DEVICE CLOUD SYNC & DETAILED LEDGER
         async function recordScanToLedger(ticketId, data, email) {
             const count = data.total_faults;
             const health = Math.max(65, 100 - (count * 2.8)).toFixed(1) + "%";
             const risk = "₹ " + (count * 4250).toLocaleString("en-IN");
             const powerDrop = (count * 1.05).toFixed(1) + " kW/h";
             
-            // Accurate Date and Time (e.g. 29 Sep 2026, 10:57 PM)
             const dateObj = new Date();
             const formattedDate = dateObj.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
             const formattedTime = dateObj.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
@@ -986,13 +978,11 @@
                 status: count > 0 ? "CRITICAL" : "NOMINAL"
             };
 
-            // Local cache
             const historyKey = `voltix_history_${email}`;
             let records = JSON.parse(localStorage.getItem(historyKey) || "[]");
             records.unshift(record);
             localStorage.setItem(historyKey, JSON.stringify(records));
 
-            // Sync with backend API (Cross-Device)
             try {
                 await fetch('/api/history', {
                     method: 'POST',
@@ -1015,7 +1005,6 @@
                 return;
             }
 
-            // Fetch from Cloud REST API for real sync
             try {
                 const res = await fetch(`/api/history?email=${encodeURIComponent(activeUser.email)}`);
                 const cloudRecords = await res.json();
@@ -1052,7 +1041,6 @@
             });
         }
 
-        // Click row to open Inspection Details Modal
         function inspectHistoryDetail(index) {
             const activeUser = getActiveAccount();
             if (!activeUser) return;
@@ -1078,7 +1066,6 @@
             document.getElementById("detailInspectionModal").classList.remove("flex");
         }
 
-        // Download PDF for this specific inspection record
         function downloadDetailRecordPDF() {
             if (!currentlyInspectedRecord) return;
             const r = currentlyInspectedRecord;
@@ -1113,7 +1100,6 @@
             triggerToast("REPORT DOWNLOADED", `Saved ${r.ticketId}.pdf`, "#00d2ff");
         }
 
-        // Share report via Web Share API or Clipboard copy
         function shareDetailRecord() {
             if (!currentlyInspectedRecord) return;
             const r = currentlyInspectedRecord;
@@ -1136,3 +1122,23 @@
             const records = JSON.parse(localStorage.getItem(historyKey) || "[]");
             if (records.length === 0) {
                 alert("No telemetry ledger to export.");
+                return;
+            }
+            let csv = "Timestamp,Ticket,Faults,Health,LossRisk,Status\n";
+            records.forEach(r => {
+                csv += `"${r.timestamp}","${r.ticketId}","${r.faults}","${r.health}","${r.risk}","${r.status}"\n`;
+            });
+            const link = document.createElement("a");
+            link.href = encodeURI("data:text/csv;charset=utf-8," + csv);
+            link.download = `SCADA_LOGS_${Date.now()}.csv`;
+            link.click();
+        }
+
+        function exportPDFReport() {
+            if (!lastInferenceData) {
+                alert("Run diagnostic scan first.");
+                return;
+            }
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            const activeUser = 
