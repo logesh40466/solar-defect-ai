@@ -158,10 +158,9 @@
                             <span class="text-[11px] font-mono text-cyan-500 bg-cyan-500/10 px-2 py-0.5 rounded border border-cyan-500/20 font-semibold">YOLOv8 Core</span>
                         </div>
 
-                        <!-- Enhanced Drag & Drop Zone -->
+                        <!-- Drag & Drop Zone -->
                         <div id="dropZone" onclick="document.getElementById('fileInput').click()" class="custom-file-drop p-7 rounded-xl text-center cursor-pointer flex flex-col items-center justify-center relative overflow-hidden transition-all">
                             
-                            <!-- Default State Icon & Label -->
                             <div id="uploadDefaultUi" class="flex flex-col items-center">
                                 <div class="w-12 h-12 rounded-full bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center mb-3">
                                     <svg class="w-6 h-6 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
@@ -170,7 +169,6 @@
                                 <p class="text-[10px] text-gray-500 mt-1 font-mono">Supported Formats: Radiometric JPG, PNG, TIFF</p>
                             </div>
 
-                            <!-- Upload Ready State (Active after file pick) -->
                             <div id="uploadReadyUi" class="hidden flex-col items-center space-y-2">
                                 <div class="w-10 h-10 rounded-full bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
@@ -265,6 +263,43 @@
         </div>
     </div>
 
+    <!-- Industrial SCADA Alert Dispatch Pop-up Modal -->
+    <div id="alertSuccessModal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-[1000] hidden items-center justify-center p-4">
+        <div class="scada-panel max-w-md w-full p-6 rounded-2xl border border-red-500/40 shadow-2xl space-y-5 text-center relative overflow-hidden">
+            <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-red-500 via-amber-500 to-red-500"></div>
+
+            <div class="w-16 h-16 rounded-full bg-red-500/10 border border-red-500/30 flex items-center justify-center mx-auto text-red-400">
+                <svg class="w-8 h-8 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+            </div>
+
+            <div>
+                <h3 class="text-lg font-bold font-mono tracking-wider text-white uppercase">Critical Incident Alert Dispatched</h3>
+                <p class="text-xs text-gray-400 mt-1">Autonomous telemetry notification has been successfully routed via EmailJS.</p>
+            </div>
+
+            <div class="bg-[#080c14] border border-[#1a253a] rounded-xl p-4 text-left font-mono text-xs space-y-2.5">
+                <div class="flex justify-between items-center pb-2 border-b border-gray-800">
+                    <span class="text-gray-500 uppercase">Work Order:</span>
+                    <span id="modalTicketId" class="text-cyan-400 font-bold tracking-wide">TKT-XXXXXX</span>
+                </div>
+                <div class="flex justify-between items-center pb-2 border-b border-gray-800">
+                    <span class="text-gray-500 uppercase">Recipient Target:</span>
+                    <span id="modalTargetEmail" class="text-emerald-400 font-semibold truncate max-w-[200px]">operator@gmail.com</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-500 uppercase">Thermal Defects:</span>
+                    <span id="modalFaultCount" class="text-red-400 font-bold">0 Detected</span>
+                </div>
+            </div>
+
+            <p class="text-[11px] text-gray-500 font-mono">⚠ Check Primary Inbox or Spam folder for full breakdown report.</p>
+
+            <button onclick="closeAlertModal()" class="w-full py-3 rounded-lg bg-red-500/20 hover:bg-red-500/30 border border-red-500/50 text-red-300 font-bold font-mono text-xs tracking-wider transition uppercase">
+                Acknowledge & Close
+            </button>
+        </div>
+    </div>
+
     <!-- Floating Toast Notifications -->
     <div id="toastContainer"></div>
 
@@ -282,13 +317,31 @@
         };
 
         function openLoginModal() {
-            document.getElementById("loginModal").classList.remove("hidden");
-            document.getElementById("loginModal").classList.add("flex");
+            const modal = document.getElementById("loginModal");
+            modal.classList.remove("hidden");
+            modal.classList.add("flex");
         }
 
         function closeLoginModal() {
-            document.getElementById("loginModal").classList.add("hidden");
-            document.getElementById("loginModal").classList.remove("flex");
+            const modal = document.getElementById("loginModal");
+            modal.classList.add("hidden");
+            modal.classList.remove("flex");
+        }
+
+        function openAlertModal(ticketId, targetEmail, faultCount) {
+            document.getElementById("modalTicketId").innerText = ticketId;
+            document.getElementById("modalTargetEmail").innerText = targetEmail;
+            document.getElementById("modalFaultCount").innerText = `${faultCount} Thermal Hotspots`;
+
+            const modal = document.getElementById("alertSuccessModal");
+            modal.classList.remove("hidden");
+            modal.classList.add("flex");
+        }
+
+        function closeAlertModal() {
+            const modal = document.getElementById("alertSuccessModal");
+            modal.classList.add("hidden");
+            modal.classList.remove("flex");
         }
 
         function saveUserSession() {
@@ -323,9 +376,7 @@
                             <span class="text-xs font-mono font-bold text-white">${activeUser.name}</span>
                             <span class="text-[10px] font-mono text-cyan-400">${activeUser.email}</span>
                         </div>
-                        <button onclick="userLogout()" class="text-gray-500 hover:text-red-400 text-xs font-mono ml-2 border-l border-gray-800 pl-2">
-                            Logout
-                        </button>
+                        <button onclick="userLogout()" class="text-gray-500 hover:text-red-400 text-xs font-mono ml-2 border-l border-gray-800 pl-2">Logout</button>
                     </div>
                 `;
             } else {
@@ -343,25 +394,35 @@
             if (!file) return;
             selectedFile = file;
 
-            // Update Upload Dropzone UI with Ready State
             document.getElementById("uploadDefaultUi").classList.add("hidden");
             const readyUi = document.getElementById("uploadReadyUi");
             readyUi.classList.remove("hidden");
             readyUi.classList.add("flex");
-            
             document.getElementById("dropZone").classList.add("file-ready");
+
             document.getElementById("selectedFileName").innerText = file.name;
-            document.getElementById("selectedFileSize").innerText = `${(file.size / 1024).toFixed(1)} KB`;
-            
-            // Enable Diagnose Button
+            document.getElementById("selectedFileSize").innerText = (file.size / 1024).toFixed(1) + " KB";
+
             const btn = document.getElementById("btnDiagnose");
             btn.disabled = false;
-            btn.classList.remove("cursor-not-allowed", "bg-gray-800", "text-gray-500");
-            btn.classList.add("bg-gradient-to-r", "from-cyan-500", "to-blue-600", "text-black", "hover:opacity-95");
+            btn.classList.remove("bg-gray-800", "text-gray-500", "cursor-not-allowed");
+            btn.classList.add("bg-gradient-to-r", "from-cyan-500", "to-blue-600", "text-black", "font-black", "hover:opacity-95");
         }
 
         async function executeDiagnostics() {
             if (!selectedFile) return;
+
+            if (!activeUser || !activeUser.email) {
+                const inputEmail = prompt("ENTER OPERATOR GMAIL TO RECEIVE ALERTS:", "engineer@domain.com");
+                if (!inputEmail || !inputEmail.includes("@")) {
+                    alert("A valid recipient email is strictly required to route telemetry alerts.");
+                    return;
+                }
+                const inputName = prompt("ENTER OPERATOR NAME:", "Field Engineer") || "Operator";
+                activeUser = { name: inputName, email: inputEmail.trim() };
+                localStorage.setItem("voltix_user", JSON.stringify(activeUser));
+                renderUserHeader();
+            }
 
             const btn = document.getElementById("btnDiagnose");
             btn.disabled = true;
@@ -369,10 +430,7 @@
 
             const formData = new FormData();
             formData.append("file", selectedFile);
-            
-            const targetEmail = activeUser ? activeUser.email : "logeshajay1701@gmail.com";
-            const targetName = activeUser ? activeUser.name : "Logesh P";
-            formData.append("user_email", targetEmail);
+            formData.append("user_email", activeUser.email);
 
             try {
                 const response = await fetch("/predict", {
@@ -382,10 +440,9 @@
                 const data = await response.json();
                 lastInferenceData = data;
                 renderInspectionResults(data);
-                
-                // Autonomous Alert Trigger via HTTPS EmailJS
+
                 if (data.total_faults > 0) {
-                    sendVoltixAlert(targetEmail, targetName, data.total_faults);
+                    sendVoltixAlert(activeUser.email, activeUser.name, data.total_faults);
                 }
             } catch (err) {
                 console.error(err);
@@ -397,142 +454,63 @@
         }
 
         function renderInspectionResults(data) {
-            document.getElementById("valDefects").innerText = data.total_faults;
+            const count = data.total_faults;
+            document.getElementById("valDefects").innerText = count;
 
             const badge = document.getElementById("badgeState");
             const valState = document.getElementById("valState");
-            const valHealth = document.getElementById("valHealth");
-            const valLoss = document.getElementById("valLoss");
-            const valRisk = document.getElementById("valRisk");
-
-            if (data.total_faults > 0) {
+            if (count > 0) {
+                badge.innerText = "CRITICAL RISK";
                 badge.className = "px-1.5 py-0.5 rounded text-[10px] bg-red-500/20 text-red-400 border border-red-500/40";
-                badge.innerText = "DEFECTS DETECTED";
-                valState.innerText = "CRITICAL RISK";
-                valState.className = "text-xl font-bold font-mono tracking-tight text-red-400 glow-red mt-2";
-                
-                const lossCalc = Math.min(data.total_faults * 3.5, 92).toFixed(0);
-                const healthCalc = (100 - lossCalc);
-                const revenueLoss = (data.total_faults * 1540).toLocaleString('en-IN');
-
-                valHealth.innerText = `${healthCalc}%`;
-                valLoss.innerText = `~${lossCalc}%`;
-                valRisk.innerText = `₹ ${revenueLoss}`;
+                valState.innerText = "ACTIVE ANOMALY";
+                valState.className = "text-xl font-bold font-mono tracking-tight text-red-400 mt-2 glow-red";
             } else {
-                badge.className = "px-1.5 py-0.5 rounded text-[10px] bg-emerald-500/20 text-emerald-400 border border-emerald-500/40";
                 badge.innerText = "NOMINAL";
+                badge.className = "px-1.5 py-0.5 rounded text-[10px] bg-emerald-500/20 text-emerald-400 border border-emerald-500/40";
                 valState.innerText = "OPTIMAL";
                 valState.className = "text-xl font-bold font-mono tracking-tight text-emerald-400 mt-2";
-                
-                valHealth.innerText = "100%";
-                valLoss.innerText = "0%";
-                valRisk.innerText = "₹ 0";
             }
 
-            // Render Output Canvas
-            const canvas = document.getElementById("resultCanvas");
+            const health = Math.max(65, 100 - (count * 2.8)).toFixed(1);
+            const loss = (count * 1.75).toFixed(1);
+            const risk = (count * 4250).toLocaleString("en-IN");
+
+            document.getElementById("valHealth").innerText = `${health}%`;
+            document.getElementById("valLoss").innerText = `${loss}%`;
+            document.getElementById("valRisk").innerText = `₹ ${risk}`;
+
+            const imgElem = document.getElementById("resultCanvas");
             const placeholder = document.getElementById("placeholderCanvas");
-            canvas.src = data.image_data;
-            canvas.classList.remove("hidden");
+            imgElem.src = data.image_data;
+            imgElem.classList.remove("hidden");
             placeholder.classList.add("hidden");
 
-            // Update Classification Telemetry List
             const logList = document.getElementById("defectLogList");
+            document.getElementById("logCount").innerText = `${count} entries`;
             logList.innerHTML = "";
-            document.getElementById("logCount").innerText = `${data.total_faults} detected`;
 
-            if (data.faults && data.faults.length > 0) {
+            if (count === 0) {
+                logList.innerHTML = `<div class="text-emerald-400 text-center py-6 text-xs">No thermal anomalies detected. Array functioning at standard yield.</div>`;
+            } else {
                 data.faults.forEach((f, idx) => {
-                    const row = document.createElement("div");
-                    row.className = "flex items-center justify-between bg-[#080c14] border border-[#1a253a] px-3 py-1.5 rounded text-gray-300";
-                    row.innerHTML = `
-                        <span class="text-red-400 font-semibold">#${idx+1} ${f.type}</span>
-                        <span class="text-gray-500 text-[10px]">${f.confidence}% conf</span>
+                    logList.innerHTML += `
+                        <div class="flex items-center justify-between p-2 rounded bg-[#080c14] border border-[#1a253a]">
+                            <span class="text-red-400 font-semibold">[HOTSPOT #${idx + 1}] ${f.type}</span>
+                            <span class="text-gray-400">${f.confidence}% Conf</span>
+                        </div>
                     `;
-                    logList.appendChild(row);
                 });
-            } else {
-                logList.innerHTML = `<div class="text-emerald-400 text-center py-6 text-xs">All solar PV cells operating at nominal temperature.</div>`;
             }
 
-            // Enable PDF Export Button
-            const btnPdf = document.getElementById("btnExportPDF");
-            btnPdf.disabled = false;
-            btnPdf.classList.remove("cursor-not-allowed", "text-gray-500");
-            btnPdf.classList.add("text-white", "border-cyan-500/40", "hover:bg-cyan-500/10");
+            const exportBtn = document.getElementById("btnExportPDF");
+            exportBtn.disabled = false;
+            exportBtn.classList.remove("cursor-not-allowed", "text-gray-500");
+            exportBtn.classList.add("hover:border-cyan-500", "text-cyan-400");
         }
 
-        function triggerToast(title, body, color) {
-            const container = document.getElementById("toastContainer");
-            const toast = document.createElement("div");
-            toast.className = "scada-panel p-4 rounded-xl border border-[#1a253a] flex flex-col space-y-1 min-w-[280px] shadow-2xl transition-all duration-300";
-            toast.style.borderLeft = `4px solid ${color}`;
-            toast.innerHTML = `
-                <span class="text-[10px] font-mono tracking-wider uppercase font-bold" style="color: ${color}">${title}</span>
-                <span class="text-xs text-gray-300">${body}</span>
-            `;
-            container.appendChild(toast);
-            setTimeout(() => {
-                toast.style.opacity = "0";
-                setTimeout(() => toast.remove(), 300);
-            }, 5000);
-        }
-
-        function exportPDFReport() {
-            if (!lastInferenceData) return;
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
-            
-            doc.setFillColor(12, 18, 30);
-            doc.rect(0, 0, 210, 297, 'F');
-
-            doc.setTextColor(0, 210, 255);
-            doc.setFontSize(20);
-            doc.text("VOLTIX AI — PV TELEMETRY REPORT", 20, 25);
-
-            doc.setFontSize(10);
-            doc.setTextColor(150, 160, 180);
-            doc.text(`Report Timestamp: ${new Date().toLocaleString()}`, 20, 33);
-            doc.text(`Lead Operator: ${activeUser ? activeUser.name + ' (' + activeUser.email + ')' : 'Guest Inspector'}`, 20, 40);
-
-            doc.setDrawColor(30, 45, 70);
-            doc.line(20, 45, 190, 45);
-
-            doc.setFontSize(14);
-            doc.setTextColor(255, 255, 255);
-            doc.text("Array Performance Telemetry", 20, 56);
-
-            doc.setFontSize(11);
-            doc.setTextColor(200, 200, 200);
-            doc.text(`System Condition: ${lastInferenceData.status || 'Analysis Completed'}`, 20, 66);
-            doc.text(`Localized Thermal Hotspots: ${lastInferenceData.total_faults}`, 20, 74);
-            doc.text(`Fault Breakdown:`, 20, 84);
-
-            let y = 92;
-            if (lastInferenceData.faults && lastInferenceData.faults.length > 0) {
-                lastInferenceData.faults.forEach((f, idx) => {
-                    doc.text(`  • Anomaly #${idx+1}: ${f.type} (Confidence: ${f.confidence}%)`, 25, y);
-                    y += 8;
-                });
-            } else {
-                doc.text("  • No thermal anomalies localized. Baseline nominal.", 25, y);
-                y += 8;
-            }
-
-            if (lastInferenceData.image_data) {
-                doc.addImage(lastInferenceData.image_data, 'JPEG', 20, y + 10, 170, 95);
-            }
-
-            doc.save(`VOLTIX_Report_${Date.now()}.pdf`);
-        }
-
-        // Autonomous Email Alert Dispatch Function
-        function sendVoltixAlert(userEmail, userName, faultCount) {
+        function sendVoltixAlert(targetEmail, targetName, faultCount) {
             const ticketId = "TKT-" + Math.floor(100000 + Math.random() * 900000);
-            const targetEmail = userEmail || "logeshajay1701@gmail.com";
-            const targetName = userName || "Logesh P";
 
-            // Update Ticket Label on UI
             const ticketElem = document.getElementById("activeTicketLabel");
             if (ticketElem) ticketElem.innerText = `WORK ORDER: ${ticketId}`;
 
@@ -545,12 +523,60 @@
 
             emailjs.send('service_k212ehr', 'template_b2v6xmo', templateParams)
                 .then(function(res) {
-                    console.log('VOLTIX ALERT DISPATCHED VIA HTTPS:', res.status, res.text);
-                    triggerToast("AUTONOMOUS DISPATCH SUCCESS", `🚨 Critical alert sent to ${targetEmail}`, "#10b981");
+                    console.log('ALERT DISPATCHED TO: ' + targetEmail, res.status);
+                    triggerToast("DISPATCH COMPLETE", `🚨 Incident report routed to ${targetEmail}`, "#10b981");
+                    openAlertModal(ticketId, targetEmail, faultCount);
                 }, function(err) {
-                    console.error('VOLTIX ALERT DISPATCH ERROR:', err);
-                    triggerToast("ALERT DISPATCH FAILED", "Check browser console for details", "#ef4444");
+                    console.error('DISPATCH ERROR:', err);
+                    triggerToast("DISPATCH FAILED", "Check browser console for error trace", "#ef4444");
                 });
+        }
+
+        function triggerToast(title, msg, color) {
+            const container = document.getElementById("toastContainer");
+            const toast = document.createElement("div");
+            toast.className = "scada-panel p-3.5 rounded-lg border flex items-center space-x-3 text-xs font-mono shadow-2xl transition-all duration-300 transform translate-y-2 opacity-0";
+            toast.style.borderColor = color;
+            toast.innerHTML = `
+                <div class="w-2 h-2 rounded-full animate-ping" style="background-color: ${color}"></div>
+                <div>
+                    <div class="font-bold text-white uppercase">${title}</div>
+                    <div class="text-gray-400 text-[11px]">${msg}</div>
+                </div>
+            `;
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.classList.remove("translate-y-2", "opacity-0");
+            }, 10);
+            setTimeout(() => {
+                toast.classList.add("opacity-0", "translate-y-2");
+                setTimeout(() => toast.remove(), 300);
+            }, 4500);
+        }
+
+        function exportPDFReport() {
+            if (!lastInferenceData) return;
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            doc.setFillColor(8, 12, 20);
+            doc.rect(0, 0, 210, 297, "F");
+
+            doc.setTextColor(0, 210, 255);
+            doc.setFontSize(16);
+            doc.text("VOLTIX AI — RADIOMETRIC AUDIT REPORT", 14, 20);
+
+            doc.setTextColor(200, 200, 200);
+            doc.setFontSize(10);
+            doc.text(`Generated On: ${new Date().toLocaleString()}`, 14, 28);
+            doc.text(`Target Operator: ${activeUser ? activeUser.email : 'Unauthenticated'}`, 14, 34);
+            doc.text(`Total Hotspots Detected: ${lastInferenceData.total_faults}`, 14, 40);
+
+            if (lastInferenceData.image_data) {
+                doc.addImage(lastInferenceData.image_data, "JPEG", 14, 48, 182, 115);
+            }
+
+            doc.save(`VOLTIX-REPORT-${Date.now()}.pdf`);
         }
     </script>
 </body>
