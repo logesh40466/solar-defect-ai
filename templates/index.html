@@ -15,7 +15,7 @@
     </script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -50,7 +50,11 @@
         }
         .custom-file-drop:hover {
             border-color: #00d2ff;
-            background: rgba(0, 210, 255, 0.03);
+            background: rgba(0, 210, 255, 0.04);
+        }
+        .custom-file-drop.file-ready {
+            border-color: #10b981;
+            background: rgba(16, 185, 129, 0.05);
         }
         #toastContainer {
             position: fixed;
@@ -65,10 +69,10 @@
 </head>
 <body class="min-h-screen flex flex-col scanline select-none">
 
-    <!-- Header Bilah Navigasi SCADA -->
+    <!-- Header SCADA Navigation Bar -->
     <header class="border-b border-[#1a253a] bg-[#0c121e]/90 backdrop-blur px-6 py-3.5 sticky top-0 z-50 flex items-center justify-between">
         <div class="flex items-center space-x-4">
-            <div class="w-8 h-8 rounded bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center font-black text-black text-lg shadow-lg shadow-cyan-500/20">
+            <div class="w-9 h-9 rounded-lg bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center font-black text-black text-xl shadow-lg shadow-cyan-500/20">
                 ⚡
             </div>
             <div>
@@ -81,133 +85,152 @@
         </div>
 
         <div class="flex items-center space-x-6">
-            <div class="hidden md:flex items-center space-x-3 bg-[#080c14] border border-[#1a253a] px-3 py-1.5 rounded-lg text-xs font-mono">
+            <div class="hidden md:flex items-center space-x-3 bg-[#080c14] border border-[#1a253a] px-3.5 py-1.5 rounded-lg text-xs font-mono">
                 <span class="flex h-2 w-2 relative">
                     <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                     <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
                 </span>
-                <span class="text-gray-400">CORE DISPATCH ENGINE:</span>
-                <span class="text-emerald-400 font-semibold uppercase">ONLINE</span>
+                <span class="text-gray-400">DISPATCH CORE:</span>
+                <span class="text-emerald-400 font-semibold uppercase tracking-wider">ONLINE</span>
             </div>
 
-            <!-- Bagian Autentikasi Pengguna -->
+            <!-- Operator Authentication Section -->
             <div id="userAuthSection" class="flex items-center space-x-3">
-                <button onclick="openLoginModal()" class="px-3 py-1.5 rounded-md bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/40 text-cyan-400 text-xs font-semibold tracking-wide transition flex items-center space-x-1.5">
+                <button onclick="openLoginModal()" class="px-3.5 py-1.5 rounded-lg bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/40 text-cyan-400 text-xs font-semibold tracking-wide transition flex items-center space-x-1.5">
                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path></svg>
-                    <span>LOGIN OPERATOR</span>
+                    <span>OPERATOR LOGIN</span>
                 </button>
             </div>
         </div>
     </header>
 
-    <!-- Konten Utama Dashboard -->
+    <!-- Main SCADA Dashboard -->
     <main class="flex-1 p-6 max-w-7xl mx-auto w-full space-y-6">
 
-        <!-- Baris Metrik KPI Utama -->
+        <!-- KPI Metrics Grid -->
         <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
             <div class="scada-panel p-4 rounded-xl">
-                <div class="flex items-center justify-between text-gray-400 text-xs uppercase font-mono">
-                    <span>STATUS SISTEM</span>
+                <div class="flex items-center justify-between text-gray-400 text-[11px] uppercase font-mono">
+                    <span>SYSTEM STATE</span>
                     <span id="badgeState" class="px-1.5 py-0.5 rounded text-[10px] bg-gray-800 text-gray-400 border border-gray-700">STANDBY</span>
                 </div>
                 <div id="valState" class="text-xl font-bold font-mono tracking-tight text-gray-300 mt-2">STANDBY</div>
-                <p class="text-[10px] text-gray-500 mt-1">Telemetri menunggu pemindaian</p>
+                <p class="text-[10px] text-gray-500 mt-1">Telemetry awaiting scan</p>
             </div>
 
             <div class="scada-panel p-4 rounded-xl">
-                <div class="text-gray-400 text-xs uppercase font-mono">KESEHATAN ARRAY</div>
+                <div class="text-gray-400 text-[11px] uppercase font-mono">ARRAY HEALTH</div>
                 <div id="valHealth" class="text-2xl font-black font-mono tracking-tight text-white mt-2">--%</div>
-                <p class="text-[10px] text-gray-500 mt-1">Rasio efisiensi baseline</p>
+                <p class="text-[10px] text-gray-500 mt-1">Baseline performance ratio</p>
             </div>
 
             <div class="scada-panel p-4 rounded-xl">
-                <div class="text-gray-400 text-xs uppercase font-mono">CACAT TERLOKALISASI</div>
+                <div class="text-gray-400 text-[11px] uppercase font-mono">LOCALIZED DEFECTS</div>
                 <div id="valDefects" class="text-2xl font-black font-mono tracking-tight text-cyan-400 glow-cyan mt-2">--</div>
-                <p class="text-[10px] text-gray-500 mt-1">Anomali terdeteksi</p>
+                <p class="text-[10px] text-gray-500 mt-1">Classified thermal hotspots</p>
             </div>
 
             <div class="scada-panel p-4 rounded-xl">
-                <div class="text-gray-400 text-xs uppercase font-mono">PENURUNAN EFISIENSI</div>
+                <div class="text-gray-400 text-[11px] uppercase font-mono">EFFICIENCY DEGRADATION</div>
                 <div id="valLoss" class="text-2xl font-black font-mono tracking-tight text-amber-400 mt-2">--%</div>
-                <p class="text-[10px] text-gray-500 mt-1">Tingkat degradasi daya</p>
+                <p class="text-[10px] text-gray-500 mt-1">Estimated yield drop</p>
             </div>
 
             <div class="scada-panel p-4 rounded-xl col-span-2 md:col-span-1">
-                <div class="text-gray-400 text-xs uppercase font-mono">ESTIMASI KERUGIAN</div>
+                <div class="text-gray-400 text-[11px] uppercase font-mono">PROJECTED RISK</div>
                 <div id="valRisk" class="text-2xl font-black font-mono tracking-tight text-red-400 glow-red mt-2">₹ --</div>
-                <p class="text-[10px] text-gray-500 mt-1">Kerugian tahunan terproyeksi</p>
+                <p class="text-[10px] text-gray-500 mt-1">Estimated annual loss</p>
             </div>
         </div>
 
-        <!-- Konsol Inspeksi Ganda -->
+        <!-- Inspection Workspace -->
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
 
-            <!-- Panel Kiri: Unggah Berkas & Log Deteksi -->
+            <!-- Left Panel: Ingestion & Telemetry -->
             <div class="lg:col-span-5 flex flex-col space-y-6">
                 <div class="scada-panel p-5 rounded-xl flex-1 flex flex-col justify-between">
                     <div>
                         <div class="flex items-center justify-between mb-4 border-b border-[#1a253a] pb-3">
                             <span class="text-xs font-bold font-mono tracking-wider text-gray-300 uppercase flex items-center space-x-2">
-                                <span class="w-2 h-2 rounded-full bg-cyan-400"></span>
-                                <span>Thermal Sensor Ingestion</span>
+                                <span class="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span>
+                                <span>Thermal Radiometric Ingestion</span>
                             </span>
-                            <span class="text-[11px] font-mono text-cyan-500 bg-cyan-500/10 px-2 py-0.5 rounded border border-cyan-500/20">YOLOv8.0</span>
+                            <span class="text-[11px] font-mono text-cyan-500 bg-cyan-500/10 px-2 py-0.5 rounded border border-cyan-500/20 font-semibold">YOLOv8 Core</span>
                         </div>
 
-                        <!-- Zona Drag & Drop -->
-                        <div onclick="document.getElementById('fileInput').click()" class="custom-file-drop p-8 rounded-xl text-center cursor-pointer flex flex-col items-center justify-center">
-                            <svg class="w-10 h-10 text-gray-500 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                            <p class="text-xs font-medium text-gray-300">Unggah Gambar Termografi / Inframerah</p>
-                            <p class="text-[10px] text-gray-500 mt-1 font-mono">Format yang didukung: JPG, PNG radiometric</p>
-                            <span id="selectedFileName" class="text-[11px] text-cyan-400 mt-3 font-mono font-semibold truncate max-w-[280px]"></span>
+                        <!-- Enhanced Drag & Drop Zone -->
+                        <div id="dropZone" onclick="document.getElementById('fileInput').click()" class="custom-file-drop p-7 rounded-xl text-center cursor-pointer flex flex-col items-center justify-center relative overflow-hidden transition-all">
+                            
+                            <!-- Default State Icon & Label -->
+                            <div id="uploadDefaultUi" class="flex flex-col items-center">
+                                <div class="w-12 h-12 rounded-full bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center mb-3">
+                                    <svg class="w-6 h-6 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                </div>
+                                <p class="text-xs font-semibold text-gray-200">Upload Thermographic / IR Image</p>
+                                <p class="text-[10px] text-gray-500 mt-1 font-mono">Supported Formats: Radiometric JPG, PNG, TIFF</p>
+                            </div>
+
+                            <!-- Upload Ready State (Active after file pick) -->
+                            <div id="uploadReadyUi" class="hidden flex-col items-center space-y-2">
+                                <div class="w-10 h-10 rounded-full bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+                                </div>
+                                <span class="text-xs font-mono font-bold text-emerald-400 uppercase tracking-wide">Image Loaded & Ready</span>
+                                <div class="flex items-center space-x-2 bg-[#080c14] border border-[#1a253a] px-3 py-1 rounded-md text-[11px] font-mono text-gray-300">
+                                    <span id="selectedFileName" class="truncate max-w-[200px] text-cyan-400 font-semibold"></span>
+                                    <span id="selectedFileSize" class="text-gray-500 border-l border-gray-700 pl-2"></span>
+                                </div>
+                                <span class="text-[10px] text-gray-500 underline hover:text-gray-400 pt-1">Click to replace file</span>
+                            </div>
+
                         </div>
                         <input type="file" id="fileInput" class="hidden" accept="image/*" onchange="handleFileSelect(event)">
                     </div>
 
                     <div class="mt-6 space-y-3">
-                        <button id="btnDiagnose" onclick="executeDiagnostics()" disabled class="w-full py-3 rounded-lg bg-gray-800 text-gray-500 font-mono text-xs font-bold tracking-wider cursor-not-allowed transition uppercase flex items-center justify-center space-x-2">
-                            <span>⚡ Jalankan Diagnostik Deep Vision</span>
+                        <button id="btnDiagnose" onclick="executeDiagnostics()" disabled class="w-full py-3 rounded-lg bg-gray-800 text-gray-500 font-mono text-xs font-bold tracking-wider cursor-not-allowed transition uppercase flex items-center justify-center space-x-2 shadow-lg">
+                            <span>⚡ Execute Deep Vision Diagnostic</span>
                         </button>
                         <button id="btnExportPDF" onclick="exportPDFReport()" disabled class="w-full py-2.5 rounded-lg border border-[#1a253a] text-gray-500 hover:text-white hover:border-gray-600 font-mono text-xs font-semibold cursor-not-allowed transition flex items-center justify-center space-x-2">
-                            <span>Ekspor Laporan PDF Lapangan</span>
+                            <span>Export Field Telemetry (PDF)</span>
                         </button>
                     </div>
                 </div>
 
-                <!-- Log Telemetri Anomali -->
+                <!-- Hotspot Classification Log -->
                 <div class="scada-panel p-4 rounded-xl h-48 flex flex-col">
                     <div class="text-[11px] font-mono text-gray-400 uppercase tracking-wider mb-2 flex items-center justify-between border-b border-[#1a253a] pb-1.5">
-                        <span>Telemetri Hotspot Terklasifikasi</span>
-                        <span id="logCount" class="text-cyan-400">0 entri</span>
+                        <span>Classified Hotspots Telemetry</span>
+                        <span id="logCount" class="text-cyan-400 font-semibold">0 entries</span>
                     </div>
                     <div id="defectLogList" class="flex-1 overflow-y-auto space-y-1.5 font-mono text-xs pr-1">
-                        <div class="text-gray-600 text-center py-6 text-xs">Menunggu data inferensi citra termal...</div>
+                        <div class="text-gray-600 text-center py-6 text-xs">Awaiting thermal radiometric inference data...</div>
                     </div>
                 </div>
             </div>
 
-            <!-- Panel Kanan: Peta Lokalisasi Hasil YOLOv8 -->
+            <!-- Right Panel: Deep Learning Localization Map -->
             <div class="lg:col-span-7">
                 <div class="scada-panel p-5 rounded-xl h-full flex flex-col justify-between">
                     <div class="flex items-center justify-between mb-4 border-b border-[#1a253a] pb-3">
                         <span class="text-xs font-bold font-mono tracking-wider text-gray-300 uppercase flex items-center space-x-2">
                             <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                            <span>Peta Lokalisasi Visi Deep Learning</span>
+                            <span>Deep Learning Localization Map</span>
                         </span>
-                        <span class="text-[10px] font-mono text-gray-500">Bounding Box & Pelacakan Termal</span>
+                        <span class="text-[10px] font-mono text-gray-500">Bounding Box & Thermal Anomaly Detection</span>
                     </div>
 
                     <div class="relative w-full aspect-[4/3] bg-[#070b12] rounded-lg border border-[#1a253a] overflow-hidden flex items-center justify-center">
-                        <img id="resultCanvas" class="w-full h-full object-contain hidden" alt="Analisis Selesai">
-                        <div id="placeholderCanvas" class="flex flex-col items-center justify-center text-gray-600">
-                            <svg class="w-12 h-12 mb-2 stroke-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"></path></svg>
-                            <span class="text-xs font-mono">Citra radiometri beranotasi akan dirender di sini</span>
+                        <img id="resultCanvas" class="w-full h-full object-contain hidden" alt="Annotated Diagnostic Output">
+                        <div id="placeholderCanvas" class="flex flex-col items-center justify-center text-gray-600 space-y-2">
+                            <svg class="w-12 h-12 stroke-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"></path></svg>
+                            <span class="text-xs font-mono">Annotated radiometric image will render here</span>
                         </div>
                     </div>
 
                     <div class="mt-4 flex items-center justify-between text-[11px] font-mono text-gray-500 pt-3 border-t border-[#1a253a]">
-                        <span>Algoritma: Ultralytics YOLOv8 Architecture</span>
-                        <span id="activeTicketLabel">ID Tiket: --</span>
+                        <span>Architecture: Ultralytics YOLOv8 Thermal Model</span>
+                        <span id="activeTicketLabel">WORK ORDER: --</span>
                     </div>
                 </div>
             </div>
@@ -216,33 +239,33 @@
 
     </main>
 
-    <!-- Modal Login Operator -->
+    <!-- Operator Login Modal -->
     <div id="loginModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-[1000] hidden items-center justify-center p-4">
         <div class="scada-panel max-w-sm w-full p-6 rounded-2xl border border-cyan-500/30 shadow-2xl space-y-4">
             <div class="flex items-center justify-between border-b border-[#1a253a] pb-3">
-                <span class="text-sm font-bold font-mono tracking-wider text-white">AUTENTIKASI OPERATOR</span>
-                <button onclick="closeLoginModal()" class="text-gray-500 hover:text-white font-mono text-sm">&times;</button>
+                <span class="text-sm font-bold font-mono tracking-wider text-white">OPERATOR AUTHENTICATION</span>
+                <button onclick="closeLoginModal()" class="text-gray-500 hover:text-white font-mono text-base">&times;</button>
             </div>
-            <p class="text-xs text-gray-400">Masukkan detail Anda. Laporan peringatan instan akan diarahkan langsung ke alamat email ini.</p>
+            <p class="text-xs text-gray-400">Configure your session profile. Real-time autonomous defect alerts will be dispatched directly to this address.</p>
             
             <div class="space-y-3 font-mono text-xs">
                 <div>
-                    <label class="block text-gray-400 mb-1">Nama Operator</label>
-                    <input type="text" id="loginName" placeholder="Contoh: Logesh" class="w-full bg-[#080c14] border border-[#1a253a] rounded-lg px-3 py-2 text-white focus:outline-none focus:border-cyan-400">
+                    <label class="block text-gray-400 mb-1">Operator Full Name</label>
+                    <input type="text" id="loginName" placeholder="e.g., Logesh P" class="w-full bg-[#080c14] border border-[#1a253a] rounded-lg px-3 py-2 text-white focus:outline-none focus:border-cyan-400">
                 </div>
                 <div>
-                    <label class="block text-gray-400 mb-1">Alamat Email Penerima Peringatan</label>
-                    <input type="email" id="loginEmail" placeholder="nama@gmail.com" class="w-full bg-[#080c14] border border-[#1a253a] rounded-lg px-3 py-2 text-white focus:outline-none focus:border-cyan-400">
+                    <label class="block text-gray-400 mb-1">Alert Recipient Email</label>
+                    <input type="email" id="loginEmail" placeholder="logeshajay1701@gmail.com" class="w-full bg-[#080c14] border border-[#1a253a] rounded-lg px-3 py-2 text-white focus:outline-none focus:border-cyan-400">
                 </div>
             </div>
 
             <button onclick="saveUserSession()" class="w-full py-2.5 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-black font-bold font-mono text-xs tracking-wider transition">
-                Simpan & Hubungkan Peringatan
+                Save & Connect Dispatch
             </button>
         </div>
     </div>
 
-    <!-- Kontainer Notifikasi Mengambang -->
+    <!-- Floating Toast Notifications -->
     <div id="toastContainer"></div>
 
     <script>
@@ -273,7 +296,7 @@
             const email = document.getElementById("loginEmail").value.trim();
 
             if (!name || !email.includes("@")) {
-                alert("Harap masukkan nama dan format email yang valid.");
+                alert("Please provide a valid operator name and email address.");
                 return;
             }
 
@@ -281,14 +304,14 @@
             localStorage.setItem("voltix_user", JSON.stringify(activeUser));
             renderUserHeader();
             closeLoginModal();
-            triggerToast("PROFIL TERSIMPAN", `Peringatan diarahkan ke ${email}`, "#00d2ff");
+            triggerToast("PROFILE CONNECTED", `Alert dispatch target: ${email}`, "#00d2ff");
         }
 
         function userLogout() {
             localStorage.removeItem("voltix_user");
             activeUser = null;
             renderUserHeader();
-            triggerToast("LOGOUT", "Sesi operator diakhiri", "#ef4444");
+            triggerToast("SESSION TERMINATED", "Operator logged out", "#ef4444");
         }
 
         function renderUserHeader() {
@@ -307,9 +330,9 @@
                 `;
             } else {
                 container.innerHTML = `
-                    <button onclick="openLoginModal()" class="px-3 py-1.5 rounded-md bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/40 text-cyan-400 text-xs font-semibold tracking-wide transition flex items-center space-x-1.5">
+                    <button onclick="openLoginModal()" class="px-3.5 py-1.5 rounded-lg bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/40 text-cyan-400 text-xs font-semibold tracking-wide transition flex items-center space-x-1.5">
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path></svg>
-                        <span>LOGIN OPERATOR</span>
+                        <span>OPERATOR LOGIN</span>
                     </button>
                 `;
             }
@@ -319,8 +342,18 @@
             const file = e.target.files[0];
             if (!file) return;
             selectedFile = file;
-            document.getElementById("selectedFileName").innerText = `SIAP: ${file.name} (${(file.size/1024).toFixed(1)} KB)`;
+
+            // Update Upload Dropzone UI with Ready State
+            document.getElementById("uploadDefaultUi").classList.add("hidden");
+            const readyUi = document.getElementById("uploadReadyUi");
+            readyUi.classList.remove("hidden");
+            readyUi.classList.add("flex");
             
+            document.getElementById("dropZone").classList.add("file-ready");
+            document.getElementById("selectedFileName").innerText = file.name;
+            document.getElementById("selectedFileSize").innerText = `${(file.size / 1024).toFixed(1)} KB`;
+            
+            // Enable Diagnose Button
             const btn = document.getElementById("btnDiagnose");
             btn.disabled = false;
             btn.classList.remove("cursor-not-allowed", "bg-gray-800", "text-gray-500");
@@ -332,7 +365,7 @@
 
             const btn = document.getElementById("btnDiagnose");
             btn.disabled = true;
-            btn.innerText = "Menganalisis Radiometri Termal...";
+            btn.innerText = "Analyzing Radiometric Telemetry...";
 
             const formData = new FormData();
             formData.append("file", selectedFile);
@@ -356,10 +389,10 @@
                 }
             } catch (err) {
                 console.error(err);
-                alert("Terjadi kesalahan pada server inspeksi. Silakan coba kembali.");
+                alert("Inspection server error. Please try again.");
             } finally {
                 btn.disabled = false;
-                btn.innerText = "⚡ Jalankan Diagnostik Deep Vision";
+                btn.innerText = "⚡ Execute Deep Vision Diagnostic";
             }
         }
 
@@ -374,7 +407,7 @@
 
             if (data.total_faults > 0) {
                 badge.className = "px-1.5 py-0.5 rounded text-[10px] bg-red-500/20 text-red-400 border border-red-500/40";
-                badge.innerText = "CACAT TERDETEKSI";
+                badge.innerText = "DEFECTS DETECTED";
                 valState.innerText = "CRITICAL RISK";
                 valState.className = "text-xl font-bold font-mono tracking-tight text-red-400 glow-red mt-2";
                 
@@ -396,15 +429,17 @@
                 valRisk.innerText = "₹ 0";
             }
 
+            // Render Output Canvas
             const canvas = document.getElementById("resultCanvas");
             const placeholder = document.getElementById("placeholderCanvas");
             canvas.src = data.image_data;
             canvas.classList.remove("hidden");
             placeholder.classList.add("hidden");
 
+            // Update Classification Telemetry List
             const logList = document.getElementById("defectLogList");
             logList.innerHTML = "";
-            document.getElementById("logCount").innerText = `${data.total_faults} terdeteksi`;
+            document.getElementById("logCount").innerText = `${data.total_faults} detected`;
 
             if (data.faults && data.faults.length > 0) {
                 data.faults.forEach((f, idx) => {
@@ -417,9 +452,10 @@
                     logList.appendChild(row);
                 });
             } else {
-                logList.innerHTML = `<div class="text-emerald-400 text-center py-6 text-xs">Semua sel beroperasi pada suhu nominal.</div>`;
+                logList.innerHTML = `<div class="text-emerald-400 text-center py-6 text-xs">All solar PV cells operating at nominal temperature.</div>`;
             }
 
+            // Enable PDF Export Button
             const btnPdf = document.getElementById("btnExportPDF");
             btnPdf.disabled = false;
             btnPdf.classList.remove("cursor-not-allowed", "text-gray-500");
@@ -452,34 +488,34 @@
 
             doc.setTextColor(0, 210, 255);
             doc.setFontSize(20);
-            doc.text("VOLTIX AI — LAPORAN DIAGNOSTIK PV", 20, 25);
+            doc.text("VOLTIX AI — PV TELEMETRY REPORT", 20, 25);
 
             doc.setFontSize(10);
             doc.setTextColor(150, 160, 180);
-            doc.text(`Tanggal Laporan: ${new Date().toLocaleString()}`, 20, 33);
-            doc.text(`Operator: ${activeUser ? activeUser.name + ' (' + activeUser.email + ')' : 'Guest Inspector'}`, 20, 40);
+            doc.text(`Report Timestamp: ${new Date().toLocaleString()}`, 20, 33);
+            doc.text(`Lead Operator: ${activeUser ? activeUser.name + ' (' + activeUser.email + ')' : 'Guest Inspector'}`, 20, 40);
 
             doc.setDrawColor(30, 45, 70);
             doc.line(20, 45, 190, 45);
 
             doc.setFontSize(14);
             doc.setTextColor(255, 255, 255);
-            doc.text("Ringkasan Telemetri Array", 20, 56);
+            doc.text("Array Performance Telemetry", 20, 56);
 
             doc.setFontSize(11);
             doc.setTextColor(200, 200, 200);
-            doc.text(`Status Sistem: ${lastInferenceData.status}`, 20, 66);
-            doc.text(`Total Hotspot Terdeteksi: ${lastInferenceData.total_faults}`, 20, 74);
-            doc.text(`Daftar Cacat:`, 20, 84);
+            doc.text(`System Condition: ${lastInferenceData.status || 'Analysis Completed'}`, 20, 66);
+            doc.text(`Localized Thermal Hotspots: ${lastInferenceData.total_faults}`, 20, 74);
+            doc.text(`Fault Breakdown:`, 20, 84);
 
             let y = 92;
             if (lastInferenceData.faults && lastInferenceData.faults.length > 0) {
                 lastInferenceData.faults.forEach((f, idx) => {
-                    doc.text(`  • Anomali #${idx+1}: ${f.type} (Tingkat Keyakinan: ${f.confidence}%)`, 25, y);
+                    doc.text(`  • Anomaly #${idx+1}: ${f.type} (Confidence: ${f.confidence}%)`, 25, y);
                     y += 8;
                 });
             } else {
-                doc.text("  • Tidak ada anomali terdeteksi.", 25, y);
+                doc.text("  • No thermal anomalies localized. Baseline nominal.", 25, y);
                 y += 8;
             }
 
@@ -496,6 +532,10 @@
             const targetEmail = userEmail || "logeshajay1701@gmail.com";
             const targetName = userName || "Logesh P";
 
+            // Update Ticket Label on UI
+            const ticketElem = document.getElementById("activeTicketLabel");
+            if (ticketElem) ticketElem.innerText = `WORK ORDER: ${ticketId}`;
+
             const templateParams = {
                 to_email: targetEmail,
                 to_name: targetName,
@@ -506,7 +546,7 @@
             emailjs.send('service_k212ehr', 'template_b2v6xmo', templateParams)
                 .then(function(res) {
                     console.log('VOLTIX ALERT DISPATCHED VIA HTTPS:', res.status, res.text);
-                    triggerToast("AUTONOMOUS ALERT DISPATCHED", `🚨 Critical alert sent to ${targetEmail}`, "#10b981");
+                    triggerToast("AUTONOMOUS DISPATCH SUCCESS", `🚨 Critical alert sent to ${targetEmail}`, "#10b981");
                 }, function(err) {
                     console.error('VOLTIX ALERT DISPATCH ERROR:', err);
                     triggerToast("ALERT DISPATCH FAILED", "Check browser console for details", "#ef4444");
