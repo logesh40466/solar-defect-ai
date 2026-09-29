@@ -93,7 +93,20 @@
             </span>
         </div>
 
-        <div id="userProfileSlot" class="relative font-mono flex items-center"></div>
+        <!-- Direct Permanent Header Login Slot -->
+        <div class="font-mono flex items-center">
+            <!-- If Not Logged In -->
+            <button id="directSignInBtn" onclick="openLoginModal()" class="px-4 py-2 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:brightness-110 text-black font-mono text-xs font-black shadow-lg shadow-cyan-500/25 tap-active flex items-center space-x-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                <span>OPERATOR SIGN IN</span>
+            </button>
+
+            <!-- If Logged In -->
+            <button id="userProfileBtn" onclick="openAccountDrawer()" class="hidden items-center space-x-2.5 bg-[#0e1626] border border-cyan-500/40 hover:border-cyan-400 px-3.5 py-1.5 rounded-xl tap-active shadow-md">
+                <div id="userInitialBadge" class="w-7 h-7 rounded-full bg-gradient-to-tr from-cyan-400 to-blue-600 text-black text-xs font-black flex items-center justify-center">O</div>
+                <span id="userDisplayName" class="text-xs font-bold text-gray-200 hidden sm:inline max-w-[120px] truncate">Operator</span>
+            </button>
+        </div>
     </header>
 
     <!-- Main Workspace -->
@@ -583,25 +596,24 @@
             triggerToast("PROFILE SWITCHED", `Active: ${email}`, "#00d2ff");
         }
 
+        // Rock-Solid Header Render Function
         function renderAccountsUi() {
             const activeUser = getActiveAccount();
-            const slot = document.getElementById("userProfileSlot");
+            const signInBtn = document.getElementById("directSignInBtn");
+            const profileBtn = document.getElementById("userProfileBtn");
+            const initialBadge = document.getElementById("userInitialBadge");
+            const displayName = document.getElementById("userDisplayName");
 
-            if (activeUser) {
-                const initial = activeUser.name ? activeUser.name.charAt(0).toUpperCase() : "O";
-                slot.innerHTML = `
-                    <button onclick="openAccountDrawer()" class="flex items-center space-x-2.5 bg-[#0e1626] border border-cyan-500/40 hover:border-cyan-400 px-3 py-1.5 rounded-xl tap-active shadow-md">
-                        <div class="w-6 h-6 rounded-full bg-gradient-to-tr from-cyan-400 to-blue-600 text-black text-xs font-black flex items-center justify-center">${initial}</div>
-                        <span class="text-xs font-bold text-gray-200 hidden sm:inline max-w-[100px] truncate">${activeUser.name}</span>
-                    </button>
-                `;
+            if (activeUser && activeUser.email) {
+                signInBtn.classList.add("hidden");
+                profileBtn.classList.remove("hidden");
+                profileBtn.classList.add("flex");
+                initialBadge.innerText = (activeUser.name || "O").charAt(0).toUpperCase();
+                displayName.innerText = activeUser.name || "Operator";
             } else {
-                slot.innerHTML = `
-                    <button onclick="openLoginModal()" class="px-4 py-2 rounded-xl bg-gradient-to-r from-rose-600 via-red-600 to-amber-500 hover:brightness-110 text-white font-mono text-xs font-black shadow-lg shadow-red-600/30 tap-active flex items-center space-x-2 animate-pulse">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
-                        <span>OPERATOR SIGN IN</span>
-                    </button>
-                `;
+                profileBtn.classList.add("hidden");
+                profileBtn.classList.remove("flex");
+                signInBtn.classList.remove("hidden");
             }
         }
 
@@ -1125,20 +1137,4 @@
                 return;
             }
             let csv = "Timestamp,Ticket,Faults,Health,LossRisk,Status\n";
-            records.forEach(r => {
-                csv += `"${r.timestamp}","${r.ticketId}","${r.faults}","${r.health}","${r.risk}","${r.status}"\n`;
-            });
-            const link = document.createElement("a");
-            link.href = encodeURI("data:text/csv;charset=utf-8," + csv);
-            link.download = `SCADA_LOGS_${Date.now()}.csv`;
-            link.click();
-        }
-
-        function exportPDFReport() {
-            if (!lastInferenceData) {
-                alert("Run diagnostic scan first.");
-                return;
-            }
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
-            const activeUser = 
+            rec
