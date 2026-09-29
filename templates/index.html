@@ -59,11 +59,22 @@
             border-color: var(--neon-blue);
             background: rgba(0, 210, 255, 0.03);
         }
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.92);
+            backdrop-filter: blur(10px);
+            z-index: 99999;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
         #toastContainer {
             position: fixed;
             bottom: 24px;
             right: 24px;
-            z-index: 99999;
+            z-index: 999999;
             display: flex;
             flex-direction: column;
             gap: 10px;
@@ -93,16 +104,16 @@
             </span>
         </div>
 
-        <!-- Direct Permanent Header Login Slot -->
+        <!-- Direct Rock-Solid Header Login Slot -->
         <div class="font-mono flex items-center">
-            <!-- If Not Logged In -->
-            <button id="directSignInBtn" onclick="openLoginModal()" class="px-4 py-2 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:brightness-110 text-black font-mono text-xs font-black shadow-lg shadow-cyan-500/25 tap-active flex items-center space-x-2">
+            <!-- Sign In Button (Visible when logged out) -->
+            <button id="directSignInBtn" type="button" onclick="openLoginModal()" class="px-4 py-2 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:brightness-110 text-black font-mono text-xs font-black shadow-lg shadow-cyan-500/25 tap-active flex items-center space-x-2 cursor-pointer">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
                 <span>OPERATOR SIGN IN</span>
             </button>
 
-            <!-- If Logged In -->
-            <button id="userProfileBtn" onclick="openAccountDrawer()" class="hidden items-center space-x-2.5 bg-[#0e1626] border border-cyan-500/40 hover:border-cyan-400 px-3.5 py-1.5 rounded-xl tap-active shadow-md">
+            <!-- Profile Badge Button (Visible when logged in) -->
+            <button id="userProfileBtn" type="button" onclick="openAccountDrawer()" style="display: none;" class="items-center space-x-2.5 bg-[#0e1626] border border-cyan-500/40 hover:border-cyan-400 px-3.5 py-1.5 rounded-xl tap-active shadow-md cursor-pointer">
                 <div id="userInitialBadge" class="w-7 h-7 rounded-full bg-gradient-to-tr from-cyan-400 to-blue-600 text-black text-xs font-black flex items-center justify-center">O</div>
                 <span id="userDisplayName" class="text-xs font-bold text-gray-200 hidden sm:inline max-w-[120px] truncate">Operator</span>
             </button>
@@ -170,7 +181,7 @@
                         </div>
 
                         <div class="mt-6">
-                            <button id="btnDiagnose" onclick="executeDiagnostics()" disabled class="w-full py-4 rounded-xl bg-[#0e1626] text-gray-600 font-mono text-xs font-black tracking-widest cursor-not-allowed transition uppercase flex items-center justify-center space-x-2 tap-active shadow-lg">
+                            <button id="btnDiagnose" type="button" onclick="executeDiagnostics()" disabled class="w-full py-4 rounded-xl bg-[#0e1626] text-gray-600 font-mono text-xs font-black tracking-widest cursor-not-allowed transition uppercase flex items-center justify-center space-x-2 tap-active shadow-lg">
                                 <span>⚡ START AI DEFECT SCAN</span>
                             </button>
                         </div>
@@ -204,7 +215,7 @@
             </div>
 
             <div id="nextStepRow" class="hidden justify-end pt-2">
-                <button onclick="switchWorkflowView('audit')" class="px-7 py-4 rounded-xl bg-gradient-to-r from-cyan-500 via-blue-600 to-rose-600 hover:brightness-110 text-white font-black font-mono text-xs tracking-widest uppercase transition shadow-xl shadow-cyan-500/25 flex items-center space-x-3 tap-active">
+                <button type="button" onclick="switchWorkflowView('audit')" class="px-7 py-4 rounded-xl bg-gradient-to-r from-cyan-500 via-blue-600 to-rose-600 hover:brightness-110 text-white font-black font-mono text-xs tracking-widest uppercase transition shadow-xl shadow-cyan-500/25 flex items-center space-x-3 tap-active cursor-pointer">
                     <span>VIEW AUDIT REPORTS & DEFECT LOGS (NEXT STEP ➔)</span>
                 </button>
             </div>
@@ -213,14 +224,14 @@
         <!-- WORKSPACE VIEW 2: AUDIT & CRITICAL METRICS -->
         <div id="auditWorkflow" class="hidden space-y-6 font-mono">
             <div class="flex items-center justify-between border-b border-[#162238] pb-4">
-                <button onclick="switchWorkflowView('scan')" class="px-5 py-2.5 rounded-xl bg-[#0d1422] border border-[#1b2b46] text-gray-300 hover:text-white text-xs font-bold tap-active flex items-center space-x-2">
+                <button type="button" onclick="switchWorkflowView('scan')" class="px-5 py-2.5 rounded-xl bg-[#0d1422] border border-[#1b2b46] text-gray-300 hover:text-white text-xs font-bold tap-active flex items-center space-x-2 cursor-pointer">
                     <span>⬅ PREVIOUS STEP (BACK TO SCANNER)</span>
                 </button>
                 <div class="flex items-center space-x-3">
-                    <button onclick="exportHistoryCSV()" class="px-4 py-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/20 text-xs font-bold tap-active flex items-center space-x-2">
+                    <button type="button" onclick="exportHistoryCSV()" class="px-4 py-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/20 text-xs font-bold tap-active flex items-center space-x-2 cursor-pointer">
                         <span>EXPORT CSV</span>
                     </button>
-                    <button id="btnExportPDF" onclick="exportPDFReport()" class="px-4 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-black text-xs font-black tap-active flex items-center space-x-2 shadow-lg shadow-cyan-500/20">
+                    <button id="btnExportPDF" type="button" onclick="exportPDFReport()" class="px-4 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-black text-xs font-black tap-active flex items-center space-x-2 shadow-lg shadow-cyan-500/20 cursor-pointer">
                         <span>DOWNLOAD PDF</span>
                     </button>
                 </div>
@@ -304,15 +315,121 @@
 
     </main>
 
+    <!-- OPERATOR LOGIN MODAL -->
+    <div id="loginModal" class="modal-overlay">
+        <div class="scada-box max-w-sm w-full p-6 rounded-2xl border border-cyan-500/50 shadow-2xl space-y-4 font-mono relative">
+            <div class="flex items-center justify-between border-b border-[#162238] pb-3">
+                <span class="text-xs font-black text-white uppercase">Operator Sign In</span>
+                <button type="button" onclick="closeLoginModal()" class="text-gray-400 hover:text-white text-lg tap-active cursor-pointer">&times;</button>
+            </div>
+
+            <div class="space-y-3 text-xs">
+                <div>
+                    <label class="block text-gray-400 mb-1 uppercase text-[10px]">Operator Name</label>
+                    <input type="text" id="loginName" autocomplete="off" placeholder="Enter Full Name" class="w-full bg-[#050810] border border-[#162238] rounded-lg px-3 py-2 text-white focus:outline-none focus:border-cyan-400">
+                </div>
+                <div>
+                    <label class="block text-gray-400 mb-1 uppercase text-[10px]">Gmail Address</label>
+                    <input type="email" id="loginEmail" autocomplete="off" placeholder="name@gmail.com" class="w-full bg-[#050810] border border-[#162238] rounded-lg px-3 py-2 text-white focus:outline-none focus:border-cyan-400">
+                </div>
+                <div>
+                    <div class="flex justify-between items-center mb-1">
+                        <label class="block text-gray-400 uppercase text-[10px]">Plant Security Password</label>
+                        <button type="button" onclick="triggerForgotPassword()" class="text-[10px] text-amber-400 hover:underline cursor-pointer">Forgot Key?</button>
+                    </div>
+                    <div class="relative flex items-center">
+                        <input type="password" id="loginPin" autocomplete="new-password" placeholder="••••••••" class="w-full bg-[#050810] border border-[#162238] rounded-lg pl-3 pr-10 py-2 text-white focus:outline-none focus:border-cyan-400">
+                        <button type="button" onclick="togglePasswordVisibility('loginPin', 'eyeIconLogin')" class="absolute right-3 text-gray-400 hover:text-white cursor-pointer">
+                            <span id="eyeIconLogin">👁️</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <button type="button" onclick="saveUserSession()" class="w-full py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:brightness-110 text-black font-black text-xs tracking-wider transition uppercase tap-active shadow-lg shadow-cyan-500/25 cursor-pointer">
+                Authorize Profile
+            </button>
+        </div>
+    </div>
+
+    <!-- 2-STEP OTP PASSWORD RESET MODAL -->
+    <div id="forgotOtpModal" class="modal-overlay">
+        <div class="scada-box max-w-sm w-full p-6 rounded-2xl border border-amber-500/60 shadow-2xl space-y-4 font-mono relative">
+            <div class="flex items-center justify-between border-b border-[#162238] pb-3">
+                <span class="text-xs font-black text-amber-400 uppercase flex items-center space-x-2">
+                    <span>🛡️</span>
+                    <span>SECURITY KEY RECOVERY</span>
+                </span>
+                <button type="button" onclick="closeForgotOtpModal()" class="text-gray-400 hover:text-white text-lg tap-active cursor-pointer">&times;</button>
+            </div>
+
+            <div id="otpStep1" class="space-y-3 text-xs">
+                <p class="text-gray-400 text-[11px] leading-relaxed">
+                    Enter your Gmail address. A 6-digit verification code will be dispatched to your inbox.
+                </p>
+                <div>
+                    <label class="block text-gray-400 mb-1 uppercase text-[10px]">Registered Gmail Address</label>
+                    <input type="email" id="recoveryEmail" autocomplete="off" placeholder="name@gmail.com" class="w-full bg-[#050810] border border-[#162238] rounded-lg px-3 py-2 text-white focus:outline-none focus:border-amber-400">
+                </div>
+                <button id="btnSendOtp" type="button" onclick="dispatchOtpEmail()" class="w-full py-3 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-500 hover:brightness-110 text-black font-black text-xs uppercase tracking-wider transition tap-active cursor-pointer">
+                    Send Verification Code
+                </button>
+            </div>
+
+            <div id="otpStep2" style="display: none;" class="space-y-3 text-xs">
+                <div class="p-2.5 bg-emerald-500/10 border border-emerald-500/30 rounded-lg text-emerald-400 text-[11px]">
+                    ✓ Verification code sent to <span id="displaySentTarget" class="font-bold underline"></span>.
+                </div>
+                <div>
+                    <label class="block text-gray-400 mb-1 uppercase text-[10px]">Enter 6-Digit Code</label>
+                    <input type="text" id="inputOtpCode" maxlength="6" placeholder="123456" class="w-full bg-[#050810] border border-[#162238] rounded-lg px-3 py-2 text-amber-400 font-bold tracking-widest text-center text-sm focus:outline-none focus:border-amber-400">
+                </div>
+                <div>
+                    <label class="block text-gray-400 mb-1 uppercase text-[10px]">Create New Password</label>
+                    <div class="relative flex items-center">
+                        <input type="password" id="inputNewPin" placeholder="New Secret Password" class="w-full bg-[#050810] border border-[#162238] rounded-lg pl-3 pr-10 py-2 text-white focus:outline-none focus:border-cyan-400">
+                        <button type="button" onclick="togglePasswordVisibility('inputNewPin', 'eyeIconNewPin')" class="absolute right-3 text-gray-400 hover:text-white cursor-pointer">
+                            <span id="eyeIconNewPin">👁️</span>
+                        </button>
+                    </div>
+                </div>
+                <button type="button" onclick="verifyOtpAndResetPassword()" class="w-full py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:brightness-110 text-black font-black text-xs uppercase tracking-wider transition tap-active cursor-pointer">
+                    Verify Code & Update Key
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MULTI-ACCOUNT DRAWER -->
+    <div id="accountDrawerModal" class="modal-overlay">
+        <div class="scada-box max-w-sm w-full p-6 rounded-2xl border border-cyan-500/40 shadow-2xl space-y-4 font-mono relative">
+            <div class="flex items-center justify-between border-b border-[#162238] pb-3">
+                <span class="text-xs font-bold text-white uppercase">Operator Accounts</span>
+                <button type="button" onclick="closeAccountDrawer()" class="text-gray-400 hover:text-white text-lg tap-active cursor-pointer">&times;</button>
+            </div>
+
+            <div id="accountsListContainer" class="space-y-2 max-h-56 overflow-y-auto pr-1"></div>
+
+            <button type="button" onclick="openCustomLogin()" class="w-full py-2.5 rounded-xl border border-cyan-800/80 bg-cyan-950/30 hover:bg-cyan-900/40 text-cyan-300 font-bold text-xs uppercase flex items-center justify-center space-x-2 tap-active transition cursor-pointer">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+                <span>Add Another Account</span>
+            </button>
+
+            <button type="button" onclick="logoutActiveAccount()" class="w-full py-2 rounded-lg bg-[#0e1626] hover:bg-rose-950 text-gray-400 hover:text-rose-400 text-xs font-bold uppercase transition tap-active cursor-pointer">
+                Sign Out Current Account
+            </button>
+        </div>
+    </div>
+
     <!-- DETAILED INSPECTION RECORD MODAL -->
-    <div id="detailInspectionModal" class="fixed inset-0 bg-black/90 backdrop-blur-xl z-[10005] hidden items-center justify-center p-4">
+    <div id="detailInspectionModal" class="modal-overlay">
         <div class="scada-box max-w-lg w-full p-6 rounded-2xl border border-cyan-500/50 shadow-2xl space-y-5 font-mono relative">
             <div class="flex items-center justify-between border-b border-[#162238] pb-3">
                 <div class="flex items-center space-x-2">
                     <span class="text-cyan-400 text-lg">📋</span>
                     <span class="text-xs font-black text-white uppercase tracking-wider">SCADA Work Order Audit</span>
                 </div>
-                <button onclick="closeDetailModal()" class="text-gray-400 hover:text-white text-lg tap-active">&times;</button>
+                <button type="button" onclick="closeDetailModal()" class="text-gray-400 hover:text-white text-lg tap-active cursor-pointer">&times;</button>
             </div>
 
             <div class="grid grid-cols-2 gap-3 text-xs bg-[#050810] p-3 rounded-xl border border-[#162238]">
@@ -353,11 +470,11 @@
             </div>
 
             <div class="flex items-center space-x-3 pt-2">
-                <button onclick="downloadDetailRecordPDF()" class="flex-1 py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-black font-black text-xs uppercase tap-active flex items-center justify-center space-x-2 shadow-lg shadow-cyan-500/20">
+                <button type="button" onclick="downloadDetailRecordPDF()" class="flex-1 py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-black font-black text-xs uppercase tap-active flex items-center justify-center space-x-2 shadow-lg shadow-cyan-500/20 cursor-pointer">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
                     <span>Download PDF</span>
                 </button>
-                <button onclick="shareDetailRecord()" class="flex-1 py-3 rounded-xl bg-[#121c2e] hover:bg-[#1a2842] border border-[#223554] text-cyan-400 font-black text-xs uppercase tap-active flex items-center justify-center space-x-2 transition">
+                <button type="button" onclick="shareDetailRecord()" class="flex-1 py-3 rounded-xl bg-[#121c2e] hover:bg-[#1a2842] border border-[#223554] text-cyan-400 font-black text-xs uppercase tap-active flex items-center justify-center space-x-2 transition cursor-pointer">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"></path></svg>
                     <span>Share Audit</span>
                 </button>
@@ -366,14 +483,14 @@
     </div>
 
     <!-- SYSTEM SPECIFICATIONS MODAL -->
-    <div id="aboutModal" class="fixed inset-0 bg-black/90 backdrop-blur-md z-[10000] hidden items-center justify-center p-4">
-        <div class="scada-box max-w-sm w-full p-6 rounded-2xl border border-cyan-500/40 shadow-2xl space-y-4 font-mono">
+    <div id="aboutModal" class="modal-overlay">
+        <div class="scada-box max-w-sm w-full p-6 rounded-2xl border border-cyan-500/40 shadow-2xl space-y-4 font-mono relative">
             <div class="flex items-center justify-between border-b border-[#162238] pb-3">
                 <div class="flex items-center space-x-2">
                     <span class="text-cyan-400 text-lg">⚡</span>
                     <span class="text-xs font-black text-white uppercase">VOLTIX AI SPECIFICATIONS</span>
                 </div>
-                <button onclick="closeAboutModal()" class="text-gray-400 hover:text-white text-lg tap-active">&times;</button>
+                <button type="button" onclick="closeAboutModal()" class="text-gray-400 hover:text-white text-lg tap-active cursor-pointer">&times;</button>
             </div>
 
             <div class="space-y-2 text-xs divide-y divide-[#162238]">
@@ -384,120 +501,14 @@
                 <div class="flex justify-between py-2"><span class="text-gray-400">Cross-Device Sync</span><span class="text-emerald-400 font-bold">Cloud REST Database</span></div>
             </div>
 
-            <button onclick="closeAboutModal()" class="w-full py-2.5 rounded-lg bg-[#0e1626] hover:bg-[#152238] text-gray-300 font-bold text-xs uppercase tap-active">
+            <button type="button" onclick="closeAboutModal()" class="w-full py-2.5 rounded-lg bg-[#0e1626] hover:bg-[#152238] text-gray-300 font-bold text-xs uppercase tap-active cursor-pointer">
                 Close Specifications
             </button>
         </div>
     </div>
 
-    <!-- MULTI-ACCOUNT DRAWER -->
-    <div id="accountDrawerModal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-[10000] hidden items-center justify-center p-4">
-        <div class="scada-box max-w-sm w-full p-6 rounded-2xl border border-cyan-500/40 shadow-2xl space-y-4 font-mono">
-            <div class="flex items-center justify-between border-b border-[#162238] pb-3">
-                <span class="text-xs font-bold text-white uppercase">Operator Accounts</span>
-                <button onclick="closeAccountDrawer()" class="text-gray-400 hover:text-white text-lg tap-active">&times;</button>
-            </div>
-
-            <div id="accountsListContainer" class="space-y-2 max-h-56 overflow-y-auto pr-1"></div>
-
-            <button onclick="openCustomLogin()" class="w-full py-2.5 rounded-xl border border-cyan-800/80 bg-cyan-950/30 hover:bg-cyan-900/40 text-cyan-300 font-bold text-xs uppercase flex items-center justify-center space-x-2 tap-active transition">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
-                <span>Add Another Account</span>
-            </button>
-
-            <button onclick="logoutActiveAccount()" class="w-full py-2 rounded-lg bg-[#0e1626] hover:bg-rose-950 text-gray-400 hover:text-rose-400 text-xs font-bold uppercase transition tap-active">
-                Sign Out Current Account
-            </button>
-        </div>
-    </div>
-
-    <!-- OPERATOR LOGIN MODAL -->
-    <div id="loginModal" class="fixed inset-0 bg-black/90 backdrop-blur-lg z-[10001] hidden items-center justify-center p-4">
-        <div class="scada-box max-w-sm w-full p-6 rounded-2xl border border-cyan-500/50 shadow-2xl space-y-4 font-mono">
-            <div class="flex items-center justify-between border-b border-[#162238] pb-3">
-                <span class="text-xs font-black text-white uppercase">Operator Sign In</span>
-                <button onclick="closeLoginModal()" class="text-gray-400 hover:text-white text-lg tap-active">&times;</button>
-            </div>
-
-            <div class="space-y-3 text-xs">
-                <div>
-                    <label class="block text-gray-400 mb-1 uppercase text-[10px]">Operator Name</label>
-                    <input type="text" id="loginName" autocomplete="off" placeholder="Enter Full Name" class="w-full bg-[#050810] border border-[#162238] rounded-lg px-3 py-2 text-white focus:outline-none focus:border-cyan-400">
-                </div>
-                <div>
-                    <label class="block text-gray-400 mb-1 uppercase text-[10px]">Gmail Address</label>
-                    <input type="email" id="loginEmail" autocomplete="off" placeholder="name@gmail.com" class="w-full bg-[#050810] border border-[#162238] rounded-lg px-3 py-2 text-white focus:outline-none focus:border-cyan-400">
-                </div>
-                <div>
-                    <div class="flex justify-between items-center mb-1">
-                        <label class="block text-gray-400 uppercase text-[10px]">Plant Security Password</label>
-                        <button type="button" onclick="triggerForgotPassword()" class="text-[10px] text-amber-400 hover:underline">Forgot Key?</button>
-                    </div>
-                    <div class="relative flex items-center">
-                        <input type="password" id="loginPin" autocomplete="new-password" placeholder="••••••••" class="w-full bg-[#050810] border border-[#162238] rounded-lg pl-3 pr-10 py-2 text-white focus:outline-none focus:border-cyan-400">
-                        <button type="button" onclick="togglePasswordVisibility('loginPin', 'eyeIconLogin')" class="absolute right-3 text-gray-400 hover:text-white">
-                            <span id="eyeIconLogin">👁️</span>
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <button onclick="saveUserSession()" class="w-full py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:brightness-110 text-black font-black text-xs tracking-wider transition uppercase tap-active shadow-lg shadow-cyan-500/25">
-                Authorize Profile
-            </button>
-        </div>
-    </div>
-
-    <!-- 2-STEP OTP PASSWORD RESET MODAL -->
-    <div id="forgotOtpModal" class="fixed inset-0 bg-black/95 backdrop-blur-xl z-[10002] hidden items-center justify-center p-4">
-        <div class="scada-box max-w-sm w-full p-6 rounded-2xl border border-amber-500/60 shadow-2xl space-y-4 font-mono">
-            <div class="flex items-center justify-between border-b border-[#162238] pb-3">
-                <span class="text-xs font-black text-amber-400 uppercase flex items-center space-x-2">
-                    <span>🛡️</span>
-                    <span>SECURITY KEY RECOVERY</span>
-                </span>
-                <button onclick="closeForgotOtpModal()" class="text-gray-400 hover:text-white text-lg tap-active">&times;</button>
-            </div>
-
-            <div id="otpStep1" class="space-y-3 text-xs">
-                <p class="text-gray-400 text-[11px] leading-relaxed">
-                    Enter your Gmail address. A 6-digit verification code will be dispatched to your inbox.
-                </p>
-                <div>
-                    <label class="block text-gray-400 mb-1 uppercase text-[10px]">Registered Gmail Address</label>
-                    <input type="email" id="recoveryEmail" autocomplete="off" placeholder="name@gmail.com" class="w-full bg-[#050810] border border-[#162238] rounded-lg px-3 py-2 text-white focus:outline-none focus:border-amber-400">
-                </div>
-                <button id="btnSendOtp" onclick="dispatchOtpEmail()" class="w-full py-3 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-500 hover:brightness-110 text-black font-black text-xs uppercase tracking-wider transition tap-active">
-                    Send Verification Code
-                </button>
-            </div>
-
-            <div id="otpStep2" class="hidden space-y-3 text-xs">
-                <div class="p-2.5 bg-emerald-500/10 border border-emerald-500/30 rounded-lg text-emerald-400 text-[11px]">
-                    ✓ Verification code sent to <span id="displaySentTarget" class="font-bold underline"></span>.
-                </div>
-                <div>
-                    <label class="block text-gray-400 mb-1 uppercase text-[10px]">Enter 6-Digit Code</label>
-                    <input type="text" id="inputOtpCode" maxlength="6" placeholder="123456" class="w-full bg-[#050810] border border-[#162238] rounded-lg px-3 py-2 text-amber-400 font-bold tracking-widest text-center text-sm focus:outline-none focus:border-amber-400">
-                </div>
-                <div>
-                    <label class="block text-gray-400 mb-1 uppercase text-[10px]">Create New Password</label>
-                    <div class="relative flex items-center">
-                        <input type="password" id="inputNewPin" placeholder="New Secret Password" class="w-full bg-[#050810] border border-[#162238] rounded-lg pl-3 pr-10 py-2 text-white focus:outline-none focus:border-cyan-400">
-                        <button type="button" onclick="togglePasswordVisibility('inputNewPin', 'eyeIconNewPin')" class="absolute right-3 text-gray-400 hover:text-white">
-                            <span id="eyeIconNewPin">👁️</span>
-                        </button>
-                    </div>
-                </div>
-                <button onclick="verifyOtpAndResetPassword()" class="w-full py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:brightness-110 text-black font-black text-xs uppercase tracking-wider transition tap-active">
-                    Verify Code & Update Key
-                </button>
-            </div>
-        </div>
-    </div>
-
     <!-- INCIDENT ALERT MODAL -->
-    <div id="alertSuccessModal" class="fixed inset-0 bg-black/90 backdrop-blur-xl z-[10003] hidden items-center justify-center p-4">
+    <div id="alertSuccessModal" class="modal-overlay">
         <div class="scada-box max-w-md w-full p-6 rounded-2xl border border-rose-500 shadow-2xl space-y-5 text-center relative overflow-hidden font-mono">
             <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-rose-500 via-amber-500 to-cyan-500"></div>
 
@@ -525,7 +536,7 @@
                 </div>
             </div>
 
-            <button onclick="closeAlertModal()" class="w-full py-3 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-black text-xs uppercase tap-active shadow-lg shadow-rose-600/30">
+            <button type="button" onclick="closeAlertModal()" class="w-full py-3 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-black text-xs uppercase tap-active shadow-lg shadow-rose-600/30 cursor-pointer">
                 Acknowledge & Close
             </button>
         </div>
@@ -547,6 +558,7 @@
             loadOperatorHistory();
         };
 
+        // Eye Toggle
         function togglePasswordVisibility(inputId, iconId) {
             const input = document.getElementById(inputId);
             const icon = document.getElementById(iconId);
@@ -559,19 +571,20 @@
             }
         }
 
+        // Workflow Switch
         function switchWorkflowView(view) {
             const scan = document.getElementById("scanWorkflow");
             const audit = document.getElementById("auditWorkflow");
             const badge = document.getElementById("navStatusBadge");
 
             if (view === 'scan') {
-                scan.classList.remove("hidden");
-                audit.classList.add("hidden");
+                scan.style.display = 'block';
+                audit.style.display = 'none';
                 badge.innerText = "DIAGNOSTIC SCANNER";
                 badge.className = "px-3 py-1 rounded-lg bg-cyan-950/50 border border-cyan-500/40 text-cyan-400 font-bold";
             } else {
-                scan.classList.add("hidden");
-                audit.classList.remove("hidden");
+                scan.style.display = 'none';
+                audit.style.display = 'block';
                 badge.innerText = "AUDIT & DEFECT LOGS";
                 badge.className = "px-3 py-1 rounded-lg bg-rose-950/50 border border-rose-500/40 text-rose-400 font-bold";
                 loadOperatorHistory();
@@ -579,42 +592,12 @@
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        function getAllStoredAccounts() {
-            return JSON.parse(localStorage.getItem("voltix_accounts_list") || "[]");
+        // Modal Display Controllers
+        function openLoginModal() {
+            document.getElementById("loginModal").style.display = "flex";
         }
-
-        function getActiveAccount() {
-            const list = getAllStoredAccounts();
-            const activeEmail = localStorage.getItem("voltix_active_email");
-            return list.find(acc => acc.email === activeEmail) || null;
-        }
-
-        function setActiveAccount(email) {
-            localStorage.setItem("voltix_active_email", email);
-            renderAccountsUi();
-            loadOperatorHistory();
-            triggerToast("PROFILE SWITCHED", `Active: ${email}`, "#00d2ff");
-        }
-
-        // Rock-Solid Header Render Function
-        function renderAccountsUi() {
-            const activeUser = getActiveAccount();
-            const signInBtn = document.getElementById("directSignInBtn");
-            const profileBtn = document.getElementById("userProfileBtn");
-            const initialBadge = document.getElementById("userInitialBadge");
-            const displayName = document.getElementById("userDisplayName");
-
-            if (activeUser && activeUser.email) {
-                signInBtn.classList.add("hidden");
-                profileBtn.classList.remove("hidden");
-                profileBtn.classList.add("flex");
-                initialBadge.innerText = (activeUser.name || "O").charAt(0).toUpperCase();
-                displayName.innerText = activeUser.name || "Operator";
-            } else {
-                profileBtn.classList.add("hidden");
-                profileBtn.classList.remove("flex");
-                signInBtn.classList.remove("hidden");
-            }
+        function closeLoginModal() {
+            document.getElementById("loginModal").style.display = "none";
         }
 
         function openAccountDrawer() {
@@ -641,13 +624,67 @@
                 `;
             });
 
-            document.getElementById("accountDrawerModal").classList.remove("hidden");
-            document.getElementById("accountDrawerModal").classList.add("flex");
+            document.getElementById("accountDrawerModal").style.display = "flex";
+        }
+        function closeAccountDrawer() {
+            document.getElementById("accountDrawerModal").style.display = "none";
         }
 
-        function closeAccountDrawer() {
-            document.getElementById("accountDrawerModal").classList.add("hidden");
-            document.getElementById("accountDrawerModal").classList.remove("flex");
+        function openAboutModal() {
+            document.getElementById("aboutModal").style.display = "flex";
+        }
+        function closeAboutModal() {
+            document.getElementById("aboutModal").style.display = "none";
+        }
+
+        function closeDetailModal() {
+            document.getElementById("detailInspectionModal").style.display = "none";
+        }
+
+        function openAlertModal(ticketId, targetEmail, faultCount) {
+            document.getElementById("modalTicketId").innerText = ticketId;
+            document.getElementById("modalTargetEmail").innerText = targetEmail;
+            document.getElementById("modalFaultCount").innerText = `${faultCount} Faults`;
+            document.getElementById("alertSuccessModal").style.display = "flex";
+        }
+        function closeAlertModal() {
+            document.getElementById("alertSuccessModal").style.display = "none";
+        }
+
+        // Account Storage Operations
+        function getAllStoredAccounts() {
+            return JSON.parse(localStorage.getItem("voltix_accounts_list") || "[]");
+        }
+
+        function getActiveAccount() {
+            const list = getAllStoredAccounts();
+            const activeEmail = localStorage.getItem("voltix_active_email");
+            return list.find(acc => acc.email === activeEmail) || null;
+        }
+
+        function setActiveAccount(email) {
+            localStorage.setItem("voltix_active_email", email);
+            renderAccountsUi();
+            loadOperatorHistory();
+            triggerToast("PROFILE SWITCHED", `Active: ${email}`, "#00d2ff");
+        }
+
+        function renderAccountsUi() {
+            const activeUser = getActiveAccount();
+            const signInBtn = document.getElementById("directSignInBtn");
+            const profileBtn = document.getElementById("userProfileBtn");
+            const initialBadge = document.getElementById("userInitialBadge");
+            const displayName = document.getElementById("userDisplayName");
+
+            if (activeUser && activeUser.email) {
+                signInBtn.style.display = "none";
+                profileBtn.style.display = "flex";
+                initialBadge.innerText = (activeUser.name || "O").charAt(0).toUpperCase();
+                displayName.innerText = activeUser.name || "Operator";
+            } else {
+                profileBtn.style.display = "none";
+                signInBtn.style.display = "flex";
+            }
         }
 
         function openCustomLogin() {
@@ -676,30 +713,55 @@
             triggerToast("SESSION TERMINATED", "Operator signed out", "#ff3366");
         }
 
-        function openLoginModal() {
-            document.getElementById("loginModal").classList.remove("hidden");
-            document.getElementById("loginModal").classList.add("flex");
-        }
-        function closeLoginModal() {
-            document.getElementById("loginModal").classList.add("hidden");
-            document.getElementById("loginModal").classList.remove("flex");
+        function saveUserSession() {
+            const name = document.getElementById("loginName").value.trim();
+            const email = document.getElementById("loginEmail").value.trim().toLowerCase();
+            const pin = document.getElementById("loginPin").value.trim();
+
+            if (!name || !email.includes("@")) {
+                alert("Provide a valid operator name and Gmail address.");
+                return;
+            }
+
+            const savedCustomPin = localStorage.getItem(`voltix_key_${email}`);
+            const requiredPin = savedCustomPin ? savedCustomPin : DEFAULT_SECURITY_PIN;
+
+            if (pin !== requiredPin) {
+                alert("ACCESS REJECTED: Incorrect Plant Security Password. Click 'Forgot Key?' to receive an OTP code on your Gmail.");
+                return;
+            }
+
+            let list = getAllStoredAccounts();
+            const index = list.findIndex(acc => acc.email === email);
+            if (index >= 0) {
+                list[index] = { name, email, customPin: requiredPin };
+            } else {
+                list.push({ name, email, customPin: requiredPin });
+            }
+
+            localStorage.setItem("voltix_accounts_list", JSON.stringify(list));
+            localStorage.setItem("voltix_active_email", email);
+
+            renderAccountsUi();
+            closeLoginModal();
+            loadOperatorHistory();
+            triggerToast("AUTHORIZED", `Connected: ${email}`, "#00d2ff");
         }
 
+        // Forgot Key OTP Handlers
         function triggerForgotPassword() {
             closeLoginModal();
             const currentEmail = document.getElementById("loginEmail").value.trim();
             if (currentEmail) {
                 document.getElementById("recoveryEmail").value = currentEmail;
             }
-            document.getElementById("otpStep1").classList.remove("hidden");
-            document.getElementById("otpStep2").classList.add("hidden");
-            document.getElementById("forgotOtpModal").classList.remove("hidden");
-            document.getElementById("forgotOtpModal").classList.add("flex");
+            document.getElementById("otpStep1").style.display = "block";
+            document.getElementById("otpStep2").style.display = "none";
+            document.getElementById("forgotOtpModal").style.display = "flex";
         }
 
         function closeForgotOtpModal() {
-            document.getElementById("forgotOtpModal").classList.add("hidden");
-            document.getElementById("forgotOtpModal").classList.remove("flex");
+            document.getElementById("forgotOtpModal").style.display = "none";
             openLoginModal();
         }
 
@@ -729,16 +791,16 @@
                     btn.disabled = false;
                     btn.innerText = "Send Verification Code";
                     document.getElementById("displaySentTarget").innerText = recoveryTargetEmail;
-                    document.getElementById("otpStep1").classList.add("hidden");
-                    document.getElementById("otpStep2").classList.remove("hidden");
+                    document.getElementById("otpStep1").style.display = "none";
+                    document.getElementById("otpStep2").style.display = "block";
                     triggerToast("SECURITY OTP SENT", `6-digit code routed to ${recoveryTargetEmail}`, "#10b981");
                 }, function() {
                     btn.disabled = false;
                     btn.innerText = "Send Verification Code";
                     alert(`Network gateway busy. For demo evaluation, your OTP is: ${generatedRecoveryOtp}`);
                     document.getElementById("displaySentTarget").innerText = recoveryTargetEmail;
-                    document.getElementById("otpStep1").classList.add("hidden");
-                    document.getElementById("otpStep2").classList.remove("hidden");
+                    document.getElementById("otpStep1").style.display = "none";
+                    document.getElementById("otpStep2").style.display = "block";
                 });
         }
 
@@ -771,62 +833,7 @@
             triggerToast("KEY UPDATED", "New password verified & saved!", "#00d2ff");
         }
 
-        function saveUserSession() {
-            const name = document.getElementById("loginName").value.trim();
-            const email = document.getElementById("loginEmail").value.trim().toLowerCase();
-            const pin = document.getElementById("loginPin").value.trim();
-
-            if (!name || !email.includes("@")) {
-                alert("Provide a valid operator name and email.");
-                return;
-            }
-
-            const savedCustomPin = localStorage.getItem(`voltix_key_${email}`);
-            const requiredPin = savedCustomPin ? savedCustomPin : DEFAULT_SECURITY_PIN;
-
-            if (pin !== requiredPin) {
-                alert("ACCESS REJECTED: Incorrect Plant Password. Click 'Forgot Key?' to receive an OTP on your Gmail.");
-                return;
-            }
-
-            let list = getAllStoredAccounts();
-            const index = list.findIndex(acc => acc.email === email);
-            if (index >= 0) {
-                list[index] = { name, email, customPin: requiredPin };
-            } else {
-                list.push({ name, email, customPin: requiredPin });
-            }
-
-            localStorage.setItem("voltix_accounts_list", JSON.stringify(list));
-            localStorage.setItem("voltix_active_email", email);
-
-            renderAccountsUi();
-            closeLoginModal();
-            loadOperatorHistory();
-            triggerToast("AUTHORIZED", `Connected: ${email}`, "#00d2ff");
-        }
-
-        function openAboutModal() {
-            document.getElementById("aboutModal").classList.remove("hidden");
-            document.getElementById("aboutModal").classList.add("flex");
-        }
-        function closeAboutModal() {
-            document.getElementById("aboutModal").classList.add("hidden");
-            document.getElementById("aboutModal").classList.remove("flex");
-        }
-
-        function openAlertModal(ticketId, targetEmail, faultCount) {
-            document.getElementById("modalTicketId").innerText = ticketId;
-            document.getElementById("modalTargetEmail").innerText = targetEmail;
-            document.getElementById("modalFaultCount").innerText = `${faultCount} Faults`;
-            document.getElementById("alertSuccessModal").classList.remove("hidden");
-            document.getElementById("alertSuccessModal").classList.add("flex");
-        }
-        function closeAlertModal() {
-            document.getElementById("alertSuccessModal").classList.add("hidden");
-            document.getElementById("alertSuccessModal").classList.remove("flex");
-        }
-
+        // File Handler
         function handleFileSelect(e) {
             const file = e.target.files[0];
             if (!file) return;
@@ -843,9 +850,10 @@
             const btn = document.getElementById("btnDiagnose");
             btn.disabled = false;
             btn.classList.remove("bg-[#0e1626]", "text-gray-600", "cursor-not-allowed");
-            btn.classList.add("bg-gradient-to-r", "from-cyan-500", "via-blue-600", "to-rose-600", "text-white", "hover:brightness-110");
+            btn.classList.add("bg-gradient-to-r", "from-cyan-500", "via-blue-600", "to-rose-600", "text-white", "hover:brightness-110", "cursor-pointer");
         }
 
+        // Diagnostics Execution
         async function executeDiagnostics() {
             if (!selectedFile) return;
             const activeUser = getActiveAccount();
@@ -963,7 +971,7 @@
                 });
         }
 
-        // CROSS-DEVICE CLOUD SYNC & DETAILED LEDGER
+        // Cloud History Sync & Clickable Rows
         async function recordScanToLedger(ticketId, data, email) {
             const count = data.total_faults;
             const health = Math.max(65, 100 - (count * 2.8)).toFixed(1) + "%";
@@ -1069,13 +1077,7 @@
             document.getElementById("dtlThermalHazard").innerText = r.hazard || "NOMINAL (< 45°C)";
             document.getElementById("dtlActionProtocol").innerText = r.maintenance || "Routine array maintenance sweep.";
 
-            document.getElementById("detailInspectionModal").classList.remove("hidden");
-            document.getElementById("detailInspectionModal").classList.add("flex");
-        }
-
-        function closeDetailModal() {
-            document.getElementById("detailInspectionModal").classList.add("hidden");
-            document.getElementById("detailInspectionModal").classList.remove("flex");
+            document.getElementById("detailInspectionModal").style.display = "flex";
         }
 
         function downloadDetailRecordPDF() {
@@ -1137,4 +1139,9 @@
                 return;
             }
             let csv = "Timestamp,Ticket,Faults,Health,LossRisk,Status\n";
-            rec
+            records.forEach(r => {
+                csv += `"${r.timestamp}","${r.ticketId}","${r.faults}","${r.health}","${r.risk}","${r.status}"\n`;
+            });
+            const link = document.createElement("a");
+            link.href = encodeURI("data:text/csv;charset=utf-8," + csv);
+            l
