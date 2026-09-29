@@ -14,14 +14,14 @@ app = Flask(__name__)
 # Load YOLOv8 Model
 model = YOLO("best.pt")
 
-# Email Pipeline (Unga sender Gmail matrum 16-digit Google App Password inga fill pannunga)
+# Sender Engine (Email anuppa use aagura host credentials)
 SENDER_EMAIL = "logeshajay1701@gmail.com"
 SENDER_APP_PASSWORD = "ndfu itzq cjus xuoa"
 
 def send_instant_email(recipient_email, ticket_id, fault_count):
     if not recipient_email or "@" not in recipient_email:
         print(f"[VOLTIX ALERT REJECT] Invalid Email: {recipient_email}")
-        return {"return": False, "message": "Invalid email address"}
+        return False
 
     subject = f"🚨 VOLTIX AI CRITICAL ALERT: {fault_count} Hotspots Detected [{ticket_id}]"
     
@@ -35,11 +35,12 @@ def send_instant_email(recipient_email, ticket_id, fault_count):
           
           <p><strong style="color: #ef4444;">Status:</strong> CRITICAL RISK (Action Required)</p>
           <p><strong>Work Order Ticket:</strong> <span style="font-family: monospace; color: #00d2ff;">{ticket_id}</span></p>
+          <p><strong>Recipient Technician:</strong> {recipient_email}</p>
           <p><strong>Defects Classified:</strong> <span style="color: #ef4444; font-weight: bold;">{fault_count} Critical Hotspots</span></p>
-          <p><strong>Recommended Action:</strong> Immediate PV String isolation & thermographic field bypass inspection.</p>
+          <p><strong>Recommended Action:</strong> Immediate PV String isolation & thermographic field inspection.</p>
           
           <hr style="border: 0; border-top: 1px solid #1e2c42;">
-          <p style="font-size: 12px; color: #4c5b73;">This is an autonomous telemetry-generated alert dispatched by VOLTIX AI SCADA Core.</p>
+          <p style="font-size: 12px; color: #4c5b73;">Dispatched by VOLTIX AI Core to actively authenticated operator.</p>
         </div>
       </body>
     </html>
@@ -57,36 +58,23 @@ def send_instant_email(recipient_email, ticket_id, fault_count):
         server.login(SENDER_EMAIL, SENDER_APP_PASSWORD)
         server.sendmail(SENDER_EMAIL, recipient_email, msg.as_string())
         server.quit()
-        print(f"[VOLTIX EMAIL SUCCESS] Dispatched ticket {ticket_id} to {recipient_email}")
-        return {"return": True, "message": "Email dispatched successfully"}
+        print(f"[VOLTIX EMAIL SUCCESS] Alert sent to {recipient_email} for ticket {ticket_id}")
+        return True
     except Exception as e:
         print(f"[VOLTIX EMAIL ERROR] {e}")
-        return {"return": False, "message": str(e)}
+        return False
 
 @app.route("/")
 def index():
     return render_template("index.html")
 
-@app.route("/send_alert", methods=["POST"])
-def send_alert():
-    data = request.get_json() or {}
-    target_email = data.get("email", "")
-    ticket_id = data.get("ticket_id", "WO-ALERT")
-    fault_count = data.get("fault_count", 1)
-
-    api_res = send_instant_email(target_email, ticket_id, fault_count)
-
-    return jsonify({
-        "status": "SENT",
-        "technician_email": target_email,
-        "ticket": ticket_id,
-        "gateway_response": api_res
-    })
-
 @app.route("/predict", methods=["POST"])
 def predict():
     if "file" not in request.files:
         return jsonify({"error": "No file uploaded"}), 400
+
+    # User browser-la login panna email inga dynamic-aa capture aagum
+    target_email = request.form.get("user_email", "logeshajay1701@gmail.com")
 
     file = request.files["file"]
     try:
@@ -135,11 +123,17 @@ def predict():
 
     status = "ALERT" if len(faults) > 0 else "OPTIMAL"
 
+    # Defect irundhaa, login panna technician mail-ku direct-aa anuppum
+    if len(faults) > 0:
+        ticket_id = f"WO-{np.random.randint(100000, 999999)}-PV"
+        send_instant_email(target_email, ticket_id, len(faults))
+
     return jsonify({
         "status": status,
         "total_faults": len(faults),
         "faults": faults,
-        "image_data": f"data:image/jpeg;base64,{encoded_img}"
+        "image_data": f"data:image/jpeg;base64,{encoded_img}",
+        "dispatched_to": target_email
     })
 
 if __name__ == "__main__":
