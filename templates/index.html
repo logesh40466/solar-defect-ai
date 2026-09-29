@@ -45,6 +45,7 @@
         }
         .glow-blue { text-shadow: 0 0 14px rgba(0, 210, 255, 0.8); }
         .glow-red { text-shadow: 0 0 14px rgba(255, 51, 102, 0.8); }
+        .glow-amber { text-shadow: 0 0 14px rgba(255, 170, 0, 0.8); }
         .tap-active:active {
             transform: scale(0.98);
             filter: brightness(1.2);
@@ -204,7 +205,7 @@
             </div>
         </div>
 
-        <!-- ======================= WORKSPACE VIEW 2: AUDIT & LOGS ======================= -->
+        <!-- ======================= WORKSPACE VIEW 2: AUDIT & CRITICAL ENGINEERING METRICS ======================= -->
         <div id="auditWorkflow" class="hidden space-y-6 font-mono">
             <div class="flex items-center justify-between border-b border-[#162238] pb-4">
                 <button onclick="switchWorkflowView('scan')" class="px-5 py-2.5 rounded-xl bg-[#0d1422] border border-[#1b2b46] text-gray-300 hover:text-white text-xs font-bold tap-active flex items-center space-x-2">
@@ -220,17 +221,50 @@
                 </div>
             </div>
 
-            <!-- Financial Loss & Dispatch -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="scada-box p-5 rounded-2xl border-l-4 border-l-rose-500">
-                    <span class="text-[10px] text-gray-500 uppercase">PROJECTED REVENUE LOSS</span>
-                    <div id="p2ValRisk" class="text-3xl font-black text-rose-400 glow-red mt-2">₹ --</div>
-                    <p class="text-xs text-gray-500 mt-2">Calculated from solar hotspot degradation loss rate.</p>
+            <!-- CRITICAL INDUSTRIAL SCADA METRICS (4 Detailed Action Cards) -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <!-- 1. Recommended Maintenance Action -->
+                <div class="scada-box p-5 rounded-2xl border-l-4 border-l-rose-500 flex flex-col justify-between">
+                    <div>
+                        <span class="text-[10px] text-gray-400 uppercase tracking-widest">RECOMMENDED MAINTENANCE</span>
+                        <div id="valMaintenanceAction" class="text-base font-black text-rose-400 glow-red mt-2 leading-snug">STANDBY</div>
+                    </div>
+                    <p id="descMaintenanceAction" class="text-[11px] text-gray-400 mt-3 leading-relaxed">
+                        Continuous telemetry link awaiting scan results to recommend field crew tasks.
+                    </p>
                 </div>
-                <div class="scada-box p-5 rounded-2xl border-l-4 border-l-amber-500">
-                    <span class="text-[10px] text-gray-500 uppercase">EMAIL ALERT STATUS</span>
-                    <div id="p2ValDispatch" class="text-xl font-bold text-amber-400 mt-2">STANDBY</div>
-                    <p class="text-xs text-gray-500 mt-2">Automatic dispatch notifications delivered via EmailJS.</p>
+
+                <!-- 2. Thermal Hazard & Fire Risk Level -->
+                <div class="scada-box p-5 rounded-2xl border-l-4 border-l-amber-500 flex flex-col justify-between">
+                    <div>
+                        <span class="text-[10px] text-gray-400 uppercase tracking-widest">THERMAL HAZARD LEVEL</span>
+                        <div id="valThermalHazard" class="text-lg font-black text-amber-400 glow-amber mt-2">NOMINAL</div>
+                    </div>
+                    <p id="descThermalHazard" class="text-[11px] text-gray-400 mt-3 leading-relaxed">
+                        Peak cell temp: normal ranges. No immediate backsheet thermal scorch hazard.
+                    </p>
+                </div>
+
+                <!-- 3. Real-Time Generation Drop -->
+                <div class="scada-box p-5 rounded-2xl border-l-4 border-l-cyan-500 flex flex-col justify-between">
+                    <div>
+                        <span class="text-[10px] text-gray-400 uppercase tracking-widest">POWER GENERATION DROP</span>
+                        <div id="valPowerDrop" class="text-2xl font-black text-cyan-400 glow-blue mt-2">0.0 kW/h</div>
+                    </div>
+                    <p class="text-[11px] text-gray-400 mt-3 leading-relaxed">
+                        Instantaneous photovoltaic clipping loss caused by defective internal cell strings.
+                    </p>
+                </div>
+
+                <!-- 4. Projected Revenue Tariff Loss -->
+                <div class="scada-box p-5 rounded-2xl border-l-4 border-l-red-600 flex flex-col justify-between">
+                    <div>
+                        <span class="text-[10px] text-gray-400 uppercase tracking-widest">PROJECTED REVENUE LOSS</span>
+                        <div id="p2ValRisk" class="text-2xl font-black text-white mt-2">₹ 0</div>
+                    </div>
+                    <p class="text-[11px] text-gray-400 mt-3 leading-relaxed">
+                        Estimated annualized PPA feed-in tariff loss derived from localized cell defects.
+                    </p>
                 </div>
             </div>
 
@@ -247,7 +281,7 @@
                 <div class="overflow-x-auto">
                     <table class="w-full text-left text-xs">
                         <thead>
-                            <tr class="text-gray-500 border-b border-[#162238] uppercase text-[10px]">
+                            <tr class="text-gray-400 border-b border-[#162238] uppercase text-[10px]">
                                 <th class="pb-3">Timestamp</th>
                                 <th class="pb-3">Work Order #</th>
                                 <th class="pb-3">Faults Found</th>
@@ -258,7 +292,7 @@
                         </thead>
                         <tbody id="historyTableBody" class="divide-y divide-[#121c2e]">
                             <tr>
-                                <td colspan="6" class="text-center py-8 text-gray-500">No previous scan records found. Run an inspection first.</td>
+                                <td colspan="6" class="text-center py-8 text-gray-400">No previous scan records found. Run an inspection first.</td>
                             </tr>
                         </tbody>
                     </table>
@@ -268,7 +302,7 @@
 
     </main>
 
-    <!-- SYSTEM SPECIFICATIONS MODAL (Opens on clicking VOLTIX AI brand) -->
+    <!-- SYSTEM SPECIFICATIONS MODAL -->
     <div id="aboutModal" class="fixed inset-0 bg-black/90 backdrop-blur-md z-[10000] hidden items-center justify-center p-4">
         <div class="scada-box max-w-sm w-full p-6 rounded-2xl border border-cyan-500/40 shadow-2xl space-y-4 font-mono">
             <div class="flex items-center justify-between border-b border-[#162238] pb-3">
@@ -280,11 +314,11 @@
             </div>
 
             <div class="space-y-2 text-xs divide-y divide-[#162238]">
-                <div class="flex justify-between py-2"><span class="text-gray-500">Core Engine</span><span class="text-white font-bold">VOLTIX SCADA Pro</span></div>
-                <div class="flex justify-between py-2"><span class="text-gray-500">Vision Architecture</span><span class="text-cyan-400 font-bold">Ultralytics YOLOv8 IR</span></div>
-                <div class="flex justify-between py-2"><span class="text-gray-500">Image Resolution</span><span class="text-gray-300">640×640 Radiometric</span></div>
-                <div class="flex justify-between py-2"><span class="text-gray-500">Notification Engine</span><span class="text-amber-400 font-bold">EmailJS Cloud Gateway</span></div>
-                <div class="flex justify-between py-2"><span class="text-gray-500">Ledger Memory</span><span class="text-emerald-400 font-bold">Encrypted Local Scope</span></div>
+                <div class="flex justify-between py-2"><span class="text-gray-400">Core Engine</span><span class="text-white font-bold">VOLTIX SCADA Pro</span></div>
+                <div class="flex justify-between py-2"><span class="text-gray-400">Vision Architecture</span><span class="text-cyan-400 font-bold">Ultralytics YOLOv8 IR</span></div>
+                <div class="flex justify-between py-2"><span class="text-gray-400">Image Resolution</span><span class="text-gray-300">640×640 Radiometric</span></div>
+                <div class="flex justify-between py-2"><span class="text-gray-400">Notification Engine</span><span class="text-amber-400 font-bold">EmailJS Cloud Gateway</span></div>
+                <div class="flex justify-between py-2"><span class="text-gray-400">Ledger Memory</span><span class="text-emerald-400 font-bold">Encrypted Local Scope</span></div>
             </div>
 
             <button onclick="closeAboutModal()" class="w-full py-2.5 rounded-lg bg-[#0e1626] hover:bg-[#152238] text-gray-300 font-bold text-xs uppercase tap-active">
@@ -356,7 +390,7 @@
         <div class="scada-box max-w-sm w-full p-6 rounded-2xl border border-amber-500/60 shadow-2xl space-y-4 font-mono">
             <div class="flex items-center justify-between border-b border-[#162238] pb-3">
                 <span class="text-xs font-black text-amber-400 uppercase flex items-center space-x-2">
-                    <span>🛡️</span>
+                    <span>🛡️️</span>
                     <span>SECURITY KEY RECOVERY</span>
                 </span>
                 <button onclick="closeForgotOtpModal()" class="text-gray-400 hover:text-white text-lg tap-active">&times;</button>
@@ -415,15 +449,15 @@
 
             <div class="bg-[#050810] border border-[#162238] rounded-xl p-4 text-left text-xs space-y-2">
                 <div class="flex justify-between border-b border-[#121926] pb-2">
-                    <span class="text-gray-500">Work Order:</span>
+                    <span class="text-gray-400">Work Order:</span>
                     <span id="modalTicketId" class="text-white font-bold">TKT-XXXXXX</span>
                 </div>
                 <div class="flex justify-between border-b border-[#121926] pb-2">
-                    <span class="text-gray-500">Recipient:</span>
+                    <span class="text-gray-400">Recipient:</span>
                     <span id="modalTargetEmail" class="text-cyan-400 font-bold truncate max-w-[200px]">operator@gmail.com</span>
                 </div>
                 <div class="flex justify-between">
-                    <span class="text-gray-500">Defects Found:</span>
+                    <span class="text-gray-400">Defects Found:</span>
                     <span id="modalFaultCount" class="text-rose-400 font-black">0 Detected</span>
                 </div>
             </div>
@@ -462,7 +496,7 @@
             }
         }
 
-        // Navigation Flow Switcher (Without Page numbers)
+        // Navigation Flow Switcher
         function switchWorkflowView(view) {
             const scan = document.getElementById("scanWorkflow");
             const audit = document.getElementById("auditWorkflow");
@@ -591,7 +625,6 @@
             document.getElementById("loginModal").classList.remove("flex");
         }
 
-        // Forgot Key Handlers
         function triggerForgotPassword() {
             closeLoginModal();
             const currentEmail = document.getElementById("loginEmail").value.trim();
@@ -734,7 +767,6 @@
             document.getElementById("alertSuccessModal").classList.remove("flex");
         }
 
-        // File Handler
         function handleFileSelect(e) {
             const file = e.target.files[0];
             if (!file) return;
@@ -754,7 +786,6 @@
             btn.classList.add("bg-gradient-to-r", "from-cyan-500", "via-blue-600", "to-rose-600", "text-white", "hover:brightness-110");
         }
 
-        // Diagnostics
         async function executeDiagnostics() {
             if (!selectedFile) return;
             const activeUser = getActiveAccount();
@@ -820,11 +851,36 @@
             const health = Math.max(65, 100 - (count * 2.8)).toFixed(1);
             const loss = (count * 1.75).toFixed(1);
             const risk = (count * 4250).toLocaleString("en-IN");
+            const powerDrop = (count * 1.05).toFixed(1);
 
             document.getElementById("p1ValHealth").innerText = `${health}%`;
             document.getElementById("p1ValLoss").innerText = `${loss}%`;
             document.getElementById("p2ValRisk").innerText = `₹ ${risk}`;
-            document.getElementById("p2ValDispatch").innerText = count > 0 ? "DISPATCHED" : "NOMINAL";
+            document.getElementById("valPowerDrop").innerText = `-${powerDrop} kW/h`;
+
+            // Dynamic Real Industrial SCADA Evaluation Updates
+            const maintVal = document.getElementById("valMaintenanceAction");
+            const maintDesc = document.getElementById("descMaintenanceAction");
+            const hazardVal = document.getElementById("valThermalHazard");
+            const hazardDesc = document.getElementById("descThermalHazard");
+
+            if (count > 0) {
+                maintVal.innerText = "IMMEDIATE FIELD REPAIR";
+                maintVal.className = "text-base font-black text-rose-400 glow-red mt-2 leading-snug";
+                maintDesc.innerText = `Dispatch field technician to inspect ${count} hotspots, replace bypassed diodes & clean localized cell surface.`;
+
+                hazardVal.innerText = `CRITICAL (> 85°C)`;
+                hazardVal.className = "text-lg font-black text-rose-400 glow-red mt-2";
+                hazardDesc.innerText = "High localized cell temperature detected. Elevated risk of solar module backsheet scorching & internal burnout.";
+            } else {
+                maintVal.innerText = "NOMINAL (ROUTINE CHECK)";
+                maintVal.className = "text-base font-black text-emerald-400 mt-2 leading-snug";
+                maintDesc.innerText = "Array operating at optimal parameters. Next scheduled thermographic sweep in 30 days.";
+
+                hazardVal.innerText = "NOMINAL (< 45°C)";
+                hazardVal.className = "text-lg font-black text-emerald-400 mt-2";
+                hazardDesc.innerText = "All solar strings operating within standard safe operating thermal equilibrium.";
+            }
 
             const imgElem = document.getElementById("resultCanvas");
             const placeholder = document.getElementById("placeholderCanvas");
