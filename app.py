@@ -1,6 +1,7 @@
 import os
 import io
 import base64
+import json
 from flask import Flask, render_template, request, jsonify
 from PIL import Image
 from ultralytics import YOLO
@@ -9,6 +10,44 @@ app = Flask(__name__)
 
 # Load YOLO model
 model = YOLO('best.pt')
+
+# ================= CROSS-DEVICE CLOUD DATABASE =================
+HISTORY_DB_FILE = 'scada_history.json'
+
+def get_history_db():
+    if not os.path.exists(HISTORY_DB_FILE):
+        return {}
+    with open(HISTORY_DB_FILE, 'r') as f:
+        try:
+            return json.load(f)
+        except Exception:
+            return {}
+
+def save_history_db(data):
+    with open(HISTORY_DB_FILE, 'w') as f:
+        json.dump(data, f, indent=4)
+
+@app.route('/api/history', methods=['GET'])
+def get_user_history():
+    email = request.args.get('email', '').strip().lower()
+    db = get_history_db()
+    return jsonify(db.get(email, []))
+
+@app.route('/api/history', methods=['POST'])
+def save_user_history():
+    payload = request.get_json(force=True)
+    email = payload.get('email', '').strip().lower()
+    record = payload.get('record')
+    if not email or not record:
+        return jsonify({"status": "error", "message": "Missing email or record"}), 400
+    
+    db = get_history_db()
+    if email not in db:
+        db[email] = []
+    db[email].insert(0, record)
+    save_history_db(db)
+    return jsonify({"status": "success", "count": len(db[email])})
+# ===============================================================
 
 @app.route('/')
 def index():
@@ -45,7 +84,7 @@ def predict():
         # Plot bounding boxes
         res_plotted = res.plot()
         res_image = Image.fromarray(res_plotted)
-        
+
         buffered = io.BytesIO()
         res_image.save(buffered, format="JPEG")
         img_base64 = "data:image/jpeg;base64," + base64.b64encode(buffered.getvalue()).decode()
