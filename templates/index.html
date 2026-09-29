@@ -74,7 +74,6 @@
 
     <!-- Top Navigation Bar -->
     <header class="border-b border-[#162238] bg-[#070a12]/95 backdrop-blur px-6 py-3.5 sticky top-0 z-50 flex items-center justify-between">
-        <!-- Brand Title: Clickable to view System Specs directly -->
         <div onclick="openAboutModal()" class="flex items-center space-x-3.5 cursor-pointer group" title="Click to view System Specifications">
             <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-400 via-blue-600 to-rose-600 flex items-center justify-center font-black text-black text-xl shadow-lg shadow-cyan-500/25 group-hover:scale-105 transition">
                 ⚡
@@ -88,14 +87,12 @@
             </div>
         </div>
 
-        <!-- Flow State Status Badge -->
         <div class="hidden sm:flex items-center space-x-2 font-mono text-xs">
             <span id="navStatusBadge" class="px-3 py-1 rounded-lg bg-cyan-950/50 border border-cyan-500/40 text-cyan-400 font-bold">
                 DIAGNOSTIC SCANNER
             </span>
         </div>
 
-        <!-- Account Profile Manager -->
         <div id="userProfileSlot" class="relative font-mono"></div>
     </header>
 
@@ -104,7 +101,6 @@
 
         <!-- ======================= WORKSPACE VIEW 1: SCANNER ======================= -->
         <div id="scanWorkflow" class="space-y-6">
-            <!-- Telemetry Overview Cards -->
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4 font-mono">
                 <div class="scada-box p-4 rounded-xl border-l-4 border-l-cyan-500">
                     <span class="text-[10px] text-gray-500 uppercase">SYSTEM STATUS</span>
@@ -124,9 +120,7 @@
                 </div>
             </div>
 
-            <!-- Workspace Matrix -->
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                <!-- Dropzone Area -->
                 <div class="lg:col-span-5 flex flex-col space-y-6">
                     <div class="scada-box p-5 rounded-2xl flex-1 flex flex-col justify-between">
                         <div>
@@ -170,7 +164,6 @@
                     </div>
                 </div>
 
-                <!-- Detection Result Output -->
                 <div class="lg:col-span-7">
                     <div class="scada-box p-5 rounded-2xl h-full flex flex-col justify-between">
                         <div class="flex items-center justify-between mb-4 border-b border-[#162238] pb-3 font-mono">
@@ -197,7 +190,6 @@
                 </div>
             </div>
 
-            <!-- Bottom Flow Action: Proceed to Logs -->
             <div id="nextStepRow" class="hidden justify-end pt-2">
                 <button onclick="switchWorkflowView('audit')" class="px-7 py-4 rounded-xl bg-gradient-to-r from-cyan-500 via-blue-600 to-rose-600 hover:brightness-110 text-white font-black font-mono text-xs tracking-widest uppercase transition shadow-xl shadow-cyan-500/25 flex items-center space-x-3 tap-active">
                     <span>VIEW AUDIT REPORTS & DEFECT LOGS (NEXT STEP ➔)</span>
@@ -205,7 +197,7 @@
             </div>
         </div>
 
-        <!-- ======================= WORKSPACE VIEW 2: AUDIT & CRITICAL ENGINEERING METRICS ======================= -->
+        <!-- ======================= WORKSPACE VIEW 2: AUDIT & CRITICAL METRICS ======================= -->
         <div id="auditWorkflow" class="hidden space-y-6 font-mono">
             <div class="flex items-center justify-between border-b border-[#162238] pb-4">
                 <button onclick="switchWorkflowView('scan')" class="px-5 py-2.5 rounded-xl bg-[#0d1422] border border-[#1b2b46] text-gray-300 hover:text-white text-xs font-bold tap-active flex items-center space-x-2">
@@ -221,9 +213,8 @@
                 </div>
             </div>
 
-            <!-- CRITICAL INDUSTRIAL SCADA METRICS (4 Detailed Action Cards) -->
+            <!-- Industrial 4 Action Metrics -->
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <!-- 1. Recommended Maintenance Action -->
                 <div class="scada-box p-5 rounded-2xl border-l-4 border-l-rose-500 flex flex-col justify-between">
                     <div>
                         <span class="text-[10px] text-gray-400 uppercase tracking-widest">RECOMMENDED MAINTENANCE</span>
@@ -234,7 +225,6 @@
                     </p>
                 </div>
 
-                <!-- 2. Thermal Hazard & Fire Risk Level -->
                 <div class="scada-box p-5 rounded-2xl border-l-4 border-l-amber-500 flex flex-col justify-between">
                     <div>
                         <span class="text-[10px] text-gray-400 uppercase tracking-widest">THERMAL HAZARD LEVEL</span>
@@ -245,7 +235,6 @@
                     </p>
                 </div>
 
-                <!-- 3. Real-Time Generation Drop -->
                 <div class="scada-box p-5 rounded-2xl border-l-4 border-l-cyan-500 flex flex-col justify-between">
                     <div>
                         <span class="text-[10px] text-gray-400 uppercase tracking-widest">POWER GENERATION DROP</span>
@@ -256,7 +245,6 @@
                     </p>
                 </div>
 
-                <!-- 4. Projected Revenue Tariff Loss -->
                 <div class="scada-box p-5 rounded-2xl border-l-4 border-l-red-600 flex flex-col justify-between">
                     <div>
                         <span class="text-[10px] text-gray-400 uppercase tracking-widest">PROJECTED REVENUE LOSS</span>
@@ -268,12 +256,13 @@
                 </div>
             </div>
 
-            <!-- Historical Defect Ledger -->
+            <!-- Historical Defect Ledger (Clickable Detailed Rows) -->
             <div class="scada-box p-6 rounded-2xl space-y-4">
                 <div class="flex items-center justify-between pb-3 border-b border-[#162238]">
                     <div class="flex items-center space-x-2">
                         <span class="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-pulse"></span>
                         <h3 class="text-sm font-bold text-white uppercase">Historical Defect Ledger</h3>
+                        <span class="text-[10px] text-gray-500 hidden sm:inline">(Click any log row to inspect details)</span>
                     </div>
                     <span id="historyCountBadge" class="text-xs text-cyan-400 bg-cyan-950/60 px-2.5 py-1 rounded-md border border-cyan-800">0 logs recorded</span>
                 </div>
@@ -282,7 +271,7 @@
                     <table class="w-full text-left text-xs">
                         <thead>
                             <tr class="text-gray-400 border-b border-[#162238] uppercase text-[10px]">
-                                <th class="pb-3">Timestamp</th>
+                                <th class="pb-3">Date & Time</th>
                                 <th class="pb-3">Work Order #</th>
                                 <th class="pb-3">Faults Found</th>
                                 <th class="pb-3">Array Health</th>
@@ -302,6 +291,71 @@
 
     </main>
 
+    <!-- DETAILED INSPECTION RECORD MODAL (Opens on clicking any log row) -->
+    <div id="detailInspectionModal" class="fixed inset-0 bg-black/90 backdrop-blur-xl z-[10005] hidden items-center justify-center p-4">
+        <div class="scada-box max-w-lg w-full p-6 rounded-2xl border border-cyan-500/50 shadow-2xl space-y-5 font-mono relative">
+            <div class="flex items-center justify-between border-b border-[#162238] pb-3">
+                <div class="flex items-center space-x-2">
+                    <span class="text-cyan-400 text-lg">📋</span>
+                    <span class="text-xs font-black text-white uppercase tracking-wider">SCADA Work Order Audit</span>
+                </div>
+                <button onclick="closeDetailModal()" class="text-gray-400 hover:text-white text-lg tap-active">&times;</button>
+            </div>
+
+            <!-- Header Info -->
+            <div class="grid grid-cols-2 gap-3 text-xs bg-[#050810] p-3 rounded-xl border border-[#162238]">
+                <div>
+                    <span class="text-[10px] text-gray-500 block uppercase">Work Order ID</span>
+                    <span id="dtlWorkOrder" class="text-cyan-400 font-bold text-sm">--</span>
+                </div>
+                <div>
+                    <span class="text-[10px] text-gray-500 block uppercase">Inspection Date & Time</span>
+                    <span id="dtlDateTime" class="text-gray-200 font-semibold">--</span>
+                </div>
+            </div>
+
+            <!-- Key Metric Breakdown -->
+            <div class="grid grid-cols-3 gap-2.5 text-center text-xs">
+                <div class="p-2.5 rounded-lg bg-[#0e1626] border border-[#1b2b46]">
+                    <span class="text-[10px] text-gray-400 block uppercase">Defects</span>
+                    <span id="dtlFaults" class="text-base font-black text-rose-400 glow-red mt-1 block">--</span>
+                </div>
+                <div class="p-2.5 rounded-lg bg-[#0e1626] border border-[#1b2b46]">
+                    <span class="text-[10px] text-gray-400 block uppercase">Array Health</span>
+                    <span id="dtlHealth" class="text-base font-black text-emerald-400 mt-1 block">--</span>
+                </div>
+                <div class="p-2.5 rounded-lg bg-[#0e1626] border border-[#1b2b46]">
+                    <span class="text-[10px] text-gray-400 block uppercase">Power Drop</span>
+                    <span id="dtlPowerDrop" class="text-base font-black text-cyan-400 mt-1 block">--</span>
+                </div>
+            </div>
+
+            <!-- Maintenance & Hazard Details -->
+            <div class="space-y-2 text-xs">
+                <div class="p-3 rounded-xl bg-[#090e18] border border-[#18263d]">
+                    <span class="text-[10px] text-amber-400 font-bold uppercase block">Thermal Hazard Diagnosis</span>
+                    <span id="dtlThermalHazard" class="text-gray-200 mt-1 block">--</span>
+                </div>
+                <div class="p-3 rounded-xl bg-[#090e18] border border-[#18263d]">
+                    <span class="text-[10px] text-rose-400 font-bold uppercase block">Field Action Protocol</span>
+                    <span id="dtlActionProtocol" class="text-gray-200 mt-1 block leading-relaxed">--</span>
+                </div>
+            </div>
+
+            <!-- Action Buttons: Download PDF & Share -->
+            <div class="flex items-center space-x-3 pt-2">
+                <button onclick="downloadDetailRecordPDF()" class="flex-1 py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-black font-black text-xs uppercase tap-active flex items-center justify-center space-x-2 shadow-lg shadow-cyan-500/20">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                    <span>Download PDF</span>
+                </button>
+                <button onclick="shareDetailRecord()" class="flex-1 py-3 rounded-xl bg-[#121c2e] hover:bg-[#1a2842] border border-[#223554] text-cyan-400 font-black text-xs uppercase tap-active flex items-center justify-center space-x-2 transition">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"></path></svg>
+                    <span>Share Audit</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- SYSTEM SPECIFICATIONS MODAL -->
     <div id="aboutModal" class="fixed inset-0 bg-black/90 backdrop-blur-md z-[10000] hidden items-center justify-center p-4">
         <div class="scada-box max-w-sm w-full p-6 rounded-2xl border border-cyan-500/40 shadow-2xl space-y-4 font-mono">
@@ -318,7 +372,7 @@
                 <div class="flex justify-between py-2"><span class="text-gray-400">Vision Architecture</span><span class="text-cyan-400 font-bold">Ultralytics YOLOv8 IR</span></div>
                 <div class="flex justify-between py-2"><span class="text-gray-400">Image Resolution</span><span class="text-gray-300">640×640 Radiometric</span></div>
                 <div class="flex justify-between py-2"><span class="text-gray-400">Notification Engine</span><span class="text-amber-400 font-bold">EmailJS Cloud Gateway</span></div>
-                <div class="flex justify-between py-2"><span class="text-gray-400">Ledger Memory</span><span class="text-emerald-400 font-bold">Encrypted Local Scope</span></div>
+                <div class="flex justify-between py-2"><span class="text-gray-400">Cross-Device Sync</span><span class="text-emerald-400 font-bold">Cloud REST Database</span></div>
             </div>
 
             <button onclick="closeAboutModal()" class="w-full py-2.5 rounded-lg bg-[#0e1626] hover:bg-[#152238] text-gray-300 font-bold text-xs uppercase tap-active">
@@ -390,7 +444,7 @@
         <div class="scada-box max-w-sm w-full p-6 rounded-2xl border border-amber-500/60 shadow-2xl space-y-4 font-mono">
             <div class="flex items-center justify-between border-b border-[#162238] pb-3">
                 <span class="text-xs font-black text-amber-400 uppercase flex items-center space-x-2">
-                    <span>🛡️️</span>
+                    <span>🛡️</span>
                     <span>SECURITY KEY RECOVERY</span>
                 </span>
                 <button onclick="closeForgotOtpModal()" class="text-gray-400 hover:text-white text-lg tap-active">&times;</button>
@@ -433,7 +487,7 @@
         </div>
     </div>
 
-    <!-- INCIDENT ALERT MODAL -->
+    <!-- INCIDENT DISPATCH POPUP -->
     <div id="alertSuccessModal" class="fixed inset-0 bg-black/90 backdrop-blur-xl z-[10003] hidden items-center justify-center p-4">
         <div class="scada-box max-w-md w-full p-6 rounded-2xl border border-rose-500 shadow-2xl space-y-5 text-center relative overflow-hidden font-mono">
             <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-rose-500 via-amber-500 to-cyan-500"></div>
@@ -476,6 +530,7 @@
         let lastInferenceData = null;
         let generatedRecoveryOtp = null;
         let recoveryTargetEmail = "";
+        let currentlyInspectedRecord = null;
         const DEFAULT_SECURITY_PIN = "VOLTIX@2026";
 
         window.onload = function() {
@@ -816,13 +871,12 @@
                 const ticketId = "TKT-" + Math.floor(100000 + Math.random() * 900000);
                 document.getElementById("activeTicketLabel").innerText = `WORK ORDER: ${ticketId}`;
 
-                recordScanToLedger(ticketId, data, activeUser.email);
+                await recordScanToLedger(ticketId, data, activeUser.email);
 
                 if (data.total_faults > 0) {
                     sendVoltixAlert(activeUser.email, activeUser.name, data.total_faults, ticketId);
                 }
 
-                // Show proceed button
                 const nextRow = document.getElementById("nextStepRow");
                 nextRow.classList.remove("hidden");
                 nextRow.classList.add("flex");
@@ -858,7 +912,6 @@
             document.getElementById("p2ValRisk").innerText = `₹ ${risk}`;
             document.getElementById("valPowerDrop").innerText = `-${powerDrop} kW/h`;
 
-            // Dynamic Real Industrial SCADA Evaluation Updates
             const maintVal = document.getElementById("valMaintenanceAction");
             const maintDesc = document.getElementById("descMaintenanceAction");
             const hazardVal = document.getElementById("valThermalHazard");
@@ -905,50 +958,93 @@
                 });
         }
 
-        function recordScanToLedger(ticketId, data, email) {
-            const historyKey = `voltix_history_${email}`;
-            let records = JSON.parse(localStorage.getItem(historyKey) || "[]");
-
+        // ================= CROSS-DEVICE CLOUD SYNC & DETAILED LEDGER =================
+        async function recordScanToLedger(ticketId, data, email) {
             const count = data.total_faults;
             const health = Math.max(65, 100 - (count * 2.8)).toFixed(1) + "%";
             const risk = "₹ " + (count * 4250).toLocaleString("en-IN");
-            const now = new Date().toLocaleString([], { dateStyle: 'short', timeStyle: 'short' });
+            const powerDrop = (count * 1.05).toFixed(1) + " kW/h";
+            
+            // Accurate Date and Time (e.g. 29 Sep 2026, 10:57 PM)
+            const dateObj = new Date();
+            const formattedDate = dateObj.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+            const formattedTime = dateObj.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+            const fullDateTime = `${formattedDate} • ${formattedTime}`;
 
-            records.unshift({
-                timestamp: now,
+            const maintenance = count > 0 ? "IMMEDIATE FIELD REPAIR (Replace Bypassed Diodes)" : "ROUTINE SWEEP (Optimal Operating Equilibrium)";
+            const hazard = count > 0 ? "CRITICAL: > 85°C Localized Burnout Risk" : "NOMINAL: Operating Under Normal Parameters (< 45°C)";
+
+            const record = {
+                timestamp: fullDateTime,
                 ticketId: ticketId,
                 faults: count,
                 health: health,
                 risk: risk,
+                powerDrop: powerDrop,
+                maintenance: maintenance,
+                hazard: hazard,
                 status: count > 0 ? "CRITICAL" : "NOMINAL"
-            });
+            };
+
+            // Local cache
+            const historyKey = `voltix_history_${email}`;
+            let records = JSON.parse(localStorage.getItem(historyKey) || "[]");
+            records.unshift(record);
             localStorage.setItem(historyKey, JSON.stringify(records));
+
+            // Sync with backend API (Cross-Device)
+            try {
+                await fetch('/api/history', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: email, record: record })
+                });
+            } catch (err) {
+                console.warn("Backend history sync offline", err);
+            }
         }
 
-        function loadOperatorHistory() {
+        async function loadOperatorHistory() {
             const activeUser = getActiveAccount();
-            const historyKey = activeUser ? `voltix_history_${activeUser.email}` : "voltix_history_global";
-            const records = JSON.parse(localStorage.getItem(historyKey) || "[]");
             const tbody = document.getElementById("historyTableBody");
             const badge = document.getElementById("historyCountBadge");
 
+            if (!activeUser) {
+                badge.innerText = "0 logs recorded";
+                tbody.innerHTML = `<tr><td colspan="6" class="text-center py-8 text-gray-500">Sign in to view synced logs.</td></tr>`;
+                return;
+            }
+
+            // Fetch from Cloud REST API for real sync
+            try {
+                const res = await fetch(`/api/history?email=${encodeURIComponent(activeUser.email)}`);
+                const cloudRecords = await res.json();
+                if (Array.isArray(cloudRecords) && cloudRecords.length > 0) {
+                    localStorage.setItem(`voltix_history_${activeUser.email}`, JSON.stringify(cloudRecords));
+                }
+            } catch (e) {
+                console.warn("Using local cache", e);
+            }
+
+            const records = JSON.parse(localStorage.getItem(`voltix_history_${activeUser.email}`) || "[]");
             badge.innerText = `${records.length} logs recorded`;
+
             if (records.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="6" class="text-center py-8 text-gray-500">No previous scan records found. Run an inspection first.</td></tr>`;
                 return;
             }
 
             tbody.innerHTML = "";
-            records.forEach(r => {
+            records.forEach((r, index) => {
                 const isCrit = r.status === "CRITICAL";
                 tbody.innerHTML += `
-                    <tr class="hover:bg-[#0e1626] transition font-mono">
-                        <td class="py-3 text-gray-400">${r.timestamp}</td>
-                        <td class="py-3 text-cyan-400 font-bold">${r.ticketId}</td>
-                        <td class="py-3 ${isCrit ? 'text-rose-400 font-bold' : 'text-emerald-400'}">${r.faults} Faults</td>
-                        <td class="py-3 text-gray-300">${r.health}</td>
-                        <td class="py-3 text-amber-400">${r.risk}</td>
-                        <td class="py-3 text-right">
+                    <tr onclick="inspectHistoryDetail(${index})" class="hover:bg-[#0e1626] transition font-mono cursor-pointer group" title="Click to view full report">
+                        <td class="py-3.5 text-gray-400 group-hover:text-white transition">${r.timestamp}</td>
+                        <td class="py-3.5 text-cyan-400 font-bold underline">${r.ticketId}</td>
+                        <td class="py-3.5 ${isCrit ? 'text-rose-400 font-bold' : 'text-emerald-400'}">${r.faults} Faults</td>
+                        <td class="py-3.5 text-gray-300">${r.health}</td>
+                        <td class="py-3.5 text-amber-400">${r.risk}</td>
+                        <td class="py-3.5 text-right">
                             <span class="px-2 py-0.5 rounded text-[10px] ${isCrit ? 'bg-rose-950 text-rose-400 border border-rose-800' : 'bg-emerald-950 text-emerald-400 border border-emerald-800'}">${r.status}</span>
                         </td>
                     </tr>
@@ -956,29 +1052,36 @@
             });
         }
 
-        function exportHistoryCSV() {
+        // Click row to open Inspection Details Modal
+        function inspectHistoryDetail(index) {
             const activeUser = getActiveAccount();
-            const historyKey = activeUser ? `voltix_history_${activeUser.email}` : "voltix_history_global";
-            const records = JSON.parse(localStorage.getItem(historyKey) || "[]");
-            if (records.length === 0) {
-                alert("No telemetry ledger to export.");
-                return;
-            }
-            let csv = "Timestamp,Ticket,Faults,Health,LossRisk,Status\n";
-            records.forEach(r => {
-                csv += `"${r.timestamp}","${r.ticketId}","${r.faults}","${r.health}","${r.risk}","${r.status}"\n`;
-            });
-            const link = document.createElement("a");
-            link.href = encodeURI("data:text/csv;charset=utf-8," + csv);
-            link.download = `SCADA_LOGS_${Date.now()}.csv`;
-            link.click();
+            if (!activeUser) return;
+            const records = JSON.parse(localStorage.getItem(`voltix_history_${activeUser.email}`) || "[]");
+            const r = records[index];
+            if (!r) return;
+
+            currentlyInspectedRecord = r;
+            document.getElementById("dtlWorkOrder").innerText = r.ticketId;
+            document.getElementById("dtlDateTime").innerText = r.timestamp;
+            document.getElementById("dtlFaults").innerText = `${r.faults} Faults`;
+            document.getElementById("dtlHealth").innerText = r.health;
+            document.getElementById("dtlPowerDrop").innerText = r.powerDrop || "-1.0 kW/h";
+            document.getElementById("dtlThermalHazard").innerText = r.hazard || "NOMINAL (< 45°C)";
+            document.getElementById("dtlActionProtocol").innerText = r.maintenance || "Routine array maintenance sweep.";
+
+            document.getElementById("detailInspectionModal").classList.remove("hidden");
+            document.getElementById("detailInspectionModal").classList.add("flex");
         }
 
-        function exportPDFReport() {
-            if (!lastInferenceData) {
-                alert("Run diagnostic scan first.");
-                return;
-            }
+        function closeDetailModal() {
+            document.getElementById("detailInspectionModal").classList.add("hidden");
+            document.getElementById("detailInspectionModal").classList.remove("flex");
+        }
+
+        // Download PDF for this specific inspection record
+        function downloadDetailRecordPDF() {
+            if (!currentlyInspectedRecord) return;
+            const r = currentlyInspectedRecord;
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
             const activeUser = getActiveAccount();
@@ -988,35 +1091,48 @@
 
             doc.setTextColor(0, 210, 255);
             doc.setFontSize(16);
-            doc.text("VOLTIX AI — AUDIT & TELEMETRY LEDGER", 14, 20);
+            doc.text("VOLTIX AI — DEFECT AUDIT INSPECTION REPORT", 14, 20);
 
             doc.setTextColor(200, 200, 200);
             doc.setFontSize(10);
-            doc.text(`Generated: ${new Date().toLocaleString()}`, 14, 28);
-            doc.text(`Operator: ${activeUser ? activeUser.email : 'Unauthenticated'}`, 14, 34);
-            doc.text(`Faults Identified: ${lastInferenceData.total_faults}`, 14, 40);
+            doc.text(`Work Order: ${r.ticketId}`, 14, 30);
+            doc.text(`Date & Time: ${r.timestamp}`, 14, 36);
+            doc.text(`Operator: ${activeUser ? activeUser.email : 'Unauthenticated'}`, 14, 42);
 
-            if (lastInferenceData.image_data) {
-                doc.addImage(lastInferenceData.image_data, "JPEG", 14, 48, 182, 115);
+            doc.setTextColor(255, 51, 102);
+            doc.text(`Faults Identified: ${r.faults}`, 14, 52);
+            doc.text(`Array Health: ${r.health}`, 14, 58);
+            doc.text(`Projected Tariff Loss: ${r.risk}`, 14, 64);
+            doc.text(`Power Generation Drop: ${r.powerDrop || '--'}`, 14, 70);
+
+            doc.setTextColor(0, 210, 255);
+            doc.text(`Hazard Level: ${r.hazard}`, 14, 82);
+            doc.text(`Recommended Action: ${r.maintenance}`, 14, 88);
+
+            doc.save(`VOLTIX-${r.ticketId}-${Date.now()}.pdf`);
+            triggerToast("REPORT DOWNLOADED", `Saved ${r.ticketId}.pdf`, "#00d2ff");
+        }
+
+        // Share report via Web Share API or Clipboard copy
+        function shareDetailRecord() {
+            if (!currentlyInspectedRecord) return;
+            const r = currentlyInspectedRecord;
+            const shareText = `[VOLTIX AI SCADA REPORT]\nWork Order: ${r.ticketId}\nDate: ${r.timestamp}\nFaults: ${r.faults}\nArray Health: ${r.health}\nLoss Risk: ${r.risk}\nAction: ${r.maintenance}`;
+
+            if (navigator.share) {
+                navigator.share({
+                    title: `Voltix Audit - ${r.ticketId}`,
+                    text: shareText
+                }).catch(() => {});
+            } else {
+                navigator.clipboard.writeText(shareText);
+                triggerToast("AUDIT COPIED", "Report details copied to clipboard!", "#10b981");
             }
-            doc.save(`VOLTIX-REPORT-${Date.now()}.pdf`);
         }
 
-        function triggerToast(title, msg, color) {
-            const container = document.getElementById("toastContainer");
-            const toast = document.createElement("div");
-            toast.className = "scada-box p-3 rounded-xl border flex items-center space-x-3 text-xs font-mono shadow-2xl transition-all duration-300";
-            toast.style.borderColor = color;
-            toast.innerHTML = `
-                <div class="w-2.5 h-2.5 rounded-full animate-ping" style="background-color: ${color}"></div>
-                <div>
-                    <div class="font-bold text-white uppercase">${title}</div>
-                    <div class="text-gray-400 text-[10px]">${msg}</div>
-                </div>
-            `;
-            container.appendChild(toast);
-            setTimeout(() => toast.remove(), 4000);
-        }
-    </script>
-</body>
-</html>
+        function exportHistoryCSV() {
+            const activeUser = getActiveAccount();
+            const historyKey = activeUser ? `voltix_history_${activeUser.email}` : "voltix_history_global";
+            const records = JSON.parse(localStorage.getItem(historyKey) || "[]");
+            if (records.length === 0) {
+                alert("No telemetry ledger to export.");
