@@ -4,6 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VOLTIX AI — Autonomous Photovoltaic Diagnostic Suite</title>
+    <!-- EmailJS SDK Initialization -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+    <script type="text/javascript">
+       (function(){
+          emailjs.init({
+            publicKey: "cIkSIfeYwFYEgD3Fy",
+          });
+       })();
+    </script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -328,9 +337,9 @@
             const formData = new FormData();
             formData.append("file", selectedFile);
             
-            // Mengirimkan email pengguna yang aktif ke backend
-            const userEmail = activeUser ? activeUser.email : "logeshajay1701@gmail.com";
-            formData.append("user_email", userEmail);
+            const targetEmail = activeUser ? activeUser.email : "logeshajay1701@gmail.com";
+            const targetName = activeUser ? activeUser.name : "Logesh P";
+            formData.append("user_email", targetEmail);
 
             try {
                 const response = await fetch("/predict", {
@@ -341,12 +350,9 @@
                 lastInferenceData = data;
                 renderInspectionResults(data);
                 
+                // Autonomous Alert Trigger via HTTPS EmailJS
                 if (data.total_faults > 0) {
-                    triggerToast(
-                        "DISPATCH OTOMATIS TERKIRIM",
-                        `Peringatan terkirim ke ${data.dispatched_to}`,
-                        "#00d2ff"
-                    );
+                    sendVoltixAlert(targetEmail, targetName, data.total_faults);
                 }
             } catch (err) {
                 console.error(err);
@@ -390,14 +396,12 @@
                 valRisk.innerText = "₹ 0";
             }
 
-            // Render citra anotasi
             const canvas = document.getElementById("resultCanvas");
             const placeholder = document.getElementById("placeholderCanvas");
             canvas.src = data.image_data;
             canvas.classList.remove("hidden");
             placeholder.classList.add("hidden");
 
-            // Perbarui daftar log telemetri
             const logList = document.getElementById("defectLogList");
             logList.innerHTML = "";
             document.getElementById("logCount").innerText = `${data.total_faults} terdeteksi`;
@@ -416,7 +420,6 @@
                 logList.innerHTML = `<div class="text-emerald-400 text-center py-6 text-xs">Semua sel beroperasi pada suhu nominal.</div>`;
             }
 
-            // Aktifkan tombol ekspor PDF
             const btnPdf = document.getElementById("btnExportPDF");
             btnPdf.disabled = false;
             btnPdf.classList.remove("cursor-not-allowed", "text-gray-500");
@@ -485,6 +488,29 @@
             }
 
             doc.save(`VOLTIX_Report_${Date.now()}.pdf`);
+        }
+
+        // Autonomous Email Alert Dispatch Function
+        function sendVoltixAlert(userEmail, userName, faultCount) {
+            const ticketId = "TKT-" + Math.floor(100000 + Math.random() * 900000);
+            const targetEmail = userEmail || "logeshajay1701@gmail.com";
+            const targetName = userName || "Logesh P";
+
+            const templateParams = {
+                to_email: targetEmail,
+                to_name: targetName,
+                ticket_id: ticketId,
+                fault_count: faultCount
+            };
+
+            emailjs.send('service_k212ehr', 'Template_b2v6xmo', templateParams)
+                .then(function(res) {
+                    console.log('VOLTIX ALERT DISPATCHED VIA HTTPS:', res.status, res.text);
+                    triggerToast("AUTONOMOUS ALERT DISPATCHED", `🚨 Critical alert sent to ${targetEmail}`, "#10b981");
+                }, function(err) {
+                    console.error('VOLTIX ALERT DISPATCH ERROR:', err);
+                    triggerToast("ALERT DISPATCH FAILED", "Check browser console for details", "#ef4444");
+                });
         }
     </script>
 </body>
