@@ -503,7 +503,7 @@
                 fault_count: faultCount
             };
 
-            emailjs.send('service_k212ehr', 'Template_b2v6xmo', templateParams)
+            emailjs.send('service_k212ehr', 'template_b2v6xmo', templateParams)
                 .then(function(res) {
                     console.log('VOLTIX ALERT DISPATCHED VIA HTTPS:', res.status, res.text);
                     triggerToast("AUTONOMOUS ALERT DISPATCHED", `🚨 Critical alert sent to ${targetEmail}`, "#10b981");
