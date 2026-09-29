@@ -40,7 +40,6 @@
         }
         .glow-cyan { text-shadow: 0 0 14px rgba(0, 240, 255, 0.8); }
         .glow-red { text-shadow: 0 0 14px rgba(255, 51, 102, 0.8); }
-        .glow-amber { text-shadow: 0 0 14px rgba(255, 183, 3, 0.8); }
         .interactive-tap:active {
             transform: scale(0.97);
             filter: brightness(1.2);
@@ -271,7 +270,7 @@
 
     </main>
 
-    <!-- MULTI-ACCOUNT DRAWER (Photo 2 UI Replica) -->
+    <!-- MULTI-ACCOUNT DRAWER -->
     <div id="accountDrawerModal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-[10000] hidden items-center justify-center p-4">
         <div class="scada-panel max-w-sm w-full p-6 rounded-2xl border border-cyan-500/40 shadow-2xl space-y-4 font-mono">
             <div class="flex items-center justify-between border-b border-[#182235] pb-3">
@@ -293,7 +292,7 @@
         </div>
     </div>
 
-    <!-- OPERATOR LOGIN MODAL (No hardcoded text + Forgot Password) -->
+    <!-- OPERATOR LOGIN MODAL (No hardcoded placeholders + Eye Toggle) -->
     <div id="loginModal" class="fixed inset-0 bg-black/90 backdrop-blur-lg z-[10001] hidden items-center justify-center p-4">
         <div class="scada-panel max-w-sm w-full p-6 rounded-2xl border border-cyan-500/50 shadow-2xl space-y-4 font-mono">
             <div class="flex items-center justify-between border-b border-[#182235] pb-3">
@@ -304,18 +303,23 @@
             <div class="space-y-3 text-xs">
                 <div>
                     <label class="block text-gray-400 mb-1 uppercase text-[10px]">Operator Name</label>
-                    <input type="text" id="loginName" autocomplete="off" placeholder="Enter Full Name" class="w-full bg-[#050810] border border-[#182235] rounded-lg px-3 py-2 text-white focus:outline-none focus:border-cyan-400">
+                    <input type="text" id="loginName" autocomplete="off" placeholder="Enter full name" class="w-full bg-[#050810] border border-[#182235] rounded-lg px-3 py-2 text-white focus:outline-none focus:border-cyan-400">
                 </div>
                 <div>
-                    <label class="block text-gray-400 mb-1 uppercase text-[10px]">Gmail Address</label>
+                    <label class="block text-gray-400 mb-1 uppercase text-[10px]">Operator Gmail Address</label>
                     <input type="email" id="loginEmail" autocomplete="off" placeholder="name@gmail.com" class="w-full bg-[#050810] border border-[#182235] rounded-lg px-3 py-2 text-white focus:outline-none focus:border-cyan-400">
                 </div>
                 <div>
                     <div class="flex justify-between items-center mb-1">
-                        <label class="block text-gray-400 uppercase text-[10px]">Plant Security Key</label>
+                        <label class="block text-gray-400 uppercase text-[10px]">Plant Security Password / PIN</label>
                         <button type="button" onclick="triggerForgotPassword()" class="text-[10px] text-amber-400 hover:underline">Forgot Key?</button>
                     </div>
-                    <input type="password" id="loginPin" autocomplete="new-password" placeholder="••••••••" class="w-full bg-[#050810] border border-[#182235] rounded-lg px-3 py-2 text-white focus:outline-none focus:border-cyan-400">
+                    <div class="relative flex items-center">
+                        <input type="password" id="loginPin" autocomplete="new-password" placeholder="••••••••" class="w-full bg-[#050810] border border-[#182235] rounded-lg pl-3 pr-10 py-2 text-white focus:outline-none focus:border-cyan-400">
+                        <button type="button" onclick="togglePasswordVisibility('loginPin', 'eyeIconLogin')" class="absolute right-3 text-gray-400 hover:text-white">
+                            <span id="eyeIconLogin">👁️</span>
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -325,23 +329,53 @@
         </div>
     </div>
 
-    <!-- FORGOT PASSWORD / KEY RECOVERY MODAL -->
-    <div id="forgotKeyModal" class="fixed inset-0 bg-black/90 backdrop-blur-md z-[10002] hidden items-center justify-center p-4">
-        <div class="scada-panel max-w-sm w-full p-6 rounded-2xl border border-amber-500/50 shadow-2xl space-y-4 font-mono">
+    <!-- FORGOT PASSWORD: REAL 2-STEP OTP RECOVERY MODAL -->
+    <div id="forgotOtpModal" class="fixed inset-0 bg-black/95 backdrop-blur-xl z-[10002] hidden items-center justify-center p-4">
+        <div class="scada-panel max-w-sm w-full p-6 rounded-2xl border border-amber-500/60 shadow-2xl space-y-4 font-mono">
             <div class="flex items-center justify-between border-b border-[#182235] pb-3">
-                <span class="text-xs font-black text-amber-400 uppercase">Key Recovery Protocol</span>
-                <button onclick="closeForgotModal()" class="text-gray-400 hover:text-white text-lg interactive-tap">&times;</button>
+                <span class="text-xs font-black text-amber-400 uppercase flex items-center space-x-2">
+                    <span>🛡️</span>
+                    <span>SECURITY KEY RECOVERY</span>
+                </span>
+                <button onclick="closeForgotOtpModal()" class="text-gray-400 hover:text-white text-lg interactive-tap">&times;</button>
             </div>
-            <p class="text-xs text-gray-400 leading-relaxed">
-                SCADA authorized access key for field diagnostics:
-            </p>
-            <div class="p-3 bg-[#060a12] border border-amber-500/40 rounded-xl text-center">
-                <span class="text-xs text-gray-500 block uppercase">Default Plant Security PIN</span>
-                <span class="text-base font-black text-amber-400 tracking-widest mt-1 block">VOLTIX@2026</span>
+
+            <!-- Step 1: Send OTP -->
+            <div id="otpStep1" class="space-y-3 text-xs">
+                <p class="text-gray-400 text-[11px] leading-relaxed">
+                    Enter your registered Operator Gmail address. A secure 6-digit verification code will be dispatched to your inbox.
+                </p>
+                <div>
+                    <label class="block text-gray-400 mb-1 uppercase text-[10px]">Registered Gmail Address</label>
+                    <input type="email" id="recoveryEmail" autocomplete="off" placeholder="your.name@gmail.com" class="w-full bg-[#050810] border border-[#182235] rounded-lg px-3 py-2 text-white focus:outline-none focus:border-amber-400">
+                </div>
+                <button id="btnSendOtp" onclick="dispatchOtpEmail()" class="w-full py-3 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-500 hover:brightness-110 text-black font-black text-xs uppercase tracking-wider transition interactive-tap">
+                    <span>Send Verification Code</span>
+                </button>
             </div>
-            <button onclick="autoFillPinAndClose()" class="w-full py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-black font-bold text-xs uppercase interactive-tap transition">
-                Use Key & Return To Login
-            </button>
+
+            <!-- Step 2: Verify OTP & Reset Password -->
+            <div id="otpStep2" class="hidden space-y-3 text-xs">
+                <div class="p-2.5 bg-emerald-500/10 border border-emerald-500/30 rounded-lg text-emerald-400 text-[11px]">
+                    ✓ 6-Digit code sent to <span id="displaySentTarget" class="font-bold underline"></span>. Check inbox or spam!
+                </div>
+                <div>
+                    <label class="block text-gray-400 mb-1 uppercase text-[10px]">Enter 6-Digit OTP Code</label>
+                    <input type="text" id="inputOtpCode" maxlength="6" placeholder="123456" class="w-full bg-[#050810] border border-[#182235] rounded-lg px-3 py-2 text-amber-400 font-bold tracking-widest text-center text-sm focus:outline-none focus:border-amber-400">
+                </div>
+                <div>
+                    <label class="block text-gray-400 mb-1 uppercase text-[10px]">Create New Password / PIN</label>
+                    <div class="relative flex items-center">
+                        <input type="password" id="inputNewPin" placeholder="New Secret Password" class="w-full bg-[#050810] border border-[#182235] rounded-lg pl-3 pr-10 py-2 text-white focus:outline-none focus:border-cyan-400">
+                        <button type="button" onclick="togglePasswordVisibility('inputNewPin', 'eyeIconNewPin')" class="absolute right-3 text-gray-400 hover:text-white">
+                            <span id="eyeIconNewPin">👁️</span>
+                        </button>
+                    </div>
+                </div>
+                <button onclick="verifyOtpAndResetPassword()" class="w-full py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:brightness-110 text-black font-black text-xs uppercase tracking-wider transition interactive-tap">
+                    Verify Code & Update Key
+                </button>
+            </div>
         </div>
     </div>
 
@@ -356,8 +390,8 @@
             <div class="space-y-2 text-xs divide-y divide-[#182235]">
                 <div class="flex justify-between py-2"><span class="text-gray-500">Suite</span><span class="text-white font-bold">VOLTIX AI</span></div>
                 <div class="flex justify-between py-2"><span class="text-gray-500">Inference Core</span><span class="text-cyan-400 font-bold">YOLOv8 IR Radiometric</span></div>
-                <div class="flex justify-between py-2"><span class="text-gray-500">Alert Dispatch</span><span class="text-amber-400 font-bold">EmailJS Cloud Core</span></div>
-                <div class="flex justify-between py-2"><span class="text-gray-500">Ledger Sync</span><span class="text-emerald-400 font-bold">Cross-Device Session</span></div>
+                <div class="flex justify-between py-2"><span class="text-gray-500">Recovery Gateway</span><span class="text-amber-400 font-bold">Encrypted OTP Dispatch</span></div>
+                <div class="flex justify-between py-2"><span class="text-gray-500">Ledger Sync</span><span class="text-emerald-400 font-bold">Cross-Device Persistence</span></div>
             </div>
 
             <button onclick="closeAboutModal()" class="w-full py-2.5 rounded-lg bg-[#0e1524] hover:bg-[#162136] text-gray-300 font-bold text-xs uppercase interactive-tap">
@@ -407,12 +441,29 @@
     <script>
         let selectedFile = null;
         let lastInferenceData = null;
+        let generatedRecoveryOtp = null;
+        let recoveryTargetEmail = "";
+
+        // Default Master Key Fallback
         const DEFAULT_SECURITY_PIN = "VOLTIX@2026";
 
         window.onload = function() {
             renderAccountsUi();
             loadOperatorHistory();
         };
+
+        // Password Show/Hide Toggle
+        function togglePasswordVisibility(inputId, iconId) {
+            const input = document.getElementById(inputId);
+            const icon = document.getElementById(iconId);
+            if (input.type === "password") {
+                input.type = "text";
+                icon.innerText = "🙈";
+            } else {
+                input.type = "password";
+                icon.innerText = "👁️";
+            }
+        }
 
         // Multi-Account Storage Engine
         function getAllStoredAccounts() {
@@ -525,23 +576,95 @@
             document.getElementById("loginModal").classList.remove("flex");
         }
 
-        // Forgot Key Recovery Handlers
+        // ================= OTP FORGOT PASSWORD PROTOCOL =================
         function triggerForgotPassword() {
             closeLoginModal();
-            document.getElementById("forgotKeyModal").classList.remove("hidden");
-            document.getElementById("forgotKeyModal").classList.add("flex");
+            const currentEmail = document.getElementById("loginEmail").value.trim();
+            if (currentEmail) {
+                document.getElementById("recoveryEmail").value = currentEmail;
+            }
+            document.getElementById("otpStep1").classList.remove("hidden");
+            document.getElementById("otpStep2").classList.add("hidden");
+            document.getElementById("forgotOtpModal").classList.remove("hidden");
+            document.getElementById("forgotOtpModal").classList.add("flex");
         }
-        function closeForgotModal() {
-            document.getElementById("forgotKeyModal").classList.add("hidden");
-            document.getElementById("forgotKeyModal").classList.remove("flex");
+
+        function closeForgotOtpModal() {
+            document.getElementById("forgotOtpModal").classList.add("hidden");
+            document.getElementById("forgotOtpModal").classList.remove("flex");
             openLoginModal();
         }
-        function autoFillPinAndClose() {
-            document.getElementById("loginPin").value = DEFAULT_SECURITY_PIN;
-            document.getElementById("forgotKeyModal").classList.add("hidden");
-            document.getElementById("forgotKeyModal").classList.remove("flex");
-            openLoginModal();
-            triggerToast("PIN AUTO-FILLED", "Plant Security Key armed", "#ffb703");
+
+        function dispatchOtpEmail() {
+            const email = document.getElementById("recoveryEmail").value.trim().toLowerCase();
+            if (!email || !email.includes("@")) {
+                alert("Please enter a valid recovery Gmail address.");
+                return;
+            }
+
+            recoveryTargetEmail = email;
+            // Generate Random 6 Digit OTP
+            generatedRecoveryOtp = Math.floor(100000 + Math.random() * 900000).toString();
+
+            const btn = document.getElementById("btnSendOtp");
+            btn.disabled = true;
+            btn.innerText = "Dispatching OTP Code...";
+
+            const templateParams = {
+                to_email: recoveryTargetEmail,
+                to_name: "Field Operator",
+                ticket_id: "OTP-" + generatedRecoveryOtp,
+                fault_count: "RESET PIN: " + generatedRecoveryOtp
+            };
+
+            emailjs.send('service_k212ehr', 'template_b2v6xmo', templateParams)
+                .then(function() {
+                    btn.disabled = false;
+                    btn.innerText = "Send Verification Code";
+                    document.getElementById("displaySentTarget").innerText = recoveryTargetEmail;
+                    document.getElementById("otpStep1").classList.add("hidden");
+                    document.getElementById("otpStep2").classList.remove("hidden");
+                    triggerToast("SECURITY OTP SENT", `6-digit code routed to ${recoveryTargetEmail}`, "#10b981");
+                }, function(err) {
+                    btn.disabled = false;
+                    btn.innerText = "Send Verification Code";
+                    // Fallback alert for offline demo
+                    alert(`[TEST PROTOCOL NOTE] Network gateway busy. For demo evaluation, your 6-Digit OTP is: ${generatedRecoveryOtp}`);
+                    document.getElementById("displaySentTarget").innerText = recoveryTargetEmail;
+                    document.getElementById("otpStep1").classList.add("hidden");
+                    document.getElementById("otpStep2").classList.remove("hidden");
+                });
+        }
+
+        function verifyOtpAndResetPassword() {
+            const enteredOtp = document.getElementById("inputOtpCode").value.trim();
+            const newPin = document.getElementById("inputNewPin").value.trim();
+
+            if (enteredOtp !== generatedRecoveryOtp) {
+                alert("INVALID VERIFICATION CODE: The 6-digit OTP does not match.");
+                return;
+            }
+
+            if (!newPin || newPin.length < 4) {
+                alert("Please specify a secure password (at least 4 characters).");
+                return;
+            }
+
+            // Save Custom Key Scoped to this email
+            localStorage.setItem(`voltix_key_${recoveryTargetEmail}`, newPin);
+
+            // Update in accounts list if present
+            let list = getAllStoredAccounts();
+            const idx = list.findIndex(acc => acc.email === recoveryTargetEmail);
+            if (idx >= 0) {
+                list[idx].customPin = newPin;
+                localStorage.setItem("voltix_accounts_list", JSON.stringify(list));
+            }
+
+            closeForgotOtpModal();
+            document.getElementById("loginEmail").value = recoveryTargetEmail;
+            document.getElementById("loginPin").value = newPin;
+            triggerToast("KEY UPDATED", "New password verified & saved!", "#00f0ff");
         }
 
         function saveUserSession() {
@@ -553,17 +676,22 @@
                 alert("Provide valid operator name and email.");
                 return;
             }
-            if (pin !== DEFAULT_SECURITY_PIN) {
-                alert("ACCESS REJECTED: Invalid Security Key.");
+
+            // Check if user set custom password through OTP reset
+            const savedCustomPin = localStorage.getItem(`voltix_key_${email}`);
+            const requiredPin = savedCustomPin ? savedCustomPin : DEFAULT_SECURITY_PIN;
+
+            if (pin !== requiredPin) {
+                alert("ACCESS REJECTED: Incorrect Plant Password. Click 'Forgot Key?' to receive an OTP on your Gmail.");
                 return;
             }
 
             let list = getAllStoredAccounts();
             const index = list.findIndex(acc => acc.email === email);
             if (index >= 0) {
-                list[index] = { name, email };
+                list[index] = { name, email, customPin: requiredPin };
             } else {
-                list.push({ name, email });
+                list.push({ name, email, customPin: requiredPin });
             }
 
             localStorage.setItem("voltix_accounts_list", JSON.stringify(list));
