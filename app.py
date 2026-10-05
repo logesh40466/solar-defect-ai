@@ -47,6 +47,17 @@ def save_user_history():
     db[email].insert(0, record)
     save_history_db(db)
     return jsonify({"status": "success", "count": len(db[email])})
+@app.route('/api/history/clear', methods=['POST'])
+def clear_user_history():
+    payload = request.get_json(force=True)
+    email = payload.get('email', '').strip().lower()
+    if not email:
+        return jsonify({"status": "error"}), 400
+    db = get_history_db()
+    if email in db:
+        db[email] = []
+        save_history_db(db)
+    return jsonify({"status": "success"})
 # ===============================================================
 
 @app.route('/')
