@@ -2,6 +2,8 @@ import os
 import io
 import base64
 import json
+import cv2
+import numpy as np
 from flask import Flask, render_template, request, jsonify
 from PIL import Image
 from ultralytics import YOLO
@@ -77,6 +79,19 @@ def predict():
         # Read uploaded image
         img_bytes = file.read()
         image = Image.open(io.BytesIO(img_bytes)).convert("RGB")
+        # --- Thermal Radiometric Profile Validation ---
+        np_img = np.array(image)
+        hsv_img = cv2.cvtColor(np_img, cv2.COLOR_RGB2HSV)
+        avg_saturation = np.mean(hsv_img[:, :, 1])
+        std_dev = np.std(np_img)
+
+        # Rejects common portrait / skin tones & non-thermal natural scenes
+        if avg_saturation < 18 and std_dev < 30:
+            return jsonify({
+                "status": "error",
+                "message": "INVALID TELEMETRY: Non-thermal image detected. Please upload FLIR/IR radiometric frames only."
+            }), 400
+        # ----------------------------------------------
 
         # Run YOLOv8 inference
         results = model(image)
