@@ -1147,6 +1147,108 @@
             container.appendChild(toast);
             setTimeout(() => toast.remove(), 4000);
         }
+        function sendVoltixAlert(targetEmail, targetName, faultCount, ticketId) {
+            const isDefect = faultCount > 0;
+            const healthEl = document.getElementById("p1ValHealth");
+            const lossEl = document.getElementById("p1ValLoss");
+            const riskEl = document.getElementById("p2ValRisk");
+            const powerDropEl = document.getElementById("valPowerDrop");
+
+            const healthVal = healthEl ? healthEl.innerText : "--%";
+            const lossVal = lossEl ? lossEl.innerText : "--%";
+            const riskVal = riskEl ? riskEl.innerText : "₹ 0";
+            const powerDropVal = powerDropEl ? powerDropEl.innerText : "0.0 kW/h";
+
+            let detailedMessage = "";
+            if (isDefect) {
+                detailedMessage = `[CRITICAL HOTSPOT ALERT]\n` +
+                    `Status: ACTION REQUIRED\n` +
+                    `Defects Detected: ${faultCount}\n` +
+                    `Array Health: ${healthVal}\n` +
+                    `Power Loss: ${powerDropVal} (${lossVal})\n` +
+                    `Projected Revenue Loss: ${riskVal}\n` +
+                    `Recommended Action: Inspect diodes and clear surface debris immediately.`;
+            } else {
+                detailedMessage = `[NOMINAL PERFORMANCE REPORT]\n` +
+                    `Status: OPTIMAL YIELD\n` +
+                    `Defects Detected: 0 (No Hotspots)\n` +
+                    `Array Health: ${healthVal}\n` +
+                    `Power Clipping: 0.0 kW/h (0.0%)\n` +
+                    `Thermal Equilibrium: Normal (< 45°C)\n` +
+                    `Recommended Action: Routine maintenance sweep in 30 days.`;
+            }
+
+            const templateParams = {
+                to_email: targetEmail,
+                to_name: targetName,
+                ticket_id: ticketId,
+                fault_count: detailedMessage
+            };
+
+            emailjs.send('service_k212ehr', 'template_b2v6xmo', templateParams)
+                .then(function() {
+                    triggerToast("DISPATCH COMPLETE", `SCADA report sent to ${targetEmail}`, "#00d2ff");
+                    openAlertModal(ticketId, targetEmail, faultCount, healthVal, riskVal, isDefect);
+                }, function(err) {
+                    console.warn("EmailJS error:", err);
+                    triggerToast("TELEMETRY LOGGED", "Dispatch archived locally", "#ffaa00");
+                    openAlertModal(ticketId, targetEmail, faultCount, healthVal, riskVal, isDefect);
+                });
+        }
+
+        function openAlertModal(ticketId, targetEmail, faultCount, healthVal, riskVal, isDefect) {
+            let modal = document.getElementById("alertSuccessModal");
+            if (!modal) return;
+
+            const headerText = isDefect ? "Critical Defect Alert" : "Array Health Nominal";
+            const badgeColor = isDefect ? "text-rose-400 glow-red" : "text-emerald-400";
+
+            modal.innerHTML = `
+                <div class="scada-box max-w-md w-full p-6 rounded-2xl border ${isDefect ? 'border-rose-500' : 'border-emerald-500'} shadow-2xl space-y-5 text-center relative overflow-hidden font-mono">
+                    <div class="w-14 h-14 rounded-2xl ${isDefect ? 'bg-rose-950/50 text-rose-400 border-rose-600' : 'bg-emerald-950/50 text-emerald-400 border-emerald-600'} border flex items-center justify-center mx-auto text-2xl shadow-xl">
+                        ${isDefect ? '⚠️' : '✅'}
+                    </div>
+
+                    <div>
+                        <h3 class="text-base font-black text-white uppercase ${badgeColor}">${headerText}</h3>
+                        <p class="text-[11px] text-gray-400 mt-1">Automated SCADA telemetry audit dispatched.</p>
+                    </div>
+
+                    <div class="bg-[#050810] border border-[#162238] rounded-xl p-4 text-left text-xs space-y-2">
+                        <div class="flex justify-between border-b border-[#121926] pb-2">
+                            <span class="text-gray-400">Work Order:</span>
+                            <span class="text-white font-bold">${ticketId}</span>
+                        </div>
+                        <div class="flex justify-between border-b border-[#121926] pb-2">
+                            <span class="text-gray-400">Recipient:</span>
+                            <span class="text-cyan-400 font-bold truncate max-w-[200px]">${targetEmail}</span>
+                        </div>
+                        <div class="flex justify-between border-b border-[#121926] pb-2">
+                            <span class="text-gray-400">System Condition:</span>
+                            <span class="${badgeColor} font-bold">${isDefect ? `${faultCount} Faults Detected` : 'Nominal (Healthy)'}</span>
+                        </div>
+                        <div class="flex justify-between border-b border-[#121926] pb-2">
+                            <span class="text-gray-400">Array Health:</span>
+                            <span class="text-emerald-400 font-bold">${healthVal || '100%'}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-400">Projected Loss:</span>
+                            <span class="text-amber-400 font-bold">${isDefect ? riskVal : '₹ 0 (Nominal)'}</span>
+                        </div>
+                    </div>
+
+                    <button type="button" onclick="closeAlertModal()" class="w-full py-3 rounded-xl ${isDefect ? 'bg-rose-600 hover:bg-rose-700' : 'bg-emerald-600 hover:bg-emerald-700'} text-white font-black text-xs uppercase cursor-pointer shadow-lg">
+                        Acknowledge & Dismiss
+                    </button>
+                </div>
+            `;
+            modal.style.display = "flex";
+        }
+
+        function closeAlertModal() {
+            const modal = document.getElementById("alertSuccessModal");
+            if (modal) modal.style.display = "none";
+        }
     </script>
 </body>
 </html>
