@@ -5,9 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VOLTIX AI — Photovoltaic Defect Detection SCADA</title>
     <!-- EmailJS SDK -->
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
-    <script type="text/javascript">
-       (function(){ emailjs.init({ publicKey: "cIkSIfeYwFYEgD3Fy" }); })();
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+    <script>
+       (function(){ 
+           try { emailjs.init({ publicKey: "cIkSIfeYwFYEgD3Fy" }); } catch(e){} 
+       })();
     </script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -37,34 +39,24 @@
             background: linear-gradient(180deg, #0e1424 0%, #080c16 100%);
             border: 1px solid var(--border-line);
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.85);
-            transition: all 0.2s ease;
-        }
-        .scada-box:hover {
-            border-color: rgba(0, 210, 255, 0.35);
-            box-shadow: 0 0 25px rgba(0, 210, 255, 0.08);
         }
         .glow-blue { text-shadow: 0 0 14px rgba(0, 210, 255, 0.8); }
         .glow-red { text-shadow: 0 0 14px rgba(255, 51, 102, 0.8); }
         .glow-amber { text-shadow: 0 0 14px rgba(255, 170, 0, 0.8); }
-        .tap-active:active {
-            transform: scale(0.98);
-            filter: brightness(1.2);
-            box-shadow: 0 0 25px var(--neon-blue);
-        }
         .file-dropzone {
             border: 2px dashed #1a2842;
-            transition: all 0.25s ease;
+            transition: all 0.2s ease;
         }
         .file-dropzone:hover {
             border-color: var(--neon-blue);
             background: rgba(0, 210, 255, 0.03);
         }
-        .modal-overlay {
+        .app-modal {
             display: none;
             position: fixed;
             inset: 0;
             background: rgba(0, 0, 0, 0.92);
-            backdrop-filter: blur(10px);
+            backdrop-filter: blur(8px);
             z-index: 99999;
             align-items: center;
             justify-content: center;
@@ -72,58 +64,55 @@
         }
         #toastContainer {
             position: fixed;
-            bottom: 24px;
-            right: 24px;
-            z-index: 999999;
+            bottom: 20px;
+            right: 20px;
+            z-index: 100000;
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 8px;
         }
     </style>
 </head>
 <body class="min-h-screen flex flex-col select-none">
 
-    <!-- Top Navigation Bar -->
+    <!-- Top Navigation Bar with SCADA Clock -->
     <header class="border-b border-[#162238] bg-[#070a12]/95 backdrop-blur px-4 sm:px-6 py-3.5 sticky top-0 z-50 flex items-center justify-between">
-        <div onclick="openAboutModal()" class="flex items-center space-x-3 cursor-pointer group" title="Click to view System Specifications">
-            <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-400 via-blue-600 to-rose-600 flex items-center justify-center font-black text-black text-xl shadow-lg shadow-cyan-500/25 group-hover:scale-105 transition">
+        <div onclick="openModal('aboutModal')" class="flex items-center space-x-3 cursor-pointer group">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-400 via-blue-600 to-rose-600 flex items-center justify-center font-black text-black text-xl shadow-lg">
                 ⚡
             </div>
             <div>
                 <div class="flex items-center space-x-2">
                     <span class="font-black text-lg tracking-wider text-white group-hover:text-cyan-400 transition">VOLTIX AI</span>
-                    <span class="text-[10px] font-mono text-cyan-400 bg-cyan-950/70 border border-cyan-800/80 px-2 py-0.5 rounded-full">SPECS ℹ</span>
+                    <span class="text-[10px] font-mono text-cyan-400 bg-cyan-950/70 border border-cyan-800 px-2 py-0.5 rounded-full">SPECS ℹ</span>
                 </div>
                 <p class="text-[10px] text-gray-500 font-mono tracking-wider uppercase hidden sm:block">Solar Defect AI SCADA Diagnostic System</p>
             </div>
         </div>
 
-        <div class="hidden md:flex items-center space-x-2 font-mono text-xs">
-            <span id="navStatusBadge" class="px-3 py-1 rounded-lg bg-cyan-950/50 border border-cyan-500/40 text-cyan-400 font-bold">
-                DIAGNOSTIC SCANNER
-            </span>
+        <!-- Real-Time SCADA Digital Clock -->
+        <div class="hidden lg:flex items-center space-x-3 font-mono bg-[#090e18] border border-[#162238] px-3.5 py-1.5 rounded-xl">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span id="scadaLiveClock" class="text-xs text-gray-300 font-bold tracking-wider">--:--:-- IST</span>
         </div>
 
-        <!-- Direct Rock-Solid Header Login Slot -->
+        <!-- Auth Slot -->
         <div class="font-mono flex items-center">
-            <!-- Sign In Button (Visible when logged out) -->
-            <button id="directSignInBtn" type="button" onclick="openLoginModal()" class="px-4 py-2 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:brightness-110 text-black font-mono text-xs font-black shadow-lg shadow-cyan-500/25 tap-active flex items-center space-x-2 cursor-pointer">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+            <button id="directSignInBtn" onclick="openModal('loginModal')" class="px-4 py-2 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:brightness-110 text-black font-mono text-xs font-black shadow-lg flex items-center space-x-2 cursor-pointer">
                 <span>OPERATOR SIGN IN</span>
             </button>
 
-            <!-- Profile Badge Button (Visible when logged in) -->
-            <button id="userProfileBtn" type="button" onclick="openAccountDrawer()" style="display: none;" class="items-center space-x-2.5 bg-[#0e1626] border border-cyan-500/40 hover:border-cyan-400 px-3.5 py-1.5 rounded-xl tap-active shadow-md cursor-pointer">
-                <div id="userInitialBadge" class="w-7 h-7 rounded-full bg-gradient-to-tr from-cyan-400 to-blue-600 text-black text-xs font-black flex items-center justify-center">O</div>
+            <button id="userProfileBtn" onclick="openModal('accountDrawerModal')" style="display: none;" class="items-center space-x-2 bg-[#0e1626] border border-cyan-500/50 px-3.5 py-1.5 rounded-xl cursor-pointer">
+                <div id="userInitialBadge" class="w-6 h-6 rounded-full bg-gradient-to-tr from-cyan-400 to-blue-600 text-black text-xs font-black flex items-center justify-center">O</div>
                 <span id="userDisplayName" class="text-xs font-bold text-gray-200 hidden sm:inline max-w-[120px] truncate">Operator</span>
             </button>
         </div>
     </header>
 
-    <!-- Main Workspace -->
+    <!-- Workspace Main -->
     <main class="flex-1 p-4 sm:p-6 max-w-7xl mx-auto w-full space-y-6">
 
-        <!-- WORKSPACE VIEW 1: SCANNER -->
+        <!-- ======================= WORKSPACE VIEW 1: SCANNER ======================= -->
         <div id="scanWorkflow" class="space-y-6">
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4 font-mono">
                 <div class="scada-box p-4 rounded-xl border-l-4 border-l-cyan-500">
@@ -145,7 +134,8 @@
             </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                <div class="lg:col-span-5 flex flex-col space-y-6">
+                <!-- Dropzone Area with Demo Quick Test Buttons -->
+                <div class="lg:col-span-5 flex flex-col space-y-4">
                     <div class="scada-box p-5 rounded-2xl flex-1 flex flex-col justify-between">
                         <div>
                             <div class="flex items-center justify-between mb-4 border-b border-[#162238] pb-3 font-mono">
@@ -156,19 +146,16 @@
                                 <span class="text-[10px] text-cyan-400 bg-cyan-950/60 px-2 py-0.5 rounded border border-cyan-800">YOLOv8 AI</span>
                             </div>
 
-                            <div id="dropZone" onclick="document.getElementById('fileInput').click()" class="file-dropzone p-8 rounded-2xl text-center cursor-pointer flex flex-col items-center justify-center relative overflow-hidden transition-all tap-active">
+                            <div id="dropZone" onclick="document.getElementById('fileInput').click()" class="file-dropzone p-8 rounded-2xl text-center cursor-pointer flex flex-col items-center justify-center relative overflow-hidden">
                                 <div id="uploadDefaultUi" class="flex flex-col items-center">
-                                    <div class="w-14 h-14 rounded-2xl bg-cyan-950/40 border border-cyan-800/60 flex items-center justify-center mb-3 text-cyan-400">
-                                        <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                    <div class="w-14 h-14 rounded-2xl bg-cyan-950/40 border border-cyan-800/60 flex items-center justify-center mb-3 text-cyan-400 text-xl font-bold">
+                                        ⚡
                                     </div>
                                     <p class="text-xs font-bold text-gray-200 uppercase font-mono tracking-wider">Select Or Drag Thermal Image</p>
                                     <p class="text-[10px] text-gray-500 mt-1 font-mono">Upload JPG or PNG Photo</p>
                                 </div>
 
-                                <div id="uploadReadyUi" class="hidden flex-col items-center space-y-2">
-                                    <div class="w-12 h-12 rounded-xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400">
-                                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
-                                    </div>
+                                <div id="uploadReadyUi" style="display: none;" class="flex-col items-center space-y-2">
                                     <span class="text-xs font-mono font-bold text-emerald-400 uppercase tracking-widest">Image Ready For Scan</span>
                                     <div class="flex items-center space-x-2 bg-[#060910] border border-[#18263e] px-3.5 py-1.5 rounded-lg text-[11px] font-mono text-gray-300">
                                         <span id="selectedFileName" class="truncate max-w-[200px] text-cyan-400 font-bold"></span>
@@ -178,16 +165,30 @@
                                 </div>
                             </div>
                             <input type="file" id="fileInput" class="hidden" accept="image/*" onchange="handleFileSelect(event)">
+
+                            <!-- Demo Testing Selectors -->
+                            <div class="mt-4 pt-3 border-t border-[#162238] font-mono">
+                                <span class="text-[10px] text-gray-400 uppercase tracking-wider block mb-2 font-bold">Quick Demo Simulators:</span>
+                                <div class="grid grid-cols-2 gap-2">
+                                    <button type="button" onclick="loadDemoSample('healthy')" class="py-2 px-3 rounded-xl bg-emerald-950/40 hover:bg-emerald-900/50 border border-emerald-800/80 text-emerald-400 text-[10px] font-bold uppercase transition flex items-center justify-center space-x-1.5 cursor-pointer">
+                                        <span>✓ Healthy Array</span>
+                                    </button>
+                                    <button type="button" onclick="loadDemoSample('defect')" class="py-2 px-3 rounded-xl bg-rose-950/40 hover:bg-rose-900/50 border border-rose-800/80 text-rose-400 text-[10px] font-bold uppercase transition flex items-center justify-center space-x-1.5 cursor-pointer">
+                                        <span>⚡ Thermal Hotspot</span>
+                                    </button>
+                                </div>
+                            </div>
                         </div>
 
-                        <div class="mt-6">
-                            <button id="btnDiagnose" type="button" onclick="executeDiagnostics()" disabled class="w-full py-4 rounded-xl bg-[#0e1626] text-gray-600 font-mono text-xs font-black tracking-widest cursor-not-allowed transition uppercase flex items-center justify-center space-x-2 tap-active shadow-lg">
+                        <div class="mt-4">
+                            <button id="btnDiagnose" type="button" onclick="executeDiagnostics()" disabled class="w-full py-4 rounded-xl bg-[#0e1626] text-gray-600 font-mono text-xs font-black tracking-widest cursor-not-allowed transition uppercase flex items-center justify-center space-x-2 shadow-lg">
                                 <span>⚡ START AI DEFECT SCAN</span>
                             </button>
                         </div>
                     </div>
                 </div>
 
+                <!-- Canvas Area -->
                 <div class="lg:col-span-7">
                     <div class="scada-box p-5 rounded-2xl h-full flex flex-col justify-between">
                         <div class="flex items-center justify-between mb-4 border-b border-[#162238] pb-3 font-mono">
@@ -199,39 +200,39 @@
                         </div>
 
                         <div class="relative w-full aspect-[4/3] bg-[#030509] rounded-xl border border-[#131d2e] overflow-hidden flex items-center justify-center">
-                            <img id="resultCanvas" class="w-full h-full object-contain hidden" alt="Detection Output">
+                            <img id="resultCanvas" class="w-full h-full object-contain" style="display: none;" alt="Detection Output">
                             <div id="placeholderCanvas" class="flex flex-col items-center justify-center text-gray-600 space-y-3 font-mono">
-                                <svg class="w-14 h-14 stroke-1 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"></path></svg>
+                                <span class="text-3xl">🔍</span>
                                 <span class="text-xs text-gray-500">Awaiting image upload to detect defects</span>
                             </div>
                         </div>
 
                         <div class="mt-4 flex items-center justify-between text-[11px] font-mono text-gray-500 pt-3 border-t border-[#162238]">
-                            <span>Model: YOLOv8 High-Precision Weights</span>
+                            <span>Model: YOLOv8 IR Radiometric</span>
                             <span class="text-emerald-400 font-bold">Engine Status: Online</span>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div id="nextStepRow" class="hidden justify-end pt-2">
-                <button type="button" onclick="switchWorkflowView('audit')" class="px-7 py-4 rounded-xl bg-gradient-to-r from-cyan-500 via-blue-600 to-rose-600 hover:brightness-110 text-white font-black font-mono text-xs tracking-widest uppercase transition shadow-xl shadow-cyan-500/25 flex items-center space-x-3 tap-active cursor-pointer">
+            <div id="nextStepRow" style="display: none;" class="justify-end pt-2">
+                <button type="button" onclick="switchWorkflowView('audit')" class="px-7 py-4 rounded-xl bg-gradient-to-r from-cyan-500 via-blue-600 to-rose-600 hover:brightness-110 text-white font-black font-mono text-xs tracking-widest uppercase shadow-xl flex items-center space-x-3 cursor-pointer">
                     <span>VIEW AUDIT REPORTS & DEFECT LOGS (NEXT STEP ➔)</span>
                 </button>
             </div>
         </div>
 
-        <!-- WORKSPACE VIEW 2: AUDIT & CRITICAL METRICS -->
-        <div id="auditWorkflow" class="hidden space-y-6 font-mono">
+        <!-- ======================= WORKSPACE VIEW 2: AUDIT & CRITICAL METRICS ======================= -->
+        <div id="auditWorkflow" style="display: none;" class="space-y-6 font-mono">
             <div class="flex items-center justify-between border-b border-[#162238] pb-4">
-                <button type="button" onclick="switchWorkflowView('scan')" class="px-5 py-2.5 rounded-xl bg-[#0d1422] border border-[#1b2b46] text-gray-300 hover:text-white text-xs font-bold tap-active flex items-center space-x-2 cursor-pointer">
+                <button type="button" onclick="switchWorkflowView('scan')" class="px-5 py-2.5 rounded-xl bg-[#0d1422] border border-[#1b2b46] text-gray-300 hover:text-white text-xs font-bold flex items-center space-x-2 cursor-pointer">
                     <span>⬅ PREVIOUS STEP (BACK TO SCANNER)</span>
                 </button>
                 <div class="flex items-center space-x-3">
-                    <button type="button" onclick="exportHistoryCSV()" class="px-4 py-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/20 text-xs font-bold tap-active flex items-center space-x-2 cursor-pointer">
+                    <button type="button" onclick="exportHistoryCSV()" class="px-4 py-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/20 text-xs font-bold cursor-pointer">
                         <span>EXPORT CSV</span>
                     </button>
-                    <button id="btnExportPDF" type="button" onclick="exportPDFReport()" class="px-4 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-black text-xs font-black tap-active flex items-center space-x-2 shadow-lg shadow-cyan-500/20 cursor-pointer">
+                    <button id="btnExportPDF" type="button" onclick="exportPDFReport()" class="px-4 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-black text-xs font-black shadow-lg cursor-pointer">
                         <span>DOWNLOAD PDF</span>
                     </button>
                 </div>
@@ -245,17 +246,17 @@
                         <div id="valMaintenanceAction" class="text-base font-black text-rose-400 glow-red mt-2 leading-snug">STANDBY</div>
                     </div>
                     <p id="descMaintenanceAction" class="text-[11px] text-gray-400 mt-3 leading-relaxed">
-                        Continuous telemetry link awaiting scan results to recommend field crew tasks.
+                        Continuous telemetry link awaiting scan results to recommend field tasks.
                     </p>
                 </div>
 
                 <div class="scada-box p-5 rounded-2xl border-l-4 border-l-amber-500 flex flex-col justify-between">
                     <div>
                         <span class="text-[10px] text-gray-400 uppercase tracking-widest">THERMAL HAZARD LEVEL</span>
-                        <div id="valThermalHazard" class="text-lg font-black text-amber-400 glow-amber mt-2">NOMINAL</div>
+                        <div id="valThermalHazard" class="text-lg font-black text-amber-400 mt-2">NOMINAL</div>
                     </div>
                     <p id="descThermalHazard" class="text-[11px] text-gray-400 mt-3 leading-relaxed">
-                        Peak cell temp: normal ranges. No immediate backsheet thermal scorch hazard.
+                        Normal ranges. No immediate backsheet thermal scorch hazard.
                     </p>
                 </div>
 
@@ -275,12 +276,12 @@
                         <div id="p2ValRisk" class="text-2xl font-black text-white mt-2">₹ 0</div>
                     </div>
                     <p class="text-[11px] text-gray-400 mt-3 leading-relaxed">
-                        Estimated annualized PPA feed-in tariff loss derived from localized cell defects.
+                        Estimated annualized feed-in tariff loss derived from localized cell defects.
                     </p>
                 </div>
             </div>
 
-            <!-- Historical Defect Ledger -->
+            <!-- Historical Defect Ledger with Clear Button -->
             <div class="scada-box p-6 rounded-2xl space-y-4">
                 <div class="flex items-center justify-between pb-3 border-b border-[#162238]">
                     <div class="flex items-center space-x-2">
@@ -288,7 +289,12 @@
                         <h3 class="text-sm font-bold text-white uppercase">Historical Defect Ledger</h3>
                         <span class="text-[10px] text-gray-500 hidden sm:inline">(Click any log row to inspect details)</span>
                     </div>
-                    <span id="historyCountBadge" class="text-xs text-cyan-400 bg-cyan-950/60 px-2.5 py-1 rounded-md border border-cyan-800">0 logs recorded</span>
+                    <div class="flex items-center space-x-3">
+                        <button type="button" onclick="clearLedgerHistory()" class="px-2.5 py-1 rounded bg-rose-950/40 hover:bg-rose-900/60 border border-rose-800 text-rose-400 text-[10px] font-bold uppercase transition cursor-pointer">
+                            🗑 Clear Logs
+                        </button>
+                        <span id="historyCountBadge" class="text-xs text-cyan-400 bg-cyan-950/60 px-2.5 py-1 rounded-md border border-cyan-800">0 logs recorded</span>
+                    </div>
                 </div>
 
                 <div class="overflow-x-auto">
@@ -316,21 +322,21 @@
     </main>
 
     <!-- OPERATOR LOGIN MODAL -->
-    <div id="loginModal" class="modal-overlay">
-        <div class="scada-box max-w-sm w-full p-6 rounded-2xl border border-cyan-500/50 shadow-2xl space-y-4 font-mono relative">
+    <div id="loginModal" class="app-modal">
+        <div class="scada-box max-w-sm w-full p-6 rounded-2xl border border-cyan-500/50 shadow-2xl space-y-4 font-mono">
             <div class="flex items-center justify-between border-b border-[#162238] pb-3">
                 <span class="text-xs font-black text-white uppercase">Operator Sign In</span>
-                <button type="button" onclick="closeLoginModal()" class="text-gray-400 hover:text-white text-lg tap-active cursor-pointer">&times;</button>
+                <button type="button" onclick="closeModal('loginModal')" class="text-gray-400 hover:text-white text-lg cursor-pointer">&times;</button>
             </div>
 
             <div class="space-y-3 text-xs">
                 <div>
                     <label class="block text-gray-400 mb-1 uppercase text-[10px]">Operator Name</label>
-                    <input type="text" id="loginName" autocomplete="off" placeholder="Enter Full Name" class="w-full bg-[#050810] border border-[#162238] rounded-lg px-3 py-2 text-white focus:outline-none focus:border-cyan-400">
+                    <input type="text" id="loginName" placeholder="Enter Full Name" class="w-full bg-[#050810] border border-[#162238] rounded-lg px-3 py-2 text-white focus:outline-none focus:border-cyan-400">
                 </div>
                 <div>
                     <label class="block text-gray-400 mb-1 uppercase text-[10px]">Gmail Address</label>
-                    <input type="email" id="loginEmail" autocomplete="off" placeholder="name@gmail.com" class="w-full bg-[#050810] border border-[#162238] rounded-lg px-3 py-2 text-white focus:outline-none focus:border-cyan-400">
+                    <input type="email" id="loginEmail" placeholder="name@gmail.com" class="w-full bg-[#050810] border border-[#162238] rounded-lg px-3 py-2 text-white focus:outline-none focus:border-cyan-400">
                 </div>
                 <div>
                     <div class="flex justify-between items-center mb-1">
@@ -338,7 +344,7 @@
                         <button type="button" onclick="triggerForgotPassword()" class="text-[10px] text-amber-400 hover:underline cursor-pointer">Forgot Key?</button>
                     </div>
                     <div class="relative flex items-center">
-                        <input type="password" id="loginPin" autocomplete="new-password" placeholder="••••••••" class="w-full bg-[#050810] border border-[#162238] rounded-lg pl-3 pr-10 py-2 text-white focus:outline-none focus:border-cyan-400">
+                        <input type="password" id="loginPin" placeholder="••••••••" class="w-full bg-[#050810] border border-[#162238] rounded-lg pl-3 pr-10 py-2 text-white focus:outline-none focus:border-cyan-400">
                         <button type="button" onclick="togglePasswordVisibility('loginPin', 'eyeIconLogin')" class="absolute right-3 text-gray-400 hover:text-white cursor-pointer">
                             <span id="eyeIconLogin">👁️</span>
                         </button>
@@ -346,43 +352,38 @@
                 </div>
             </div>
 
-            <button type="button" onclick="saveUserSession()" class="w-full py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:brightness-110 text-black font-black text-xs tracking-wider transition uppercase tap-active shadow-lg shadow-cyan-500/25 cursor-pointer">
+            <button type="button" onclick="saveUserSession()" class="w-full py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:brightness-110 text-black font-black text-xs uppercase shadow-lg cursor-pointer">
                 Authorize Profile
             </button>
         </div>
     </div>
 
-    <!-- 2-STEP OTP PASSWORD RESET MODAL -->
-    <div id="forgotOtpModal" class="modal-overlay">
-        <div class="scada-box max-w-sm w-full p-6 rounded-2xl border border-amber-500/60 shadow-2xl space-y-4 font-mono relative">
+    <!-- OTP RECOVERY MODAL -->
+    <div id="forgotOtpModal" class="app-modal">
+        <div class="scada-box max-w-sm w-full p-6 rounded-2xl border border-amber-500/60 shadow-2xl space-y-4 font-mono">
             <div class="flex items-center justify-between border-b border-[#162238] pb-3">
-                <span class="text-xs font-black text-amber-400 uppercase flex items-center space-x-2">
-                    <span>🛡️</span>
-                    <span>SECURITY KEY RECOVERY</span>
-                </span>
-                <button type="button" onclick="closeForgotOtpModal()" class="text-gray-400 hover:text-white text-lg tap-active cursor-pointer">&times;</button>
+                <span class="text-xs font-black text-amber-400 uppercase">SECURITY KEY RECOVERY</span>
+                <button type="button" onclick="closeModal('forgotOtpModal'); openModal('loginModal');" class="text-gray-400 hover:text-white text-lg cursor-pointer">&times;</button>
             </div>
 
             <div id="otpStep1" class="space-y-3 text-xs">
-                <p class="text-gray-400 text-[11px] leading-relaxed">
-                    Enter your Gmail address. A 6-digit verification code will be dispatched to your inbox.
-                </p>
+                <p class="text-gray-400 text-[11px]">Enter your Gmail address to receive a 6-digit verification code.</p>
                 <div>
                     <label class="block text-gray-400 mb-1 uppercase text-[10px]">Registered Gmail Address</label>
-                    <input type="email" id="recoveryEmail" autocomplete="off" placeholder="name@gmail.com" class="w-full bg-[#050810] border border-[#162238] rounded-lg px-3 py-2 text-white focus:outline-none focus:border-amber-400">
+                    <input type="email" id="recoveryEmail" placeholder="name@gmail.com" class="w-full bg-[#050810] border border-[#162238] rounded-lg px-3 py-2 text-white focus:outline-none focus:border-amber-400">
                 </div>
-                <button id="btnSendOtp" type="button" onclick="dispatchOtpEmail()" class="w-full py-3 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-500 hover:brightness-110 text-black font-black text-xs uppercase tracking-wider transition tap-active cursor-pointer">
+                <button id="btnSendOtp" type="button" onclick="dispatchOtpEmail()" class="w-full py-3 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-500 text-black font-black text-xs uppercase cursor-pointer">
                     Send Verification Code
                 </button>
             </div>
 
             <div id="otpStep2" style="display: none;" class="space-y-3 text-xs">
                 <div class="p-2.5 bg-emerald-500/10 border border-emerald-500/30 rounded-lg text-emerald-400 text-[11px]">
-                    ✓ Verification code sent to <span id="displaySentTarget" class="font-bold underline"></span>.
+                    ✓ Code sent to <span id="displaySentTarget" class="font-bold underline"></span>.
                 </div>
                 <div>
                     <label class="block text-gray-400 mb-1 uppercase text-[10px]">Enter 6-Digit Code</label>
-                    <input type="text" id="inputOtpCode" maxlength="6" placeholder="123456" class="w-full bg-[#050810] border border-[#162238] rounded-lg px-3 py-2 text-amber-400 font-bold tracking-widest text-center text-sm focus:outline-none focus:border-amber-400">
+                    <input type="text" id="inputOtpCode" maxlength="6" placeholder="123456" class="w-full bg-[#050810] border border-[#162238] rounded-lg px-3 py-2 text-amber-400 font-bold text-center text-sm focus:outline-none focus:border-amber-400">
                 </div>
                 <div>
                     <label class="block text-gray-400 mb-1 uppercase text-[10px]">Create New Password</label>
@@ -393,43 +394,39 @@
                         </button>
                     </div>
                 </div>
-                <button type="button" onclick="verifyOtpAndResetPassword()" class="w-full py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:brightness-110 text-black font-black text-xs uppercase tracking-wider transition tap-active cursor-pointer">
+                <button type="button" onclick="verifyOtpAndResetPassword()" class="w-full py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 text-black font-black text-xs uppercase cursor-pointer">
                     Verify Code & Update Key
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- MULTI-ACCOUNT DRAWER -->
-    <div id="accountDrawerModal" class="modal-overlay">
-        <div class="scada-box max-w-sm w-full p-6 rounded-2xl border border-cyan-500/40 shadow-2xl space-y-4 font-mono relative">
+    <!-- ACCOUNT DRAWER MODAL -->
+    <div id="accountDrawerModal" class="app-modal">
+        <div class="scada-box max-w-sm w-full p-6 rounded-2xl border border-cyan-500/40 shadow-2xl space-y-4 font-mono">
             <div class="flex items-center justify-between border-b border-[#162238] pb-3">
                 <span class="text-xs font-bold text-white uppercase">Operator Accounts</span>
-                <button type="button" onclick="closeAccountDrawer()" class="text-gray-400 hover:text-white text-lg tap-active cursor-pointer">&times;</button>
+                <button type="button" onclick="closeModal('accountDrawerModal')" class="text-gray-400 hover:text-white text-lg cursor-pointer">&times;</button>
             </div>
 
             <div id="accountsListContainer" class="space-y-2 max-h-56 overflow-y-auto pr-1"></div>
 
-            <button type="button" onclick="openCustomLogin()" class="w-full py-2.5 rounded-xl border border-cyan-800/80 bg-cyan-950/30 hover:bg-cyan-900/40 text-cyan-300 font-bold text-xs uppercase flex items-center justify-center space-x-2 tap-active transition cursor-pointer">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
-                <span>Add Another Account</span>
+            <button type="button" onclick="openCustomLogin()" class="w-full py-2.5 rounded-xl border border-cyan-800 bg-cyan-950/30 text-cyan-300 font-bold text-xs uppercase cursor-pointer">
+                + Add Another Account
             </button>
 
-            <button type="button" onclick="logoutActiveAccount()" class="w-full py-2 rounded-lg bg-[#0e1626] hover:bg-rose-950 text-gray-400 hover:text-rose-400 text-xs font-bold uppercase transition tap-active cursor-pointer">
+            <button type="button" onclick="logoutActiveAccount()" class="w-full py-2 rounded-lg bg-[#0e1626] hover:bg-rose-950 text-gray-400 hover:text-rose-400 text-xs font-bold uppercase cursor-pointer">
                 Sign Out Current Account
             </button>
         </div>
     </div>
 
-    <!-- DETAILED INSPECTION RECORD MODAL -->
-    <div id="detailInspectionModal" class="modal-overlay">
-        <div class="scada-box max-w-lg w-full p-6 rounded-2xl border border-cyan-500/50 shadow-2xl space-y-5 font-mono relative">
+    <!-- DETAIL AUDIT MODAL -->
+    <div id="detailInspectionModal" class="app-modal">
+        <div class="scada-box max-w-lg w-full p-6 rounded-2xl border border-cyan-500/50 shadow-2xl space-y-5 font-mono">
             <div class="flex items-center justify-between border-b border-[#162238] pb-3">
-                <div class="flex items-center space-x-2">
-                    <span class="text-cyan-400 text-lg">📋</span>
-                    <span class="text-xs font-black text-white uppercase tracking-wider">SCADA Work Order Audit</span>
-                </div>
-                <button type="button" onclick="closeDetailModal()" class="text-gray-400 hover:text-white text-lg tap-active cursor-pointer">&times;</button>
+                <span class="text-xs font-black text-white uppercase tracking-wider">SCADA Work Order Audit</span>
+                <button type="button" onclick="closeModal('detailInspectionModal')" class="text-gray-400 hover:text-white text-lg cursor-pointer">&times;</button>
             </div>
 
             <div class="grid grid-cols-2 gap-3 text-xs bg-[#050810] p-3 rounded-xl border border-[#162238]">
@@ -438,18 +435,18 @@
                     <span id="dtlWorkOrder" class="text-cyan-400 font-bold text-sm">--</span>
                 </div>
                 <div>
-                    <span class="text-[10px] text-gray-500 block uppercase">Inspection Date & Time</span>
+                    <span class="text-[10px] text-gray-500 block uppercase">Date & Time</span>
                     <span id="dtlDateTime" class="text-gray-200 font-semibold">--</span>
                 </div>
             </div>
 
-            <div class="grid grid-cols-3 gap-2.5 text-center text-xs">
+            <div class="grid grid-cols-3 gap-2 text-center text-xs">
                 <div class="p-2.5 rounded-lg bg-[#0e1626] border border-[#1b2b46]">
                     <span class="text-[10px] text-gray-400 block uppercase">Defects</span>
                     <span id="dtlFaults" class="text-base font-black text-rose-400 glow-red mt-1 block">--</span>
                 </div>
                 <div class="p-2.5 rounded-lg bg-[#0e1626] border border-[#1b2b46]">
-                    <span class="text-[10px] text-gray-400 block uppercase">Array Health</span>
+                    <span class="text-[10px] text-gray-400 block uppercase">Health</span>
                     <span id="dtlHealth" class="text-base font-black text-emerald-400 mt-1 block">--</span>
                 </div>
                 <div class="p-2.5 rounded-lg bg-[#0e1626] border border-[#1b2b46]">
@@ -470,79 +467,35 @@
             </div>
 
             <div class="flex items-center space-x-3 pt-2">
-                <button type="button" onclick="downloadDetailRecordPDF()" class="flex-1 py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-black font-black text-xs uppercase tap-active flex items-center justify-center space-x-2 shadow-lg shadow-cyan-500/20 cursor-pointer">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                    <span>Download PDF</span>
+                <button type="button" onclick="downloadDetailRecordPDF()" class="flex-1 py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-black font-black text-xs uppercase cursor-pointer">
+                    Download PDF
                 </button>
-                <button type="button" onclick="shareDetailRecord()" class="flex-1 py-3 rounded-xl bg-[#121c2e] hover:bg-[#1a2842] border border-[#223554] text-cyan-400 font-black text-xs uppercase tap-active flex items-center justify-center space-x-2 transition cursor-pointer">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"></path></svg>
-                    <span>Share Audit</span>
+                <button type="button" onclick="shareDetailRecord()" class="flex-1 py-3 rounded-xl bg-[#121c2e] hover:bg-[#1a2842] border border-[#223554] text-cyan-400 font-black text-xs uppercase cursor-pointer">
+                    Share Audit
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- SYSTEM SPECIFICATIONS MODAL -->
-    <div id="aboutModal" class="modal-overlay">
-        <div class="scada-box max-w-sm w-full p-6 rounded-2xl border border-cyan-500/40 shadow-2xl space-y-4 font-mono relative">
+    <!-- SPECS MODAL -->
+    <div id="aboutModal" class="app-modal">
+        <div class="scada-box max-w-sm w-full p-6 rounded-2xl border border-cyan-500/40 shadow-2xl space-y-4 font-mono">
             <div class="flex items-center justify-between border-b border-[#162238] pb-3">
-                <div class="flex items-center space-x-2">
-                    <span class="text-cyan-400 text-lg">⚡</span>
-                    <span class="text-xs font-black text-white uppercase">VOLTIX AI SPECIFICATIONS</span>
-                </div>
-                <button type="button" onclick="closeAboutModal()" class="text-gray-400 hover:text-white text-lg tap-active cursor-pointer">&times;</button>
+                <span class="text-xs font-black text-white uppercase">VOLTIX AI SPECIFICATIONS</span>
+                <button type="button" onclick="closeModal('aboutModal')" class="text-gray-400 hover:text-white text-lg cursor-pointer">&times;</button>
             </div>
-
             <div class="space-y-2 text-xs divide-y divide-[#162238]">
                 <div class="flex justify-between py-2"><span class="text-gray-400">Core Engine</span><span class="text-white font-bold">VOLTIX SCADA Pro</span></div>
-                <div class="flex justify-between py-2"><span class="text-gray-400">Vision Architecture</span><span class="text-cyan-400 font-bold">Ultralytics YOLOv8 IR</span></div>
-                <div class="flex justify-between py-2"><span class="text-gray-400">Image Resolution</span><span class="text-gray-300">640×640 Radiometric</span></div>
+                <div class="flex justify-between py-2"><span class="text-gray-400">Vision Model</span><span class="text-cyan-400 font-bold">Ultralytics YOLOv8 IR</span></div>
                 <div class="flex justify-between py-2"><span class="text-gray-400">Notification Engine</span><span class="text-amber-400 font-bold">EmailJS Cloud Gateway</span></div>
-                <div class="flex justify-between py-2"><span class="text-gray-400">Cross-Device Sync</span><span class="text-emerald-400 font-bold">Cloud REST Database</span></div>
+                <div class="flex justify-between py-2"><span class="text-gray-400">Cloud Sync</span><span class="text-emerald-400 font-bold">REST Database API</span></div>
             </div>
-
-            <button type="button" onclick="closeAboutModal()" class="w-full py-2.5 rounded-lg bg-[#0e1626] hover:bg-[#152238] text-gray-300 font-bold text-xs uppercase tap-active cursor-pointer">
+            <button type="button" onclick="closeModal('aboutModal')" class="w-full py-2.5 rounded-lg bg-[#0e1626] text-gray-300 font-bold text-xs uppercase cursor-pointer">
                 Close Specifications
             </button>
         </div>
     </div>
 
-    <!-- INCIDENT ALERT MODAL -->
-    <div id="alertSuccessModal" class="modal-overlay">
-        <div class="scada-box max-w-md w-full p-6 rounded-2xl border border-rose-500 shadow-2xl space-y-5 text-center relative overflow-hidden font-mono">
-            <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-rose-500 via-amber-500 to-cyan-500"></div>
-
-            <div class="w-14 h-14 rounded-2xl bg-rose-950/50 border border-rose-600 flex items-center justify-center mx-auto text-rose-400 shadow-xl shadow-rose-600/30">
-                <svg class="w-7 h-7 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-            </div>
-
-            <div>
-                <h3 class="text-base font-black text-white uppercase glow-red">Critical Incident Dispatched</h3>
-                <p class="text-[11px] text-gray-400 mt-1">Telemetry work order routed to operator.</p>
-            </div>
-
-            <div class="bg-[#050810] border border-[#162238] rounded-xl p-4 text-left text-xs space-y-2">
-                <div class="flex justify-between border-b border-[#121926] pb-2">
-                    <span class="text-gray-400">Work Order:</span>
-                    <span id="modalTicketId" class="text-white font-bold">TKT-XXXXXX</span>
-                </div>
-                <div class="flex justify-between border-b border-[#121926] pb-2">
-                    <span class="text-gray-400">Recipient:</span>
-                    <span id="modalTargetEmail" class="text-cyan-400 font-bold truncate max-w-[200px]">operator@gmail.com</span>
-                </div>
-                <div class="flex justify-between">
-                    <span class="text-gray-400">Defects Found:</span>
-                    <span id="modalFaultCount" class="text-rose-400 font-black">0 Detected</span>
-                </div>
-            </div>
-
-            <button type="button" onclick="closeAlertModal()" class="w-full py-3 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-black text-xs uppercase tap-active shadow-lg shadow-rose-600/30 cursor-pointer">
-                Acknowledge & Close
-            </button>
-        </div>
-    </div>
-
-    <!-- Floating Toasts -->
     <div id="toastContainer"></div>
 
     <script>
@@ -556,9 +509,33 @@
         window.onload = function() {
             renderAccountsUi();
             loadOperatorHistory();
+            startSCADAClock();
         };
 
-        // Eye Toggle
+        // Real-Time Clock
+        function startSCADAClock() {
+            function update() {
+                const now = new Date();
+                const clockEl = document.getElementById("scadaLiveClock");
+                if (clockEl) {
+                    clockEl.innerText = now.toLocaleTimeString('en-IN', { hour12: false }) + " IST";
+                }
+            }
+            update();
+            setInterval(update, 1000);
+        }
+
+        // Modal Display Controllers
+        function openModal(modalId) {
+            const el = document.getElementById(modalId);
+            if (el) el.style.display = 'flex';
+        }
+
+        function closeModal(modalId) {
+            const el = document.getElementById(modalId);
+            if (el) el.style.display = 'none';
+        }
+
         function togglePasswordVisibility(inputId, iconId) {
             const input = document.getElementById(inputId);
             const icon = document.getElementById(iconId);
@@ -571,7 +548,6 @@
             }
         }
 
-        // Workflow Switch
         function switchWorkflowView(view) {
             const scan = document.getElementById("scanWorkflow");
             const audit = document.getElementById("auditWorkflow");
@@ -590,65 +566,6 @@
                 loadOperatorHistory();
             }
             window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-
-        // Modal Display Controllers
-        function openLoginModal() {
-            document.getElementById("loginModal").style.display = "flex";
-        }
-        function closeLoginModal() {
-            document.getElementById("loginModal").style.display = "none";
-        }
-
-        function openAccountDrawer() {
-            const list = getAllStoredAccounts();
-            const activeUser = getActiveAccount();
-            const container = document.getElementById("accountsListContainer");
-
-            container.innerHTML = "";
-            list.forEach(acc => {
-                const isActive = activeUser && activeUser.email === acc.email;
-                const initial = acc.name ? acc.name.charAt(0).toUpperCase() : "O";
-
-                container.innerHTML += `
-                    <div onclick="setActiveAccount('${acc.email}'); closeAccountDrawer();" class="p-2.5 rounded-xl border ${isActive ? 'border-cyan-400 bg-cyan-950/40' : 'border-[#162238] bg-[#070b13]'} hover:border-cyan-500/60 flex items-center justify-between cursor-pointer transition tap-active">
-                        <div class="flex items-center space-x-3 truncate">
-                            <div class="w-8 h-8 rounded-full bg-cyan-600 text-black font-black flex items-center justify-center text-xs">${initial}</div>
-                            <div class="flex flex-col text-left truncate">
-                                <span class="text-xs font-bold text-white truncate">${acc.name}</span>
-                                <span class="text-[10px] text-gray-400 truncate">${acc.email}</span>
-                            </div>
-                        </div>
-                        ${isActive ? '<span class="text-cyan-400 text-xs font-bold">✔</span>' : ''}
-                    </div>
-                `;
-            });
-
-            document.getElementById("accountDrawerModal").style.display = "flex";
-        }
-        function closeAccountDrawer() {
-            document.getElementById("accountDrawerModal").style.display = "none";
-        }
-
-        function openAboutModal() {
-            document.getElementById("aboutModal").style.display = "flex";
-        }
-        function closeAboutModal() {
-            document.getElementById("aboutModal").style.display = "none";
-        }
-
-        function closeDetailModal() {
-            document.getElementById("detailInspectionModal").style.display = "none";
-        }
-
-        function openAlertModal(ticketId, targetEmail, faultCount) {
-            document.getElementById("modalTicketId").innerText = ticketId;
-            document.getElementById("modalTargetEmail").innerText = targetEmail;
-            document.getElementById("modalFaultCount").innerText = `${faultCount} Faults`;
-            document.getElementById("alertSuccessModal").style.display = "flex";
-        }
-        function closeAlertModal() {
-            document.getElementById("alertSuccessModal").style.display = "none";
         }
 
         // Account Storage Operations
@@ -688,11 +605,11 @@
         }
 
         function openCustomLogin() {
-            closeAccountDrawer();
+            closeModal('accountDrawerModal');
             document.getElementById("loginName").value = "";
             document.getElementById("loginEmail").value = "";
             document.getElementById("loginPin").value = "";
-            openLoginModal();
+            openModal('loginModal');
         }
 
         function logoutActiveAccount() {
@@ -707,7 +624,7 @@
                 localStorage.setItem("voltix_active_email", list[0].email);
             }
 
-            closeAccountDrawer();
+            closeModal('accountDrawerModal');
             renderAccountsUi();
             loadOperatorHistory();
             triggerToast("SESSION TERMINATED", "Operator signed out", "#ff3366");
@@ -743,26 +660,20 @@
             localStorage.setItem("voltix_active_email", email);
 
             renderAccountsUi();
-            closeLoginModal();
+            closeModal('loginModal');
             loadOperatorHistory();
             triggerToast("AUTHORIZED", `Connected: ${email}`, "#00d2ff");
         }
 
-        // Forgot Key OTP Handlers
         function triggerForgotPassword() {
-            closeLoginModal();
+            closeModal('loginModal');
             const currentEmail = document.getElementById("loginEmail").value.trim();
             if (currentEmail) {
                 document.getElementById("recoveryEmail").value = currentEmail;
             }
             document.getElementById("otpStep1").style.display = "block";
             document.getElementById("otpStep2").style.display = "none";
-            document.getElementById("forgotOtpModal").style.display = "flex";
-        }
-
-        function closeForgotOtpModal() {
-            document.getElementById("forgotOtpModal").style.display = "none";
-            openLoginModal();
+            openModal('forgotOtpModal');
         }
 
         function dispatchOtpEmail() {
@@ -797,7 +708,7 @@
                 }, function() {
                     btn.disabled = false;
                     btn.innerText = "Send Verification Code";
-                    alert(`Network gateway busy. For demo evaluation, your OTP is: ${generatedRecoveryOtp}`);
+                    alert(`Demo OTP code is: ${generatedRecoveryOtp}`);
                     document.getElementById("displaySentTarget").innerText = recoveryTargetEmail;
                     document.getElementById("otpStep1").style.display = "none";
                     document.getElementById("otpStep2").style.display = "block";
@@ -827,7 +738,7 @@
                 localStorage.setItem("voltix_accounts_list", JSON.stringify(list));
             }
 
-            closeForgotOtpModal();
+            closeModal('forgotOtpModal');
             document.getElementById("loginEmail").value = recoveryTargetEmail;
             document.getElementById("loginPin").value = newPin;
             triggerToast("KEY UPDATED", "New password verified & saved!", "#00d2ff");
@@ -839,28 +750,80 @@
             if (!file) return;
             selectedFile = file;
 
-            document.getElementById("uploadDefaultUi").classList.add("hidden");
+            document.getElementById("uploadDefaultUi").style.display = "none";
             const readyUi = document.getElementById("uploadReadyUi");
-            readyUi.classList.remove("hidden");
-            readyUi.classList.add("flex");
+            readyUi.style.display = "flex";
 
             document.getElementById("selectedFileName").innerText = file.name;
             document.getElementById("selectedFileSize").innerText = (file.size / 1024).toFixed(1) + " KB";
 
             const btn = document.getElementById("btnDiagnose");
             btn.disabled = false;
-            btn.classList.remove("bg-[#0e1626]", "text-gray-600", "cursor-not-allowed");
-            btn.classList.add("bg-gradient-to-r", "from-cyan-500", "via-blue-600", "to-rose-600", "text-white", "hover:brightness-110", "cursor-pointer");
+            btn.className = "w-full py-4 rounded-xl bg-gradient-to-r from-cyan-500 via-blue-600 to-rose-600 text-white font-mono text-xs font-black tracking-widest uppercase cursor-pointer shadow-lg";
         }
 
-        // Diagnostics Execution
+        // Quick Demo Sample Simulator
+        function loadDemoSample(type) {
+            const canvas = document.createElement("canvas");
+            canvas.width = 640;
+            canvas.height = 480;
+            const ctx = canvas.getContext("2d");
+
+            // Base Solar Panel Gradient
+            const grad = ctx.createLinearGradient(0, 0, 640, 480);
+            grad.addColorStop(0, "#101a2d");
+            grad.addColorStop(1, "#080c14");
+            ctx.fillStyle = grad;
+            ctx.fillRect(0, 0, 640, 480);
+
+            // Solar Cell Grid Lines
+            ctx.strokeStyle = "#1d2d47";
+            ctx.lineWidth = 2;
+            for(let x = 40; x < 640; x += 100) {
+                ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, 480); ctx.stroke();
+            }
+            for(let y = 40; y < 480; y += 80) {
+                ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(640, y); ctx.stroke();
+            }
+
+            if (type === 'defect') {
+                // Synthetic Thermal Hotspot
+                const radial = ctx.createRadialGradient(250, 200, 10, 250, 200, 70);
+                radial.addColorStop(0, "rgba(255, 50, 50, 0.95)");
+                radial.addColorStop(0.5, "rgba(255, 170, 0, 0.7)");
+                radial.addColorStop(1, "transparent");
+                ctx.fillStyle = radial;
+                ctx.beginPath();
+                ctx.arc(250, 200, 70, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            canvas.toBlob(blob => {
+                const sampleFile = new File([blob], type === 'defect' ? "thermal_defect_hotspot.jpg" : "nominal_pv_cell.jpg", { type: "image/jpeg" });
+                selectedFile = sampleFile;
+
+                document.getElementById("uploadDefaultUi").style.display = "none";
+                const readyUi = document.getElementById("uploadReadyUi");
+                readyUi.style.display = "flex";
+
+                document.getElementById("selectedFileName").innerText = sampleFile.name;
+                document.getElementById("selectedFileSize").innerText = (sampleFile.size / 1024).toFixed(1) + " KB";
+
+                const btn = document.getElementById("btnDiagnose");
+                btn.disabled = false;
+                btn.className = "w-full py-4 rounded-xl bg-gradient-to-r from-cyan-500 via-blue-600 to-rose-600 text-white font-mono text-xs font-black tracking-widest uppercase cursor-pointer shadow-lg";
+
+                triggerToast("DEMO LOADED", `${sampleFile.name} ready for inference`, "#00d2ff");
+            }, "image/jpeg");
+        }
+
         async function executeDiagnostics() {
             if (!selectedFile) return;
             const activeUser = getActiveAccount();
 
             if (!activeUser) {
-                openLoginModal();
-                triggerToast("AUTHENTICATION REQUIRED", "Please login with operator key", "#ffaa00");
+                openModal('loginModal');
+                triggerToast("AUTHENTICATION REQUIRED", "Please sign in to run scanner", "#ffaa00");
                 return;
             }
 
@@ -886,13 +849,8 @@
 
                 await recordScanToLedger(ticketId, data, activeUser.email);
 
-                if (data.total_faults > 0) {
-                    sendVoltixAlert(activeUser.email, activeUser.name, data.total_faults, ticketId);
-                }
-
                 const nextRow = document.getElementById("nextStepRow");
-                nextRow.classList.remove("hidden");
-                nextRow.classList.add("flex");
+                nextRow.style.display = "flex";
 
             } catch (err) {
                 alert("Inspection engine connection error. Please retry.");
@@ -933,45 +891,28 @@
             if (count > 0) {
                 maintVal.innerText = "IMMEDIATE FIELD REPAIR";
                 maintVal.className = "text-base font-black text-rose-400 glow-red mt-2 leading-snug";
-                maintDesc.innerText = `Dispatch field technician to inspect ${count} hotspots, replace bypassed diodes & clean localized cell surface.`;
+                maintDesc.innerText = `Dispatch technician to inspect ${count} hotspots and replace internal diodes.`;
 
                 hazardVal.innerText = `CRITICAL (> 85°C)`;
                 hazardVal.className = "text-lg font-black text-rose-400 glow-red mt-2";
-                hazardDesc.innerText = "High localized cell temperature detected. Elevated risk of solar module backsheet scorching & internal burnout.";
+                hazardDesc.innerText = "High localized cell temperature detected. Elevated risk of module scorching.";
             } else {
                 maintVal.innerText = "NOMINAL (ROUTINE CHECK)";
                 maintVal.className = "text-base font-black text-emerald-400 mt-2 leading-snug";
-                maintDesc.innerText = "Array operating at optimal parameters. Next scheduled thermographic sweep in 30 days.";
+                maintDesc.innerText = "Array operating at optimal parameters.";
 
                 hazardVal.innerText = "NOMINAL (< 45°C)";
                 hazardVal.className = "text-lg font-black text-emerald-400 mt-2";
-                hazardDesc.innerText = "All solar strings operating within standard safe operating thermal equilibrium.";
+                hazardDesc.innerText = "Thermal equilibrium normal.";
             }
 
             const imgElem = document.getElementById("resultCanvas");
             const placeholder = document.getElementById("placeholderCanvas");
             imgElem.src = data.image_data;
-            imgElem.classList.remove("hidden");
-            placeholder.classList.add("hidden");
+            imgElem.style.display = "block";
+            placeholder.style.display = "none";
         }
 
-        function sendVoltixAlert(targetEmail, targetName, faultCount, ticketId) {
-            const templateParams = {
-                to_email: targetEmail,
-                to_name: targetName,
-                ticket_id: ticketId,
-                fault_count: faultCount
-            };
-            emailjs.send('service_k212ehr', 'template_b2v6xmo', templateParams)
-                .then(function() {
-                    triggerToast("DISPATCH COMPLETE", `Target: ${targetEmail}`, "#00d2ff");
-                    openAlertModal(ticketId, targetEmail, faultCount);
-                }, function() {
-                    triggerToast("DISPATCH FAILED", "Network gateway rejected payload", "#ff3366");
-                });
-        }
-
-        // Cloud History Sync & Clickable Rows
         async function recordScanToLedger(ticketId, data, email) {
             const count = data.total_faults;
             const health = Math.max(65, 100 - (count * 2.8)).toFixed(1) + "%";
@@ -1009,9 +950,7 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ email: email, record: record })
                 });
-            } catch (err) {
-                console.warn("Backend history sync offline", err);
-            }
+            } catch (err) {}
         }
 
         async function loadOperatorHistory() {
@@ -1031,15 +970,13 @@
                 if (Array.isArray(cloudRecords) && cloudRecords.length > 0) {
                     localStorage.setItem(`voltix_history_${activeUser.email}`, JSON.stringify(cloudRecords));
                 }
-            } catch (e) {
-                console.warn("Using local cache", e);
-            }
+            } catch (e) {}
 
             const records = JSON.parse(localStorage.getItem(`voltix_history_${activeUser.email}`) || "[]");
             badge.innerText = `${records.length} logs recorded`;
 
             if (records.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6" class="text-center py-8 text-gray-500">No previous scan records found. Run an inspection first.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="6" class="text-center py-8 text-gray-400">No previous scan records found. Run an inspection first.</td></tr>`;
                 return;
             }
 
@@ -1047,8 +984,8 @@
             records.forEach((r, index) => {
                 const isCrit = r.status === "CRITICAL";
                 tbody.innerHTML += `
-                    <tr onclick="inspectHistoryDetail(${index})" class="hover:bg-[#0e1626] transition font-mono cursor-pointer group" title="Click to view full report">
-                        <td class="py-3.5 text-gray-400 group-hover:text-white transition">${r.timestamp}</td>
+                    <tr onclick="inspectHistoryDetail(${index})" class="hover:bg-[#0e1626] font-mono cursor-pointer">
+                        <td class="py-3.5 text-gray-400">${r.timestamp}</td>
                         <td class="py-3.5 text-cyan-400 font-bold underline">${r.ticketId}</td>
                         <td class="py-3.5 ${isCrit ? 'text-rose-400 font-bold' : 'text-emerald-400'}">${r.faults} Faults</td>
                         <td class="py-3.5 text-gray-300">${r.health}</td>
@@ -1059,6 +996,25 @@
                     </tr>
                 `;
             });
+        }
+
+        async function clearLedgerHistory() {
+            const activeUser = getActiveAccount();
+            if (!activeUser) return;
+            if (!confirm("Are you sure you want to clear all historical defect logs?")) return;
+
+            localStorage.removeItem(`voltix_history_${activeUser.email}`);
+
+            try {
+                await fetch('/api/history/clear', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: activeUser.email })
+                });
+            } catch(e) {}
+
+            loadOperatorHistory();
+            triggerToast("LEDGER PURGED", "All defect scan records cleared", "#ffaa00");
         }
 
         function inspectHistoryDetail(index) {
@@ -1077,7 +1033,7 @@
             document.getElementById("dtlThermalHazard").innerText = r.hazard || "NOMINAL (< 45°C)";
             document.getElementById("dtlActionProtocol").innerText = r.maintenance || "Routine array maintenance sweep.";
 
-            document.getElementById("detailInspectionModal").style.display = "flex";
+            openModal('detailInspectionModal');
         }
 
         function downloadDetailRecordPDF() {
@@ -1144,4 +1100,53 @@
             });
             const link = document.createElement("a");
             link.href = encodeURI("data:text/csv;charset=utf-8," + csv);
-            l
+            link.download = `SCADA_LOGS_${Date.now()}.csv`;
+            link.click();
+        }
+
+        function exportPDFReport() {
+            if (!lastInferenceData) {
+                alert("Run diagnostic scan first.");
+                return;
+            }
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            const activeUser = getActiveAccount();
+
+            doc.setFillColor(5, 7, 12);
+            doc.rect(0, 0, 210, 297, "F");
+
+            doc.setTextColor(0, 210, 255);
+            doc.setFontSize(16);
+            doc.text("VOLTIX AI — AUDIT & TELEMETRY LEDGER", 14, 20);
+
+            doc.setTextColor(200, 200, 200);
+            doc.setFontSize(10);
+            doc.text(`Generated: ${new Date().toLocaleString()}`, 14, 28);
+            doc.text(`Operator: ${activeUser ? activeUser.email : 'Unauthenticated'}`, 14, 34);
+            doc.text(`Faults Identified: ${lastInferenceData.total_faults}`, 14, 40);
+
+            if (lastInferenceData.image_data) {
+                doc.addImage(lastInferenceData.image_data, "JPEG", 14, 48, 182, 115);
+            }
+            doc.save(`VOLTIX-REPORT-${Date.now()}.pdf`);
+        }
+
+        function triggerToast(title, msg, color) {
+            const container = document.getElementById("toastContainer");
+            const toast = document.createElement("div");
+            toast.className = "scada-box p-3 rounded-xl border flex items-center space-x-3 text-xs font-mono shadow-2xl";
+            toast.style.borderColor = color;
+            toast.innerHTML = `
+                <div class="w-2.5 h-2.5 rounded-full" style="background-color: ${color}"></div>
+                <div>
+                    <div class="font-bold text-white uppercase">${title}</div>
+                    <div class="text-gray-400 text-[10px]">${msg}</div>
+                </div>
+            `;
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 4000);
+        }
+    </script>
+</body>
+</html>
